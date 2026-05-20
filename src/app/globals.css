@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+:root {
+  --bg-base: #0a0b0d;
+  --bg-surface: #0f1014;
+  --bg-elevated: #14161b;
+  --bg-overlay: #1a1d24;
+  --border: #1e2229;
+  --border-subtle: #15181f;
+  --text-primary: #e8eaed;
+  --text-secondary: #8b9099;
+  --text-muted: #4a5060;
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --accent-muted: #1d3a6e;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --sidebar-width: 220px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+::selection { background: var(--accent-muted); color: var(--text-primary); }
+
+:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
+
+@keyframes agent-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.agent-active { animation: agent-pulse 2s ease-in-out infinite; }
+
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(30, 34, 41, 0.4) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30, 34, 41, 0.4) 1px, transparent 1px);
+  background-size: 32px 32px;
+}

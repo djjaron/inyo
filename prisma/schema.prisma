@@ -1,0 +1,269 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Family {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  tier        String   @default("standard") // standard, premium, enterprise
+  aum         Float?
+  currency    String   @default("USD")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  entities    Entity[]
+  deals       Deal[]
+  contacts    Contact[]
+  documents   Document[]
+  agentRuns   AgentRun[]
+  approvals   Approval[]
+
+  @@map("families")
+}
+
+model Entity {
+  id          String   @id @default(cuid())
+  familyId    String
+  name        String
+  type        String   // llc, lp, trust, corp, foundation, individual
+  jurisdiction String?
+  taxId       String?
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  family      Family   @relation(fields: [familyId], references: [id])
+  deals       Deal[]
+  cashFlows   CashFlow[]
+
+  @@map("entities")
+}
+
+model Deal {
+  id              String   @id @default(cuid())
+  familyId        String
+  entityId        String?
+  name            String
+  company         String
+  sector          String?
+  stage           String?  // pre-seed, seed, series-a, series-b, growth, pe, real-estate, credit
+  status          String   @default("inbound") // inbound, reviewing, diligence, ic-review, passed, invested, archived
+  capitalAsk      Float?
+  valuation       Float?
+  ownership       Float?
+  description     String?
+  sourceType      String?  // inbound, network, broker, lp-intro
+  sourceContact   String?
+  dealScore       Int?
+  icMemoUrl       String?
+  dataRoomUrl     String?
+  pitchDeckUrl    String?
+  investedAt      DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  family          Family   @relation(fields: [familyId], references: [id])
+  entity          Entity?  @relation(fields: [entityId], references: [id])
+  documents       Document[]
+  aiAnalyses      AIAnalysis[]
+  contacts        DealContact[]
+
+  @@map("deals")
+}
+
+model DealContact {
+  id        String  @id @default(cuid())
+  dealId    String
+  contactId String
+  role      String? // founder, advisor, lead-investor, co-investor
+
+  deal      Deal    @relation(fields: [dealId], references: [id])
+  contact   Contact @relation(fields: [contactId], references: [id])
+
+  @@unique([dealId, contactId])
+  @@map("deal_contacts")
+}
+
+model PortfolioCompany {
+  id              String   @id @default(cuid())
+  familyId        String?
+  name            String
+  sector          String?
+  stage           String?
+  status          String   @default("active") // active, exited, written-off, watchlist
+  investedAmount  Float?
+  currentValue    Float?
+  ownership       Float?
+  investedAt      DateTime?
+  lastFundingDate DateTime?
+  lastFundingRound String?
+  website         String?
+  description     String?
+  alertLevel      String   @default("normal") // normal, watch, alert, critical
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  alerts          PortfolioAlert[]
+  documents       Document[]
+  aiAnalyses      AIAnalysis[]
+
+  @@map("portfolio_companies")
+}
+
+model PortfolioAlert {
+  id          String   @id @default(cuid())
+  companyId   String
+  type        String   // funding, executive-departure, layoffs, press, legal, burn-rate
+  severity    String   @default("info") // info, warning, critical
+  title       String
+  body        String?
+  source      String?
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  company     PortfolioCompany @relation(fields: [companyId], references: [id])
+
+  @@map("portfolio_alerts")
+}
+
+model Contact {
+  id            String   @id @default(cuid())
+  familyId      String
+  name          String
+  email         String?
+  phone         String?
+  company       String?
+  title         String?
+  type          String   @default("contact") // founder, lp, gp, attorney, banker, advisor, broker, family
+  linkedIn      String?
+  notes         String?
+  lastContactAt DateTime?
+  introducedBy  String?
+  warmPathNotes String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  family        Family   @relation(fields: [familyId], references: [id])
+  deals         DealContact[]
+  interactions  Interaction[]
+  documents     Document[]
+
+  @@map("contacts")
+}
+
+model Interaction {
+  id          String   @id @default(cuid())
+  contactId   String
+  type        String   // email, call, meeting, note, intro
+  subject     String?
+  notes       String?
+  outcome     String?
+  occurredAt  DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  contact     Contact  @relation(fields: [contactId], references: [id])
+
+  @@map("interactions")
+}
+
+model Document {
+  id          String   @id @default(cuid())
+  familyId    String
+  dealId      String?
+  companyId   String?
+  contactId   String?
+  name        String
+  type        String   // pitch-deck, ic-memo, nda, lpa, safe, k1, tax-doc, bank-statement, report, contract, other
+  mimeType    String?
+  storageUrl  String?
+  textContent String?
+  processed   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  family      Family   @relation(fields: [familyId], references: [id])
+  deal        Deal?    @relation(fields: [dealId], references: [id])
+  company     PortfolioCompany? @relation(fields: [companyId], references: [id])
+  contact     Contact? @relation(fields: [contactId], references: [id])
+  aiAnalyses  AIAnalysis[]
+
+  @@map("documents")
+}
+
+model CashFlow {
+  id          String   @id @default(cuid())
+  entityId    String
+  type        String   // income, expense, distribution, capital-call, tax-payment
+  category    String?
+  amount      Float
+  currency    String   @default("USD")
+  description String?
+  occurredAt  DateTime
+  createdAt   DateTime @default(now())
+
+  entity      Entity   @relation(fields: [entityId], references: [id])
+
+  @@map("cash_flows")
+}
+
+model AIAnalysis {
+  id           String   @id @default(cuid())
+  agentType    String   // deal-flow, ic-memo, portfolio-monitor, cfo, legal, tax, chief-of-staff
+  dealId       String?
+  companyId    String?
+  documentId   String?
+  input        Json
+  output       Json
+  model        String?
+  tokensUsed   Int?
+  status       String   @default("completed") // pending, running, completed, failed
+  createdAt    DateTime @default(now())
+
+  deal         Deal?            @relation(fields: [dealId], references: [id])
+  company      PortfolioCompany? @relation(fields: [companyId], references: [id])
+  document     Document?        @relation(fields: [documentId], references: [id])
+
+  @@map("ai_analyses")
+}
+
+model AgentRun {
+  id          String   @id @default(cuid())
+  familyId    String
+  agentType   String
+  status      String   @default("pending") // pending, running, awaiting-approval, completed, failed
+  input       Json
+  output      Json?
+  error       String?
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime @default(now())
+
+  family      Family   @relation(fields: [familyId], references: [id])
+  approvals   Approval[]
+
+  @@map("agent_runs")
+}
+
+model Approval {
+  id          String   @id @default(cuid())
+  familyId    String
+  agentRunId  String?
+  type        String   // agent-action, document-sign, transaction, deal-advance
+  title       String
+  description String?
+  status      String   @default("pending") // pending, approved, rejected
+  priority    String   @default("normal") // low, normal, high, urgent
+  reviewedAt  DateTime?
+  reviewNote  String?
+  createdAt   DateTime @default(now())
+
+  family      Family   @relation(fields: [familyId], references: [id])
+  agentRun    AgentRun? @relation(fields: [agentRunId], references: [id])
+
+  @@map("approvals")
+}
