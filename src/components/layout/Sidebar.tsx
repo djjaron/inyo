@@ -15,7 +15,9 @@ import {
   Store,
   Settings,
   Zap,
+  Upload,
 } from "lucide-react";
+import { UserButton } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 
 const nav = [
@@ -29,6 +31,11 @@ const nav = [
   { label: "Philanthropy", href: "/philanthropy", icon: Heart },
   { label: "Relationships", href: "/relationships", icon: Users },
   { label: "Marketplace", href: "/marketplace", icon: Store },
+];
+
+const importLinks = [
+  { label: "Import Deals", href: "/import/deals", icon: Upload },
+  { label: "Import Contacts", href: "/import/contacts", icon: Upload },
 ];
 
 export default function Sidebar() {
@@ -86,12 +93,40 @@ export default function Sidebar() {
             </Link>
           );
         })}
+
+        {/* Import links */}
+        <div className="mt-2 pt-2 border-t" style={{ borderColor: "var(--border)" }}>
+          <div className="px-3 py-1 text-xs tracking-widest uppercase mb-1" style={{ color: "var(--text-muted)" }}>
+            Import
+          </div>
+          {importLinks.map(({ label, href, icon: Icon }) => {
+            const active = path.startsWith(href);
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={cn(
+                  "flex items-center gap-2.5 px-3 py-2 rounded-md mb-0.5 text-sm transition-colors",
+                  active ? "font-medium" : "hover:bg-white/5"
+                )}
+                style={
+                  active
+                    ? { background: "rgba(59,130,246,0.12)", color: "var(--accent)" }
+                    : { color: "var(--text-muted)" }
+                }
+              >
+                <Icon size={14} strokeWidth={1.5} />
+                {label}
+              </Link>
+            );
+          })}
+        </div>
       </nav>
 
       {/* Bottom */}
       <div className="border-t px-2 py-3" style={{ borderColor: "var(--border)" }}>
         <div
-          className="flex items-center gap-2 px-3 py-2 rounded-md text-xs"
+          className="flex items-center gap-2 px-3 py-2 rounded-md text-xs mb-1"
           style={{ color: "var(--text-muted)" }}
         >
           <Zap size={13} />
@@ -100,12 +135,22 @@ export default function Sidebar() {
         </div>
         <Link
           href="/settings"
-          className="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm hover:bg-white/5 transition-colors"
+          className="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm hover:bg-white/5 transition-colors mb-2"
           style={{ color: "var(--text-secondary)" }}
         >
           <Settings size={15} strokeWidth={1.5} />
           Settings
         </Link>
+        <div className="px-3 py-2">
+          <UserButton
+            appearance={{
+              variables: { colorPrimary: "#3b82f6" },
+              elements: {
+                userButtonAvatarBox: { width: "28px", height: "28px" },
+              },
+            }}
+          />
+        </div>
       </div>
     </aside>
   );

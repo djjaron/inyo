@@ -6,16 +6,31 @@ datasource db {
   provider = "postgresql"
 }
 
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  email     String?
+  name      String?
+  familyId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  family    Family?  @relation(fields: [familyId], references: [id])
+
+  @@map("users")
+}
+
 model Family {
   id          String   @id @default(cuid())
   name        String
   slug        String   @unique
-  tier        String   @default("standard") // standard, premium, enterprise
+  tier        String   @default("standard")
   aum         Float?
   currency    String   @default("USD")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  users       User[]
   entities    Entity[]
   deals       Deal[]
   contacts    Contact[]
