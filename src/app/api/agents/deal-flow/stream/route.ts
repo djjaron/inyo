@@ -2,6 +2,8 @@ import { NextRequest } from "next/server";
 import { streamAgent } from "@/lib/agents/runtime";
 import { prisma } from "@/lib/prisma";
 
+export const maxDuration = 300;
+
 const MOCK_DEAL_SCORE = {
   score: 81,
   sector: "Enterprise AI",
@@ -70,6 +72,10 @@ export async function POST(req: NextRequest) {
         return;
       }
 
+      const keepalive = setInterval(() => {
+        try { controller.enqueue(encoder.encode(": keepalive\n\n")); } catch {}
+      }, 5_000);
+
       try {
         const documents = documentContent
           ? [{ name: "Deal Document", content: documentContent as string }]
@@ -101,6 +107,8 @@ export async function POST(req: NextRequest) {
       } catch (err) {
         send(controller, { type: "error", message: String(err) });
         controller.close();
+      } finally {
+        clearInterval(keepalive);
       }
     },
   });

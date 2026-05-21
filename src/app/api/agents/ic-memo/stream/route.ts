@@ -2,6 +2,8 @@ import { NextRequest } from "next/server";
 import { streamAgent } from "@/lib/agents/runtime";
 import { prisma } from "@/lib/prisma";
 
+export const maxDuration = 300;
+
 const MOCK_IC_MEMO = {
   executiveSummary:
     "Meridian AI presents a compelling Series B opportunity in the enterprise compliance automation space. The company has demonstrated strong product-market fit with 3.2x ARR growth YoY, a defensible moat through proprietary compliance LLM fine-tuning, and a founder with a proven exit. We recommend pursuing with a $12M check at the proposed $85M pre-money valuation.",
@@ -84,6 +86,10 @@ export async function POST(req: NextRequest) {
         return;
       }
 
+      const keepalive = setInterval(() => {
+        try { controller.enqueue(encoder.encode(": keepalive\n\n")); } catch {}
+      }, 5_000);
+
       try {
         const documents =
           documentContents && documentContents.length > 0
@@ -116,6 +122,8 @@ export async function POST(req: NextRequest) {
       } catch (err) {
         send(controller, { type: "error", message: String(err) });
         controller.close();
+      } finally {
+        clearInterval(keepalive);
       }
     },
   });
