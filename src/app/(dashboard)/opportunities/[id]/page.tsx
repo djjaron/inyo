@@ -45,10 +45,12 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
   const [analysis, setAnalysis] = useState<Record<string, unknown> | null>(null);
   const [analysisMock, setAnalysisMock] = useState(false);
   const [runningAnalysis, setRunningAnalysis] = useState(false);
+  const [analysisAck, setAnalysisAck] = useState<string | null>(null);
 
   const [icMemo, setIcMemo] = useState<Record<string, unknown> | null>(null);
   const [memoMock, setMemoMock] = useState(false);
   const [runningMemo, setRunningMemo] = useState(false);
+  const [memoAck, setMemoAck] = useState<string | null>(null);
 
   const [docText, setDocText] = useState("");
 
@@ -78,9 +80,10 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
   async function runDealFlow() {
     if (!deal) return;
     setRunningAnalysis(true);
+    setAnalysisAck(null);
     setTab("analysis");
     try {
-      const res = await fetch("/api/agents/deal-flow", {
+      const res = await fetch("/api/agents/deal-flow/stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -94,10 +97,32 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
           documentContent: docText || undefined,
         }),
       });
-      const data = await res.json();
-      setAnalysis(data.result ?? data.analysis?.output ?? {});
-      setAnalysisMock(!!(data.analysis?._mock || data._mock));
-    } finally {
+      if (!res.body) throw new Error("No stream");
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buf = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+        const parts = buf.split("\n\n");
+        buf = parts.pop() ?? "";
+        for (const part of parts) {
+          if (!part.startsWith("data: ")) continue;
+          try {
+            const p = JSON.parse(part.slice(6));
+            if (p.type === "ack") setAnalysisAck(p.message);
+            else if (p.type === "done") {
+              setAnalysis(p.result ?? {});
+              setAnalysisMock(p._mock === true);
+              setRunningAnalysis(false);
+            } else if (p.type === "error") {
+              setRunningAnalysis(false);
+            }
+          } catch {}
+        }
+      }
+    } catch {
       setRunningAnalysis(false);
     }
   }
@@ -105,10 +130,11 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
   async function runICMemo() {
     if (!deal) return;
     setRunningMemo(true);
+    setMemoAck(null);
     setTab("memo");
     try {
       const docs = docText ? [{ name: "Deal Document", content: docText }] : undefined;
-      const res = await fetch("/api/agents/ic-memo", {
+      const res = await fetch("/api/agents/ic-memo/stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -122,10 +148,32 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
           documentContents: docs,
         }),
       });
-      const data = await res.json();
-      setIcMemo(data.result ?? data.analysis?.output ?? {});
-      setMemoMock(!!(data.analysis?._mock || data._mock));
-    } finally {
+      if (!res.body) throw new Error("No stream");
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buf = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+        const parts = buf.split("\n\n");
+        buf = parts.pop() ?? "";
+        for (const part of parts) {
+          if (!part.startsWith("data: ")) continue;
+          try {
+            const p = JSON.parse(part.slice(6));
+            if (p.type === "ack") setMemoAck(p.message);
+            else if (p.type === "done") {
+              setIcMemo(p.result ?? {});
+              setMemoMock(p._mock === true);
+              setRunningMemo(false);
+            } else if (p.type === "error") {
+              setRunningMemo(false);
+            }
+          } catch {}
+        }
+      }
+    } catch {
       setRunningMemo(false);
     }
   }
@@ -402,9 +450,21 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
         {tab === "analysis" && (
           <div className="p-8 max-w-3xl">
             {runningAnalysis ? (
-              <div className="flex items-center gap-3 py-12" style={{ color: "var(--text-muted)" }}>
-                <Loader2 size={18} className="animate-spin" />
-                <span className="text-sm">Running Deal Flow Analysis...</span>
+              <div className="flex flex-col gap-3 py-12">
+                <div className="flex items-center gap-3" style={{ color: "var(--text-muted)" }}>
+                  <Loader2 size={16} className="animate-spin flex-shrink-0" style={{ color: "var(--accent)" }} />
+                  <span className="text-sm">
+                    {analysisAck ?? "Starting Deal Flow Analysis…"}
+                  </span>
+                </div>
+                {analysisAck && (
+                  <div className="h-1 w-full rounded-full overflow-hidden" style={{ background: "var(--border)" }}>
+                    <div
+                      className="h-full rounded-full"
+                      style={{ background: "var(--accent)", width: "100%", animation: "indeterminate 2s linear infinite" }}
+                    />
+                  </div>
+                )}
               </div>
             ) : analysis ? (
               <div className="space-y-4">
@@ -442,9 +502,21 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
         {tab === "memo" && (
           <div className="p-8 max-w-3xl">
             {runningMemo ? (
-              <div className="flex items-center gap-3 py-12" style={{ color: "var(--text-muted)" }}>
-                <Loader2 size={18} className="animate-spin" />
-                <span className="text-sm">Generating IC Memo...</span>
+              <div className="flex flex-col gap-3 py-12">
+                <div className="flex items-center gap-3" style={{ color: "var(--text-muted)" }}>
+                  <Loader2 size={16} className="animate-spin flex-shrink-0" style={{ color: "var(--accent)" }} />
+                  <span className="text-sm">
+                    {memoAck ?? "Starting IC Memo generation…"}
+                  </span>
+                </div>
+                {memoAck && (
+                  <div className="h-1 w-full rounded-full overflow-hidden" style={{ background: "var(--border)" }}>
+                    <div
+                      className="h-full rounded-full"
+                      style={{ background: "var(--accent)", width: "100%", animation: "indeterminate 2s linear infinite" }}
+                    />
+                  </div>
+                )}
               </div>
             ) : icMemo ? (
               <div className="space-y-4">

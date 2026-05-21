@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
+import { useUser } from "@clerk/nextjs";
 
 interface FamilyContextValue {
   familyId: string | null;
@@ -9,27 +10,30 @@ interface FamilyContextValue {
 const FamilyContext = createContext<FamilyContextValue>({ familyId: null });
 
 export function FamilyProvider({ children }: { children: React.ReactNode }) {
+  const { user, isLoaded } = useUser();
   const [familyId, setFamilyId] = useState<string | null>(null);
 
   useEffect(() => {
-    async function init() {
-      try {
-        // Ensure DB record exists for this user on first login
-        await fetch("/api/user/setup");
+    if (!isLoaded || !user?.id) return;
 
-        // Now fetch the authoritative familyId
-        const res = await fetch("/api/me");
-        if (res.ok) {
-          const data = await res.json();
-          setFamilyId(data.familyId ?? null);
+    const cacheKey = `inyo_fid_${user.id}`;
+
+    // Serve cached value immediately so pages don't wait for the network
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) setFamilyId(cached);
+
+    // Always refresh from server (setup + return familyId in one call)
+    fetch("/api/user/setup")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        const id: string | null = data?.family?.id ?? data?.user?.familyId ?? null;
+        if (id) {
+          localStorage.setItem(cacheKey, id);
+          setFamilyId(id);
         }
-      } catch {
-        // Network error — leave familyId as null; callers handle gracefully
-      }
-    }
-
-    init();
-  }, []);
+      })
+      .catch(() => {});
+  }, [isLoaded, user?.id]);
 
   return (
     <FamilyContext.Provider value={{ familyId }}>

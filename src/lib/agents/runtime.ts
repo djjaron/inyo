@@ -18,17 +18,35 @@ export interface AgentOutput {
   model: string;
 }
 
-const MODEL = "claude-opus-4-7";
+const MODEL_DEEP = "claude-opus-4-7";
+const MODEL_FAST = "claude-haiku-4-5-20251001";
+
+const DEEP_ANALYSIS_AGENTS = new Set<AgentType>([
+  "deal-flow", "ic-memo", "portfolio-monitor", "legal", "tax", "cfo",
+]);
+
+function getModel(agentType: AgentType): string {
+  return DEEP_ANALYSIS_AGENTS.has(agentType) ? MODEL_DEEP : MODEL_FAST;
+}
+
+function parseAgentText(text: string): Record<string, unknown> {
+  try {
+    const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/) ?? text.match(/\{[\s\S]*\}/);
+    return JSON.parse(jsonMatch?.[1] ?? jsonMatch?.[0] ?? text);
+  } catch {
+    return { raw: text };
+  }
+}
 
 export async function runAgent(input: AgentInput): Promise<AgentOutput> {
   const { agentType, context, documents, systemPromptOverride } = input;
 
   const systemPrompt = systemPromptOverride ?? getSystemPrompt(agentType);
-
   const userContent = buildUserContent(agentType, context, documents);
+  const model = getModel(agentType);
 
   const response = await client.messages.create({
-    model: MODEL,
+    model,
     max_tokens: 4096,
     system: systemPrompt,
     messages: [{ role: "user", content: userContent }],
@@ -36,18 +54,47 @@ export async function runAgent(input: AgentInput): Promise<AgentOutput> {
 
   const text = response.content.find((b) => b.type === "text")?.text ?? "";
 
-  let parsed: Record<string, unknown>;
-  try {
-    const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/) ?? text.match(/\{[\s\S]*\}/);
-    parsed = JSON.parse(jsonMatch?.[1] ?? jsonMatch?.[0] ?? text);
-  } catch {
-    parsed = { raw: text };
+  return {
+    result: parseAgentText(text),
+    tokensUsed: response.usage.input_tokens + response.usage.output_tokens,
+    model,
+  };
+}
+
+export async function streamAgent(
+  input: AgentInput,
+  onChunk: (text: string) => void,
+): Promise<AgentOutput> {
+  const { agentType, context, documents, systemPromptOverride } = input;
+
+  const systemPrompt = systemPromptOverride ?? getSystemPrompt(agentType);
+  const userContent = buildUserContent(agentType, context, documents);
+  const model = getModel(agentType);
+
+  const stream = client.messages.stream({
+    model,
+    max_tokens: 4096,
+    system: systemPrompt,
+    messages: [{ role: "user", content: userContent }],
+  });
+
+  let fullText = "";
+  for await (const event of stream) {
+    if (
+      event.type === "content_block_delta" &&
+      event.delta.type === "text_delta"
+    ) {
+      fullText += event.delta.text;
+      onChunk(event.delta.text);
+    }
   }
 
+  const finalMsg = await stream.finalMessage();
+
   return {
-    result: parsed,
-    tokensUsed: response.usage.input_tokens + response.usage.output_tokens,
-    model: MODEL,
+    result: parseAgentText(fullText),
+    tokensUsed: finalMsg.usage.input_tokens + finalMsg.usage.output_tokens,
+    model,
   };
 }
 
