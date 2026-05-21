@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { TrendingUp, Plus, Filter, ChevronRight, Bot, Zap, RefreshCw, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import Badge from "@/components/ui/Badge";
@@ -137,6 +138,7 @@ function StatusDropdown({
 
 export default function OpportunitiesPage() {
   const familyId = useFamilyId();
+  const router = useRouter();
   const [filter, setFilter] = useState("All");
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
@@ -252,7 +254,8 @@ export default function OpportunitiesPage() {
                 <tr
                   key={deal.id}
                   className="group transition-colors"
-                  style={{ borderBottom: "1px solid var(--border-subtle)" }}
+                  style={{ borderBottom: "1px solid var(--border-subtle)", cursor: "pointer" }}
+                  onClick={() => router.push(`/opportunities/${deal.id}`)}
                   onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-elevated)")}
                   onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                 >
@@ -279,7 +282,7 @@ export default function OpportunitiesPage() {
                   <td className="py-3 px-3">
                     <Link
                       href={`/opportunities/${deal.id}`}
-                      className="flex items-center gap-1 px-2.5 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="flex items-center gap-1 px-2.5 py-1 rounded text-xs transition-opacity"
                       style={{ background: "var(--accent-muted)", color: "var(--accent)", border: "1px solid rgba(59,130,246,0.2)" }}
                     >
                       <Bot size={11} /> Open

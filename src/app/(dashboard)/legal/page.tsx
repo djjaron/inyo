@@ -76,6 +76,7 @@ export default function LegalPage() {
   const [isMock, setIsMock] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [isDragOver, setIsDragOver] = useState(false);
   const [recentDocs, setRecentDocs] = useState<DocumentRow[]>([]);
 
   // Load recent documents
@@ -162,6 +163,58 @@ export default function LegalPage() {
     }
   }
 
+  async function handleDrop(file: File) {
+    if (!familyId) return;
+    setError(null);
+    setReviewResult(null);
+    setReviewedDocName(file.name);
+    setUploading(true);
+
+    let textContent = "";
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("familyId", familyId);
+      const uploadRes = await fetch("/api/upload/document", { method: "POST", body: formData });
+      if (!uploadRes.ok) {
+        const err = await uploadRes.json().catch(() => ({ error: "Upload failed" }));
+        setError(err.error ?? "Upload failed");
+        setUploading(false);
+        return;
+      }
+      const uploadData = await uploadRes.json();
+      textContent = uploadData.document?.textContent ?? "";
+    } catch {
+      setError("Upload failed. Please try again.");
+      setUploading(false);
+      return;
+    }
+
+    setUploading(false);
+    setReviewing(true);
+
+    try {
+      const legalRes = await fetch("/api/agents/legal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ familyId, documentContent: textContent, documentName: file.name }),
+      });
+      if (!legalRes.ok) {
+        const err = await legalRes.json().catch(() => ({ error: "Review failed" }));
+        setError(err.error ?? "Legal review failed");
+        setReviewing(false);
+        return;
+      }
+      const legalData = await legalRes.json();
+      setReviewResult(legalData.result as LegalReviewResult);
+      setIsMock(legalData.analysis?._mock === true);
+    } catch {
+      setError("Legal review failed. Please try again.");
+    } finally {
+      setReviewing(false);
+    }
+  }
+
   function resetReview() {
     setReviewResult(null);
     setReviewedDocName("");
@@ -203,7 +256,21 @@ export default function LegalPage() {
         {!reviewResult ? (
           <div
             className="col-span-2 flex flex-col items-center justify-center rounded-md border border-dashed p-16 text-center grid-bg"
-            style={{ borderColor: "var(--border)", background: "var(--bg-surface)" }}
+            style={{
+              borderColor: isDragOver && !isLoading ? "var(--accent)" : "var(--border)",
+              background: isDragOver && !isLoading ? "rgba(59,130,246,0.06)" : "var(--bg-surface)",
+            }}
+            onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
+            onDragEnter={(e) => { e.preventDefault(); setIsDragOver(true); }}
+            onDragLeave={(e) => { e.preventDefault(); setIsDragOver(false); }}
+            onDrop={(e) => {
+              e.preventDefault();
+              setIsDragOver(false);
+              if (isLoading || !familyId) return;
+              const file = e.dataTransfer.files?.[0];
+              if (!file) return;
+              handleDrop(file);
+            }}
           >
             {isLoading ? (
               <>
@@ -221,12 +288,12 @@ export default function LegalPage() {
               </>
             ) : (
               <>
-                <Scale size={28} className="mb-4" style={{ color: "var(--text-muted)" }} />
+                <Scale size={28} className="mb-4" style={{ color: isDragOver ? "var(--accent)" : "var(--text-muted)" }} />
                 <div className="text-sm font-medium mb-1" style={{ color: "var(--text-primary)" }}>
-                  Drop a document to review
+                  {isDragOver ? "Drop to analyze" : "Drop a document to review"}
                 </div>
                 <div className="text-xs mb-4" style={{ color: "var(--text-muted)" }}>
-                  NDAs, subscription docs, LP agreements, SAFE notes, side letters, loan agreements, employment contracts
+                  {isDragOver ? "" : "NDAs, subscription docs, LP agreements, SAFE notes, side letters, loan agreements, employment contracts"}
                 </div>
                 {error && (
                   <div

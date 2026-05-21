@@ -128,14 +128,15 @@ export default function Sidebar() {
 
       {/* Bottom */}
       <div className="border-t px-2 py-3" style={{ borderColor: "var(--border)" }}>
-        <div
-          className="flex items-center gap-2 px-3 py-2 rounded-md text-xs mb-1"
+        <Link
+          href="/marketplace"
+          className="flex items-center gap-2 px-3 py-2 rounded-md text-xs mb-1 hover:bg-white/5 transition-colors"
           style={{ color: "var(--text-muted)" }}
         >
-          <Zap size={13} />
-          <span>3 agents active</span>
-          <span className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-400 agent-active" />
-        </div>
+          <Zap size={13} style={{ color: "var(--accent)" }} />
+          <span>Agents</span>
+          <span className="ml-auto" style={{ color: "var(--accent)" }}>→</span>
+        </Link>
         <Link
           href="/integrations"
           className="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm hover:bg-white/5 transition-colors"

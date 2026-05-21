@@ -81,6 +81,7 @@ export default function RelationshipsPage() {
 
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   // Data state
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -376,9 +377,8 @@ export default function RelationshipsPage() {
                 <div
                   key={c.id}
                   className="p-4 rounded-md border cursor-pointer transition-colors group"
-                  style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
+                  style={{ background: "var(--bg-surface)", borderColor: expandedId === c.id ? "var(--accent)" : "var(--border)" }}
+                  onClick={() => setExpandedId(id => id === c.id ? null : c.id)}
                 >
                   <div className="flex items-start gap-3 mb-3">
                     <div
@@ -410,6 +410,23 @@ export default function RelationshipsPage() {
                     <Clock size={10} />
                     Last contact: {formatDate(c.lastContactAt)}
                   </div>
+
+                  {expandedId === c.id && (
+                    <div className="mt-3 pt-3 flex flex-col gap-1.5" style={{ borderTop: "1px solid var(--border)" }}>
+                      {c.email && (
+                        <div className="text-xs" style={{ color: "var(--text-secondary)" }}>{c.email}</div>
+                      )}
+                      {c.warmPathNotes && (
+                        <div className="text-xs" style={{ color: "var(--text-muted)" }}>{c.warmPathNotes}</div>
+                      )}
+                      {c.notes && (
+                        <div className="text-xs" style={{ color: "var(--text-muted)" }}>{c.notes}</div>
+                      )}
+                      {!c.email && !c.warmPathNotes && !c.notes && (
+                        <div className="text-xs" style={{ color: "var(--text-muted)" }}>No additional details</div>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

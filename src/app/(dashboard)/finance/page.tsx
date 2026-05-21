@@ -253,12 +253,13 @@ export default function FinancePage() {
         <div className="flex gap-6">
           {/* Left: prompt input */}
           <div className="flex-1 flex flex-col gap-3">
-            <textarea
-              className="w-full rounded-md border px-4 py-3 text-sm resize-none focus:outline-none focus:ring-1"
-              rows={3}
+            <input
+              type="text"
+              className="w-full rounded-md border px-4 py-2.5 text-sm focus:outline-none focus:ring-1"
               placeholder="Ask the CFO agent... e.g. 'What's our Q2 cash position?' or 'Summarize AP exposure by entity'"
               value={cfoQuery}
               onChange={(e) => setCfoQuery(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") handleAnalyze(); }}
               style={{
                 background: "var(--bg-surface)",
                 borderColor: "var(--border)",
