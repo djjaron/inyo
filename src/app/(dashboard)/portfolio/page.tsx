@@ -1,36 +1,51 @@
 "use client";
 
-import { BarChart3, AlertTriangle, TrendingUp, ExternalLink } from "lucide-react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { BarChart3, AlertTriangle, Loader2 } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import PageHeader from "@/components/ui/PageHeader";
 import { formatCurrency } from "@/lib/utils";
+import { useFamilyId } from "@/context/FamilyContext";
 
-const COMPANIES = [
-  { id: "1", name: "Meridian AI", sector: "Enterprise AI", stage: "Series B", invested: 4_000_000, value: 9_600_000, multiple: 2.4, status: "active", alertLevel: "normal", lastAlert: null },
-  { id: "2", name: "Phalanx Defense", sector: "Defense Tech", stage: "Series C", invested: 12_000_000, value: 28_800_000, multiple: 2.4, status: "active", alertLevel: "normal", lastAlert: null },
-  { id: "3", name: "Arcadia Energy", sector: "Clean Energy", stage: "Growth", invested: 20_000_000, value: 22_000_000, multiple: 1.1, status: "active", alertLevel: "warning", lastAlert: "Regulatory filing delayed" },
-  { id: "4", name: "Verdant Bio", sector: "Biotech", stage: "Series A", invested: 3_000_000, value: 5_100_000, multiple: 1.7, status: "active", alertLevel: "normal", lastAlert: null },
-  { id: "5", name: "Terrace REIT", sector: "Real Estate", stage: "PE", invested: 8_000_000, value: 9_200_000, multiple: 1.15, status: "active", alertLevel: "normal", lastAlert: null },
-  { id: "6", name: "ClearReg", sector: "RegTech", stage: "Seed", invested: 1_500_000, value: 3_750_000, multiple: 2.5, status: "active", alertLevel: "normal", lastAlert: null },
-  { id: "7", name: "Helios Credit", sector: "Credit", stage: "PE", invested: 10_000_000, value: 9_500_000, multiple: 0.95, status: "watchlist", alertLevel: "alert", lastAlert: "CFO departure announced" },
-  { id: "8", name: "NovaSpin", sector: "Healthcare IT", stage: "Series A", invested: 2_000_000, value: 800_000, multiple: 0.4, status: "watchlist", alertLevel: "critical", lastAlert: "Burn rate accelerating, 4mo runway" },
-];
+interface PortfolioAlert {
+  id: string;
+  companyId: string;
+  type: string;
+  severity: string;
+  title: string;
+  body?: string;
+  source?: string;
+  read: boolean;
+  createdAt: string;
+}
 
-const ALERTS = [
-  { company: "Helios Credit", title: "CFO departure announced", severity: "critical", ago: "5h" },
-  { company: "NovaSpin", title: "Burn rate accelerating, 4mo runway", severity: "critical", ago: "1d" },
-  { company: "Arcadia Energy", title: "Regulatory filing delayed 30 days", severity: "warning", ago: "2d" },
-  { company: "Meridian AI", title: "New strategic investor joining round", severity: "info", ago: "2h" },
-  { company: "ClearReg", title: "SOC 2 Type II certification achieved", severity: "info", ago: "1d" },
-];
+interface PortfolioCompany {
+  id: string;
+  familyId?: string;
+  name: string;
+  sector?: string;
+  stage?: string;
+  status: string;
+  investedAmount?: number;
+  currentValue?: number;
+  ownership?: number;
+  alertLevel: string;
+  description?: string;
+  alerts: PortfolioAlert[];
+}
 
-const totalInvested = COMPANIES.reduce((s, c) => s + c.invested, 0);
-const totalValue = COMPANIES.reduce((s, c) => s + c.value, 0);
-const totalMOIC = totalValue / totalInvested;
+interface FlatAlert {
+  company: string;
+  title: string;
+  severity: string;
+  createdAt: string;
+}
 
 const alertColor: Record<string, string> = {
   critical: "#ef4444",
   warning: "#f59e0b",
+  watch: "#f59e0b",
   info: "var(--accent)",
   normal: "var(--text-muted)",
   alert: "#ef4444",
@@ -43,12 +58,61 @@ const statusVariant: Record<string, "success" | "warning" | "danger" | "muted"> 
   "written-off": "danger",
 };
 
+function moicColor(moic: number): string {
+  if (moic >= 2) return "#10b981";
+  if (moic >= 1) return "#f59e0b";
+  return "#ef4444";
+}
+
 export default function PortfolioPage() {
+  const familyId = useFamilyId();
+  const [companies, setCompanies] = useState<PortfolioCompany[]>([]);
+  const [isMock, setIsMock] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!familyId) return;
+
+    setLoading(true);
+    fetch(`/api/portfolio?familyId=${familyId}`)
+      .then((r) => r.json())
+      .then((data) => {
+        setCompanies(data.companies ?? []);
+        setIsMock(!!(data._mock));
+      })
+      .catch(() => {
+        setCompanies([]);
+      })
+      .finally(() => setLoading(false));
+  }, [familyId]);
+
+  const totalInvested = companies.reduce((s, c) => s + (c.investedAmount ?? 0), 0);
+  const totalValue = companies.reduce((s, c) => s + (c.currentValue ?? 0), 0);
+  const totalMOIC = totalInvested > 0 ? totalValue / totalInvested : 0;
+
+  // Flatten and sort alerts from all companies
+  const flatAlerts: FlatAlert[] = companies
+    .flatMap((c) =>
+      c.alerts.map((a) => ({
+        company: c.name,
+        title: a.title,
+        severity: a.severity,
+        createdAt: a.createdAt,
+      }))
+    )
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  const needsAttention = companies.filter((c) => c.alertLevel !== "normal").length;
+
   return (
     <div className="flex flex-col h-full">
       <PageHeader
         title="Portfolio"
-        subtitle={`${COMPANIES.length} companies · ${COMPANIES.filter((c) => c.alertLevel !== "normal").length} require attention`}
+        subtitle={
+          loading
+            ? "Loading..."
+            : `${companies.length} companies · ${needsAttention} require attention`
+        }
         actions={
           <button
             className="flex items-center gap-1.5 px-3 py-2 rounded text-sm transition-colors"
@@ -60,6 +124,16 @@ export default function PortfolioPage() {
         }
       />
 
+      {/* Mock badge */}
+      {isMock && (
+        <div
+          className="mx-6 mt-3 text-xs px-3 py-2 rounded"
+          style={{ background: "rgba(245,158,11,0.08)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.18)" }}
+        >
+          Demo data — connect a database for live portfolio data
+        </div>
+      )}
+
       {/* Summary stats */}
       <div
         className="grid grid-cols-4 gap-0 border-b"
@@ -68,8 +142,8 @@ export default function PortfolioPage() {
         {[
           { label: "Total Invested", value: formatCurrency(totalInvested) },
           { label: "Current Value", value: formatCurrency(totalValue) },
-          { label: "Blended MOIC", value: `${totalMOIC.toFixed(2)}x` },
-          { label: "Active Companies", value: COMPANIES.filter((c) => c.status === "active").length.toString() },
+          { label: "Blended MOIC", value: totalInvested > 0 ? `${totalMOIC.toFixed(2)}x` : "—" },
+          { label: "Active Companies", value: companies.filter((c) => c.status === "active").length.toString() },
         ].map(({ label, value }, i) => (
           <div
             key={label}
@@ -91,65 +165,100 @@ export default function PortfolioPage() {
       <div className="flex-1 flex overflow-hidden">
         {/* Companies grid */}
         <div className="flex-1 overflow-auto p-6">
-          <div className="grid grid-cols-2 gap-3">
-            {COMPANIES.map((co) => (
-              <div
-                key={co.id}
-                className="p-5 rounded-md border group cursor-pointer transition-colors"
-                style={{
-                  background: "var(--bg-surface)",
-                  borderColor: co.alertLevel === "critical" ? "rgba(239,68,68,0.3)" : co.alertLevel === "alert" ? "rgba(239,68,68,0.2)" : "var(--border)",
-                }}
-              >
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <div className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{co.name}</div>
-                    <div className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>{co.sector} · {co.stage}</div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge label={co.status} variant={statusVariant[co.status]} size="xs" />
-                    <ExternalLink size={13} style={{ color: "var(--text-muted)" }} className="opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                </div>
+          {loading ? (
+            <div className="flex items-center justify-center h-40" style={{ color: "var(--text-muted)" }}>
+              <Loader2 size={20} className="animate-spin mr-2" /> Loading portfolio...
+            </div>
+          ) : companies.length === 0 ? (
+            <div className="flex items-center justify-center h-40 text-sm" style={{ color: "var(--text-muted)" }}>
+              No portfolio companies found.
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-3">
+              {companies.map((co) => {
+                const moic =
+                  co.investedAmount && co.currentValue && co.investedAmount > 0
+                    ? co.currentValue / co.investedAmount
+                    : null;
+                const lastAlert = co.alerts[0] ?? null;
 
-                <div className="grid grid-cols-3 gap-3 mb-3">
-                  {[
-                    { label: "Invested", value: formatCurrency(co.invested) },
-                    { label: "Value", value: formatCurrency(co.value) },
-                    {
-                      label: "MOIC",
-                      value: `${co.multiple}x`,
-                      color: co.multiple >= 2 ? "#10b981" : co.multiple >= 1 ? "var(--text-primary)" : "#ef4444",
-                    },
-                  ].map(({ label, value, color }) => (
-                    <div key={label}>
-                      <div className="text-xs mb-1" style={{ color: "var(--text-muted)" }}>{label}</div>
-                      <div
-                        className="text-sm font-medium"
-                        style={{ color: color ?? "var(--text-primary)", fontVariantNumeric: "tabular-nums" }}
-                      >
-                        {value}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {co.lastAlert && (
-                  <div
-                    className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded"
+                return (
+                  <Link
+                    key={co.id}
+                    href={`/portfolio/${co.id}`}
+                    className="p-5 rounded-md border group cursor-pointer transition-colors block"
                     style={{
-                      background: co.alertLevel === "critical" ? "rgba(239,68,68,0.08)" : "rgba(245,158,11,0.08)",
-                      color: alertColor[co.alertLevel],
-                      border: `1px solid ${co.alertLevel === "critical" ? "rgba(239,68,68,0.2)" : "rgba(245,158,11,0.2)"}`,
+                      background: "var(--bg-surface)",
+                      borderColor:
+                        co.alertLevel === "critical"
+                          ? "rgba(239,68,68,0.3)"
+                          : co.alertLevel === "alert"
+                          ? "rgba(239,68,68,0.2)"
+                          : co.alertLevel === "watch"
+                          ? "rgba(245,158,11,0.2)"
+                          : "var(--border)",
+                      textDecoration: "none",
                     }}
                   >
-                    <AlertTriangle size={11} />
-                    {co.lastAlert}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <div className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{co.name}</div>
+                        <div className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
+                          {[co.sector, co.stage].filter(Boolean).join(" · ")}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge label={co.status} variant={statusVariant[co.status] ?? "muted"} size="xs" />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-3 mb-3">
+                      {[
+                        { label: "Invested", value: co.investedAmount ? formatCurrency(co.investedAmount) : "—" },
+                        { label: "Value", value: co.currentValue ? formatCurrency(co.currentValue) : "—" },
+                        {
+                          label: "MOIC",
+                          value: moic != null ? `${moic.toFixed(2)}x` : "—",
+                          color: moic != null ? moicColor(moic) : "var(--text-muted)",
+                        },
+                      ].map(({ label, value, color }) => (
+                        <div key={label}>
+                          <div className="text-xs mb-1" style={{ color: "var(--text-muted)" }}>{label}</div>
+                          <div
+                            className="text-sm font-medium"
+                            style={{ color: color ?? "var(--text-primary)", fontVariantNumeric: "tabular-nums" }}
+                          >
+                            {value}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {lastAlert && (
+                      <div
+                        className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded"
+                        style={{
+                          background:
+                            lastAlert.severity === "critical"
+                              ? "rgba(239,68,68,0.08)"
+                              : "rgba(245,158,11,0.08)",
+                          color: alertColor[lastAlert.severity] ?? alertColor.info,
+                          border: `1px solid ${
+                            lastAlert.severity === "critical"
+                              ? "rgba(239,68,68,0.2)"
+                              : "rgba(245,158,11,0.2)"
+                          }`,
+                        }}
+                      >
+                        <AlertTriangle size={11} />
+                        {lastAlert.title}
+                      </div>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Alert feed */}
@@ -161,7 +270,12 @@ export default function PortfolioPage() {
             Alert Feed
           </div>
           <div>
-            {ALERTS.map((alert, i) => (
+            {flatAlerts.length === 0 && !loading && (
+              <div className="px-4 py-6 text-xs text-center" style={{ color: "var(--text-muted)" }}>
+                No alerts
+              </div>
+            )}
+            {flatAlerts.map((alert, i) => (
               <div
                 key={i}
                 className="px-4 py-3.5 border-b"
@@ -170,11 +284,13 @@ export default function PortfolioPage() {
                 <div className="flex items-start gap-2.5">
                   <div
                     className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0"
-                    style={{ background: alertColor[alert.severity] }}
+                    style={{ background: alertColor[alert.severity] ?? alertColor.info }}
                   />
                   <div>
                     <div className="text-xs font-medium" style={{ color: "var(--text-primary)" }}>{alert.title}</div>
-                    <div className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>{alert.company} · {alert.ago}</div>
+                    <div className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
+                      {alert.company} · {new Date(alert.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                    </div>
                   </div>
                 </div>
               </div>

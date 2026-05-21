@@ -1,31 +1,46 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { DollarSign, TrendingDown, TrendingUp, AlertCircle } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import PageHeader from "@/components/ui/PageHeader";
 import { formatCurrency } from "@/lib/utils";
+import { useFamilyId } from "@/context/FamilyContext";
 
-const ENTITIES = [
-  { id: "1", name: "Hartwell Delaware LLC", type: "llc", cash: 12_400_000, receivables: 850_000, payables: 320_000 },
-  { id: "2", name: "Hartwell Cayman LP", type: "lp", cash: 22_100_000, receivables: 2_400_000, payables: 1_100_000 },
-  { id: "3", name: "Hartwell Family Trust", type: "trust", cash: 8_700_000, receivables: 0, payables: 45_000 },
-  { id: "4", name: "HW Operating Co", type: "corp", cash: 3_950_000, receivables: 620_000, payables: 890_000 },
-];
+interface FinanceEntity {
+  id: string;
+  name: string;
+  type: string;
+  cash: number;
+  receivables: number;
+  payables: number;
+}
 
-const TRANSACTIONS = [
-  { date: "2026-05-19", entity: "Hartwell Delaware LLC", type: "expense", category: "Legal", amount: -48_500, description: "Orrick LLP — LP Agreement drafting" },
-  { date: "2026-05-18", entity: "HW Operating Co", type: "income", category: "Management Fee", amount: 125_000, description: "Q2 management fee — Arcadia Energy" },
-  { date: "2026-05-17", entity: "Hartwell Cayman LP", type: "capital-call", category: "Investment", amount: -2_000_000, description: "Capital call — Phalanx Defense Series C" },
-  { date: "2026-05-15", entity: "Hartwell Family Trust", type: "distribution", category: "Distribution", amount: -500_000, description: "Monthly family distribution" },
-  { date: "2026-05-14", entity: "Hartwell Delaware LLC", type: "expense", category: "Tax", amount: -285_000, description: "Q1 federal estimated tax payment" },
-  { date: "2026-05-12", entity: "Hartwell Cayman LP", type: "income", category: "Dividend", amount: 340_000, description: "Terrace REIT quarterly dividend" },
-];
+interface FinanceTransaction {
+  id: string;
+  date: string;
+  entity: string;
+  type: string;
+  category: string;
+  amount: number;
+  description: string;
+}
 
-const PAYABLES = [
-  { vendor: "Ernst & Young LLP", amount: 85_000, due: "2026-06-01", entity: "Hartwell Family Trust", category: "Tax" },
-  { vendor: "Orrick Herrington", amount: 24_500, due: "2026-06-15", entity: "Hartwell Delaware LLC", category: "Legal" },
-  { vendor: "Salesforce Enterprise", amount: 18_200, due: "2026-06-30", entity: "HW Operating Co", category: "Software" },
-];
+interface FinancePayable {
+  vendor: string;
+  amount: number;
+  due: string;
+  entity: string;
+  category: string;
+}
+
+interface CfoResult {
+  summary: string;
+  liquidityStatus: "healthy" | "watch" | "critical";
+  insights: string[];
+  recommendations: string[];
+  alerts?: string[];
+}
 
 const typeVariant: Record<string, "success" | "danger" | "accent" | "warning"> = {
   income: "success",
@@ -34,20 +49,82 @@ const typeVariant: Record<string, "success" | "danger" | "accent" | "warning"> =
   distribution: "accent",
 };
 
+const liquidityVariant: Record<string, "success" | "warning" | "danger"> = {
+  healthy: "success",
+  watch: "warning",
+  critical: "danger",
+};
+
 export default function FinancePage() {
-  const totalLiquidity = ENTITIES.reduce((s, e) => s + e.cash + e.receivables - e.payables, 0);
+  const familyId = useFamilyId();
+
+  const [entities, setEntities] = useState<FinanceEntity[]>([]);
+  const [transactions, setTransactions] = useState<FinanceTransaction[]>([]);
+  const [payables, setPayables] = useState<FinancePayable[]>([]);
+  const [isMock, setIsMock] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const [cfoQuery, setCfoQuery] = useState("");
+  const [cfoResult, setCfoResult] = useState<CfoResult | null>(null);
+  const [cfoLoading, setCfoLoading] = useState(false);
+
+  useEffect(() => {
+    // Build URL: with familyId if available, without for mock/unauthenticated
+    const url = familyId
+      ? `/api/finance?familyId=${encodeURIComponent(familyId)}`
+      : "/api/finance";
+
+    fetch(url)
+      .then((r) => r.json())
+      .then((data) => {
+        setEntities(data.entities ?? []);
+        setTransactions(data.transactions ?? []);
+        setPayables(data.payables ?? []);
+        setIsMock(!!data._mock);
+      })
+      .catch(() => {
+        // Leave empty — page will show blank gracefully
+      })
+      .finally(() => setLoading(false));
+  }, [familyId]);
+
+  const totalLiquidity = entities.reduce((s, e) => s + e.cash + e.receivables - e.payables, 0);
+
+  async function handleAnalyze() {
+    if (!cfoQuery.trim()) return;
+    setCfoLoading(true);
+    setCfoResult(null);
+    try {
+      const res = await fetch("/api/agents/cfo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ familyId: familyId ?? "demo", query: cfoQuery }),
+      });
+      const data = await res.json();
+      setCfoResult(data.result as CfoResult);
+    } catch {
+      // silently fail
+    } finally {
+      setCfoLoading(false);
+    }
+  }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className={`flex flex-col h-full${loading ? " opacity-50 animate-pulse" : ""}`}>
       <PageHeader
         title="Finance"
-        subtitle={`Net liquidity across ${ENTITIES.length} entities`}
+        subtitle={`Net liquidity across ${entities.length} entities`}
         actions={
-          <div
-            className="text-sm font-semibold px-4 py-2 rounded"
-            style={{ background: "var(--bg-elevated)", color: "#10b981", fontVariantNumeric: "tabular-nums" }}
-          >
-            {formatCurrency(totalLiquidity)} net
+          <div className="flex items-center gap-3">
+            {isMock && (
+              <Badge label="Mock Data" variant="warning" size="xs" />
+            )}
+            <div
+              className="text-sm font-semibold px-4 py-2 rounded"
+              style={{ background: "var(--bg-elevated)", color: "#10b981", fontVariantNumeric: "tabular-nums" }}
+            >
+              {formatCurrency(totalLiquidity)} net
+            </div>
           </div>
         }
       />
@@ -67,7 +144,7 @@ export default function FinancePage() {
               </tr>
             </thead>
             <tbody>
-              {ENTITIES.map((e) => {
+              {entities.map((e) => {
                 const net = e.cash + e.receivables - e.payables;
                 return (
                   <tr key={e.id} style={{ borderBottom: "1px solid var(--border-subtle)", background: "var(--bg-surface)" }}>
@@ -99,7 +176,7 @@ export default function FinancePage() {
       </div>
 
       {/* Transactions + Payables */}
-      <div className="flex-1 flex overflow-hidden px-8 py-5 gap-6">
+      <div className="flex overflow-hidden px-8 py-5 gap-6" style={{ minHeight: 0 }}>
         {/* Transactions */}
         <div className="flex-1 overflow-auto">
           <h2 className="text-xs font-medium tracking-wider uppercase mb-4" style={{ color: "var(--text-muted)" }}>
@@ -115,8 +192,8 @@ export default function FinancePage() {
                 </tr>
               </thead>
               <tbody>
-                {TRANSACTIONS.map((t, i) => (
-                  <tr key={i} style={{ borderBottom: "1px solid var(--border-subtle)", background: "var(--bg-surface)" }}>
+                {transactions.map((t, i) => (
+                  <tr key={t.id ?? i} style={{ borderBottom: "1px solid var(--border-subtle)", background: "var(--bg-surface)" }}>
                     <td className="px-4 py-3 font-mono" style={{ color: "var(--text-muted)" }}>{t.date.slice(5)}</td>
                     <td className="px-4 py-3 max-w-32 truncate" style={{ color: "var(--text-secondary)" }}>{t.entity.replace("Hartwell ", "")}</td>
                     <td className="px-4 py-3">
@@ -145,7 +222,7 @@ export default function FinancePage() {
             Upcoming Payables
           </h2>
           <div className="flex flex-col gap-2">
-            {PAYABLES.map((p, i) => (
+            {payables.map((p, i) => (
               <div
                 key={i}
                 className="p-4 rounded-md border"
@@ -165,6 +242,91 @@ export default function FinancePage() {
               </div>
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* CFO Agent Panel */}
+      <div className="px-8 py-6 border-t" style={{ borderColor: "var(--border)" }}>
+        <h2 className="text-xs font-medium tracking-wider uppercase mb-4" style={{ color: "var(--text-muted)" }}>
+          CFO Agent
+        </h2>
+        <div className="flex gap-6">
+          {/* Left: prompt input */}
+          <div className="flex-1 flex flex-col gap-3">
+            <textarea
+              className="w-full rounded-md border px-4 py-3 text-sm resize-none focus:outline-none focus:ring-1"
+              rows={3}
+              placeholder="Ask the CFO agent... e.g. 'What's our Q2 cash position?' or 'Summarize AP exposure by entity'"
+              value={cfoQuery}
+              onChange={(e) => setCfoQuery(e.target.value)}
+              style={{
+                background: "var(--bg-surface)",
+                borderColor: "var(--border)",
+                color: "var(--text-primary)",
+              }}
+            />
+            <button
+              onClick={handleAnalyze}
+              disabled={cfoLoading || !cfoQuery.trim()}
+              className="self-start px-5 py-2 rounded text-sm font-semibold transition-opacity disabled:opacity-40"
+              style={{ background: "var(--accent)", color: "#fff" }}
+            >
+              {cfoLoading ? "Analyzing…" : "Analyze"}
+            </button>
+          </div>
+
+          {/* Right: agent response */}
+          {cfoResult && (
+            <div
+              className="flex-1 rounded-md border p-5 flex flex-col gap-4"
+              style={{ background: "var(--bg-elevated)", borderColor: "var(--border)" }}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <p className="text-sm leading-relaxed" style={{ color: "var(--text-primary)" }}>
+                  {cfoResult.summary}
+                </p>
+                {cfoResult.liquidityStatus && (
+                  <Badge
+                    label={cfoResult.liquidityStatus.charAt(0).toUpperCase() + cfoResult.liquidityStatus.slice(1)}
+                    variant={liquidityVariant[cfoResult.liquidityStatus] ?? "muted"}
+                    size="xs"
+                  />
+                )}
+              </div>
+
+              {cfoResult.insights?.length > 0 && (
+                <div>
+                  <div className="text-xs font-medium tracking-wider uppercase mb-2" style={{ color: "var(--text-muted)" }}>
+                    Insights
+                  </div>
+                  <ul className="flex flex-col gap-1">
+                    {cfoResult.insights.map((insight, i) => (
+                      <li key={i} className="text-xs flex gap-2" style={{ color: "var(--text-secondary)" }}>
+                        <span style={{ color: "var(--text-muted)" }}>·</span>
+                        {insight}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {cfoResult.recommendations?.length > 0 && (
+                <div>
+                  <div className="text-xs font-medium tracking-wider uppercase mb-2" style={{ color: "var(--text-muted)" }}>
+                    Recommendations
+                  </div>
+                  <ul className="flex flex-col gap-1">
+                    {cfoResult.recommendations.map((rec, i) => (
+                      <li key={i} className="text-xs flex gap-2" style={{ color: "var(--text-secondary)" }}>
+                        <span style={{ color: "var(--accent)" }}>→</span>
+                        {rec}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

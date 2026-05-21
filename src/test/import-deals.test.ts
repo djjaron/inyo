@@ -64,8 +64,9 @@ describe("POST /api/import/deals", () => {
     }));
 
     expect(createMany).toHaveBeenCalledOnce();
-    const callArg = createMany.mock.calls[0][0];
-    expect(callArg.data[0].stage).toBe("series-a");
+    const callArg = createMany.mock.calls[0]?.[0];
+    const dataArr = Array.isArray(callArg?.data) ? callArg.data : [callArg?.data];
+    expect(dataArr[0]?.stage).toBe("series-a");
   });
 
   it("defaults status to inbound for unknown statuses", async () => {
@@ -78,8 +79,9 @@ describe("POST /api/import/deals", () => {
       deals: [{ company: "Test Co", status: "unknown-status" }],
     }));
 
-    const callArg = createMany.mock.calls[0][0];
-    expect(callArg.data[0].status).toBe("inbound");
+    const callArg = createMany.mock.calls[0]?.[0];
+    const dataArr = Array.isArray(callArg?.data) ? callArg.data : [callArg?.data];
+    expect(dataArr[0]?.status).toBe("inbound");
   });
 
   it("accepts single deal via deal key", async () => {

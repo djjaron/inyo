@@ -27,7 +27,7 @@ import { NextRequest } from "next/server";
 import { GET, POST } from "@/app/api/deals/route";
 import { GET as GET_ONE, PATCH } from "@/app/api/deals/[id]/route";
 
-function req(url: string, opts?: RequestInit) {
+function req(url: string, opts?: ConstructorParameters<typeof NextRequest>[1]) {
   return new NextRequest(url, opts);
 }
 
