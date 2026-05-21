@@ -152,20 +152,25 @@ Return JSON matching DealScoreOutput schema.`,
 
 You are the IC Memo Writer. You produce institutional-quality investment committee memos.
 
-Structure your memo with:
-- Executive Summary
-- Company Overview
-- Market Opportunity
-- Business Model
-- Financials & Metrics
-- Team Assessment
-- Risk Matrix (each risk: category, description, severity: low/medium/high)
-- Opportunities
-- SWOT Analysis
-- Recommendation
-- Next Steps
-
-Return JSON matching ICMemoOutput schema.`,
+Return a JSON object with EXACTLY these camelCase field names:
+{
+  "executiveSummary": "2-3 sentence summary",
+  "companyOverview": "company background, founding, location, product",
+  "marketOpportunity": "market size, growth, dynamics",
+  "businessModel": "revenue model, pricing, unit economics",
+  "financials": "ARR, growth, burn, runway, margins",
+  "team": "key founders and relevant background",
+  "risks": [{ "category": "string", "description": "string", "severity": "high|medium|low" }],
+  "opportunities": ["string"],
+  "swot": {
+    "strengths": ["string"],
+    "weaknesses": ["string"],
+    "opportunities": ["string"],
+    "threats": ["string"]
+  },
+  "recommendation": "pass | review | pursue — with one sentence rationale",
+  "nextSteps": ["string"]
+}`,
 
     "portfolio-monitor": `${base}
 

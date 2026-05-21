@@ -118,6 +118,7 @@ export async function POST(req: NextRequest) {
         }
 
         send(controller, { type: "done", result: agentOutput.result });
+        await new Promise((r) => setTimeout(r, 150));
         controller.close();
       } catch (err) {
         send(controller, { type: "error", message: String(err) });
