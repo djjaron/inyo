@@ -18,6 +18,10 @@ const statusLabel: Record<string, string> = {
   "ic-review": "IC Review", invested: "Invested", passed: "Passed", archived: "Archived",
 };
 
+const SELECTABLE_STATUSES = [
+  "inbound", "reviewing", "diligence", "ic-review", "passed", "invested",
+] as const;
+
 type Tab = "overview" | "analysis" | "memo";
 
 interface Deal {
@@ -36,6 +40,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
   const [deal, setDeal] = useState<Deal | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<Tab>("overview");
+  const [saving, setSaving] = useState(false);
 
   const [analysis, setAnalysis] = useState<Record<string, unknown> | null>(null);
   const [analysisMock, setAnalysisMock] = useState(false);
@@ -125,6 +130,25 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
     }
   }
 
+  async function updateStatus(newStatus: string) {
+    if (!deal || newStatus === deal.status) return;
+    const prevStatus = deal.status;
+    setDeal({ ...deal, status: newStatus });
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/deals/${deal.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!res.ok) setDeal({ ...deal, status: prevStatus });
+    } catch {
+      setDeal({ ...deal, status: prevStatus });
+    } finally {
+      setSaving(false);
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full" style={{ color: "var(--text-muted)" }}>
@@ -163,7 +187,40 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 flex-wrap">
               <h1 className="text-xl font-semibold" style={{ color: "var(--text-primary)" }}>{deal.company}</h1>
-              <Badge label={statusLabel[deal.status] ?? deal.status} variant={statusVariant[deal.status] ?? "default"} size="xs" />
+              {/* Status selector */}
+              <div className="flex items-center gap-1.5">
+                <select
+                  value={deal.status}
+                  onChange={(e) => updateStatus(e.target.value)}
+                  disabled={saving}
+                  style={{
+                    background: "var(--bg-elevated)",
+                    color: statusVariant[deal.status] === "accent" ? "var(--accent)"
+                      : statusVariant[deal.status] === "warning" ? "#f59e0b"
+                      : statusVariant[deal.status] === "success" ? "#10b981"
+                      : "var(--text-muted)",
+                    border: "1px solid var(--border)",
+                    borderRadius: "3px",
+                    fontSize: "10px",
+                    fontWeight: 500,
+                    letterSpacing: "0.03em",
+                    padding: "1px 20px 1px 6px",
+                    cursor: "pointer",
+                    appearance: "auto",
+                    outline: "none",
+                    opacity: saving ? 0.6 : 1,
+                  }}
+                >
+                  {SELECTABLE_STATUSES.map((s) => (
+                    <option key={s} value={s}>{statusLabel[s]}</option>
+                  ))}
+                  {!SELECTABLE_STATUSES.includes(deal.status as typeof SELECTABLE_STATUSES[number]) && (
+                    <option value={deal.status} disabled>{statusLabel[deal.status] ?? deal.status}</option>
+                  )}
+                </select>
+                {saving && <Loader2 size={11} className="animate-spin" style={{ color: "var(--text-muted)" }} />}
+                {saving && <span className="text-xs" style={{ color: "var(--text-muted)" }}>Saving...</span>}
+              </div>
               {deal.stage && <Badge label={deal.stage.replace(/-/g, " ")} variant="muted" size="xs" />}
             </div>
             {deal.sector && (

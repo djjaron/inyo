@@ -1,31 +1,71 @@
 "use client";
 
-import { TrendingUp, BarChart3, Clock, DollarSign, AlertTriangle, CheckCircle2, Bot } from "lucide-react";
+import { useState, useEffect } from "react";
+import { TrendingUp, BarChart3, Clock, DollarSign, CheckCircle2, Bot } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import ScoreRing from "@/components/ui/ScoreRing";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
 import Link from "next/link";
 
-const RECENT_DEALS = [
-  { company: "Phalanx Defense", sector: "Defense Tech", stage: "Series C", score: 88, status: "ic-review" },
-  { company: "Meridian AI", sector: "Enterprise AI", stage: "Series B", score: 84, status: "diligence" },
-  { company: "Arcadia Energy", sector: "Clean Energy", stage: "Growth", score: 79, status: "ic-review" },
-  { company: "Verdant Bio", sector: "Biotech", stage: "Series A", score: 71, status: "reviewing" },
-  { company: "Terrace REIT", sector: "Real Estate", stage: "PE", score: 73, status: "inbound" },
-];
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 
-const ALERTS = [
-  { company: "Meridian AI", type: "Funding", title: "New strategic investor joining round", severity: "info", ago: "2h" },
-  { company: "Helios Credit", type: "Risk", title: "CFO departure announced", severity: "critical", ago: "5h" },
-  { company: "ClearReg", type: "Product", title: "SOC 2 Type II certification achieved", severity: "info", ago: "1d" },
-  { company: "Arcadia Energy", type: "Legal", title: "Regulatory filing delayed 30 days", severity: "warning", ago: "2d" },
-];
+interface RecentDeal {
+  id: string;
+  company: string;
+  sector: string | null;
+  stage: string | null;
+  dealScore: number | null;
+  status: string;
+  createdAt: string;
+}
+
+interface AlertItem {
+  id: string;
+  companyName: string;
+  type: string;
+  severity: string;
+  title: string;
+  createdAt: string;
+}
+
+interface DashboardStats {
+  totalDeals: number;
+  pipelineValue: number;
+  activeDeals: number;
+  portfolioCompanies: number;
+}
+
+interface DashboardData {
+  stats: DashboardStats;
+  recentDeals: RecentDeal[];
+  alerts: AlertItem[];
+  _mock: boolean;
+}
+
+// ---------------------------------------------------------------------------
+// Static approvals (not yet driven by DB)
+// ---------------------------------------------------------------------------
 
 const APPROVALS = [
   { title: "Sign NDA — Phalanx Defense", agent: "Legal Review", priority: "high", id: "a1" },
   { title: "Wire $500K to Arcadia escrow", agent: "CFO Agent", priority: "urgent", id: "a2" },
   { title: "Schedule IC meeting for Meridian", agent: "Chief of Staff", priority: "normal", id: "a3" },
 ];
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function timeAgo(dateStr: string): string {
+  const diffMs = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diffMs / 60_000);
+  if (mins < 60) return `${mins}m`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h`;
+  return `${Math.floor(hours / 24)}d`;
+}
 
 const severityDot: Record<string, string> = {
   critical: "#ef4444",
@@ -49,26 +89,90 @@ const statusVariant: Record<string, "accent" | "warning" | "success" | "muted"> 
   "ic-review": "warning", invested: "success", passed: "muted",
 };
 
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
+
 export default function DashboardPage() {
   const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const res = await fetch("/api/dashboard?familyId=family_demo");
+        const json: DashboardData = await res.json();
+        setData(json);
+      } catch {
+        // leave data null — UI will show loading state gracefully
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
+  const stats = data?.stats;
+  const recentDeals = data?.recentDeals ?? [];
+  const alerts = data?.alerts ?? [];
+  const isMock = data?._mock ?? false;
+
   return (
-    <div className="flex flex-col min-h-full p-8 gap-6" style={{ background: "var(--bg-base)" }}>
+    <div
+      className={`flex flex-col min-h-full p-8 gap-6${loading ? " opacity-50 animate-pulse" : ""}`}
+      style={{ background: "var(--bg-base)" }}
+    >
       {/* Header */}
-      <div>
-        <p className="text-xs tracking-widest uppercase mb-1" style={{ color: "var(--text-muted)" }}>{today}</p>
-        <h1 className="text-2xl font-semibold tracking-tight" style={{ color: "var(--text-primary)" }}>
-          Good morning.
-        </h1>
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-xs tracking-widest uppercase mb-1" style={{ color: "var(--text-muted)" }}>{today}</p>
+          <h1 className="text-2xl font-semibold tracking-tight" style={{ color: "var(--text-primary)" }}>
+            Good morning.
+          </h1>
+        </div>
+        {isMock && (
+          <span
+            className="text-xs px-2 py-0.5 rounded self-center"
+            style={{ background: "rgba(245,158,11,0.1)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.2)" }}
+          >
+            demo data
+          </span>
+        )}
       </div>
 
       {/* Stat widgets */}
       <div className="grid grid-cols-4 gap-4">
         {[
-          { icon: TrendingUp, label: "Active Deals", value: "12", trend: "+3 this week", color: "var(--accent)" },
-          { icon: BarChart3, label: "Portfolio Companies", value: "23", trend: "2 on watchlist", color: "var(--success)" },
-          { icon: Clock, label: "Pending Approvals", value: "3", trend: "2 urgent", color: "#f59e0b" },
-          { icon: DollarSign, label: "Net Liquidity", value: "$47.2M", trend: "Across 4 entities", color: "#10b981" },
+          {
+            icon: TrendingUp,
+            label: "Active Deals",
+            value: stats ? String(stats.activeDeals) : "—",
+            trend: stats ? `${stats.totalDeals} total in pipeline` : "Loading…",
+            color: "var(--accent)",
+          },
+          {
+            icon: BarChart3,
+            label: "Portfolio Companies",
+            value: stats ? String(stats.portfolioCompanies) : "—",
+            trend: "Across all entities",
+            color: "var(--success)",
+          },
+          {
+            icon: Clock,
+            label: "Pending Approvals",
+            value: String(APPROVALS.length),
+            trend: `${APPROVALS.filter((a) => a.priority === "urgent").length} urgent`,
+            color: "#f59e0b",
+          },
+          {
+            icon: DollarSign,
+            label: "Pipeline Value",
+            value: stats ? formatCurrency(stats.pipelineValue) : "—",
+            trend: "Active deal flow",
+            color: "#10b981",
+          },
         ].map(({ icon: Icon, label, value, trend, color }) => (
           <div
             key={label}
@@ -107,19 +211,38 @@ export default function DashboardPage() {
               </tr>
             </thead>
             <tbody>
-              {RECENT_DEALS.map((d) => (
-                <tr key={d.company} style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+              {recentDeals.map((d) => (
+                <tr key={d.id} style={{ borderBottom: "1px solid var(--border-subtle)" }}>
                   <td className="px-5 py-3">
                     <div style={{ color: "var(--text-primary)" }}>{d.company}</div>
-                    <div className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>{d.stage}</div>
+                    {d.stage && (
+                      <div className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
+                        {d.stage.replace(/-/g, " ")}
+                      </div>
+                    )}
                   </td>
-                  <td className="px-5 py-3" style={{ color: "var(--text-secondary)" }}>{d.sector}</td>
-                  <td className="px-5 py-3"><ScoreRing score={d.score} size={32} /></td>
+                  <td className="px-5 py-3" style={{ color: "var(--text-secondary)" }}>{d.sector ?? "—"}</td>
                   <td className="px-5 py-3">
-                    <Badge label={statusLabel[d.status]} variant={statusVariant[d.status]} size="xs" />
+                    {d.dealScore != null
+                      ? <ScoreRing score={d.dealScore} size={32} />
+                      : <span style={{ color: "var(--text-muted)" }}>—</span>}
+                  </td>
+                  <td className="px-5 py-3">
+                    <Badge
+                      label={statusLabel[d.status] ?? d.status}
+                      variant={statusVariant[d.status] ?? "muted"}
+                      size="xs"
+                    />
                   </td>
                 </tr>
               ))}
+              {recentDeals.length === 0 && !loading && (
+                <tr>
+                  <td colSpan={4} className="px-5 py-8 text-center text-xs" style={{ color: "var(--text-muted)" }}>
+                    No deals yet.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -131,21 +254,26 @@ export default function DashboardPage() {
             <Link href="/portfolio" className="text-xs" style={{ color: "var(--accent)" }}>View all →</Link>
           </div>
           <div className="divide-y" style={{ borderColor: "var(--border-subtle)" }}>
-            {ALERTS.map((alert) => (
-              <div key={alert.title} className="flex items-start gap-3 px-5 py-3.5">
+            {alerts.map((alert) => (
+              <div key={alert.id} className="flex items-start gap-3 px-5 py-3.5">
                 <div
                   className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0"
-                  style={{ background: severityDot[alert.severity] }}
+                  style={{ background: severityDot[alert.severity] ?? "var(--accent)" }}
                 />
                 <div className="flex-1 min-w-0">
                   <div className="text-xs font-medium truncate" style={{ color: "var(--text-primary)" }}>{alert.title}</div>
                   <div className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
-                    {alert.company} · {alert.type}
+                    {alert.companyName} · {alert.type.replace(/-/g, " ")}
                   </div>
                 </div>
-                <span className="text-xs shrink-0" style={{ color: "var(--text-muted)" }}>{alert.ago}</span>
+                <span className="text-xs shrink-0" style={{ color: "var(--text-muted)" }}>{timeAgo(alert.createdAt)}</span>
               </div>
             ))}
+            {alerts.length === 0 && !loading && (
+              <div className="px-5 py-8 text-center text-xs" style={{ color: "var(--text-muted)" }}>
+                No alerts.
+              </div>
+            )}
           </div>
         </div>
       </div>

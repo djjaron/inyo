@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback, useId } from "react";
 import Papa from "papaparse";
+import { useFamilyId } from "@/context/FamilyContext";
 import {
   Upload,
   FileText,
@@ -189,6 +190,7 @@ function StepIndicator({ current }: { current: Step }) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function ImportContactsPage() {
+  const familyId = useFamilyId();
   const fileInputId = useId();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropZoneRef = useRef<HTMLDivElement>(null);
@@ -288,6 +290,7 @@ export default function ImportContactsPage() {
   // ── Import ──────────────────────────────────────────────────────────────────
 
   async function handleImport() {
+    if (!familyId) return;
     setLoading(true);
     setError(null);
     const contacts = buildContacts();
@@ -296,7 +299,7 @@ export default function ImportContactsPage() {
       const res = await fetch("/api/import/contacts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ familyId: "family_demo", contacts }),
+        body: JSON.stringify({ familyId, contacts }),
       });
 
       if (!res.ok) {
@@ -808,10 +811,10 @@ export default function ImportContactsPage() {
 
               <button
                 onClick={handleImport}
-                disabled={loading}
+                disabled={loading || !familyId}
                 className="flex items-center gap-2 px-6 py-2.5 rounded text-sm font-medium transition-colors"
                 style={
-                  loading
+                  loading || !familyId
                     ? { background: "var(--bg-elevated)", color: "var(--text-muted)", cursor: "not-allowed" }
                     : { background: "var(--accent)", color: "#fff" }
                 }

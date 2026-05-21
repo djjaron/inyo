@@ -6,8 +6,7 @@ import Papa from "papaparse";
 import PageHeader from "@/components/ui/PageHeader";
 import Badge from "@/components/ui/Badge";
 import Link from "next/link";
-
-const FAMILY_ID = "family_demo";
+import { useFamilyId } from "@/context/FamilyContext";
 
 const STAGES = ["pre-seed", "seed", "series-a", "series-b", "series-c", "growth", "pe", "real-estate", "credit"];
 const SOURCES = ["inbound", "network", "broker", "lp-intro"];
@@ -43,6 +42,7 @@ function downloadTemplate() {
 }
 
 export default function ImportDealsPage() {
+  const familyId = useFamilyId();
   const [tab, setTab] = useState<Tab>("form");
 
   // Form tab state
@@ -60,13 +60,13 @@ export default function ImportDealsPage() {
   // Form submit
   async function submitForm(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.company.trim()) return;
+    if (!form.company.trim() || !familyId) return;
     setFormStatus("loading");
     try {
       const res = await fetch("/api/import/deals", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ familyId: FAMILY_ID, deal: { ...form, capitalAsk: form.capitalAsk || undefined, valuation: form.valuation || undefined } }),
+        body: JSON.stringify({ familyId, deal: { ...form, capitalAsk: form.capitalAsk || undefined, valuation: form.valuation || undefined } }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Import failed");
@@ -114,13 +114,13 @@ export default function ImportDealsPage() {
   }, []);
 
   async function importCSV() {
-    if (!rows.length) return;
+    if (!rows.length || !familyId) return;
     setCsvStatus("loading");
     try {
       const res = await fetch("/api/import/deals", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ familyId: FAMILY_ID, deals: rows }),
+        body: JSON.stringify({ familyId, deals: rows }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Import failed");
@@ -252,9 +252,9 @@ export default function ImportDealsPage() {
               <div className="mt-6">
                 <button
                   type="submit"
-                  disabled={formStatus === "loading" || !form.company.trim()}
+                  disabled={formStatus === "loading" || !form.company.trim() || !familyId}
                   className="flex items-center gap-2 px-5 py-2.5 rounded text-sm font-medium transition-opacity"
-                  style={{ background: "var(--accent)", color: "#fff", opacity: formStatus === "loading" ? 0.7 : 1 }}
+                  style={{ background: "var(--accent)", color: "#fff", opacity: (formStatus === "loading" || !familyId) ? 0.7 : 1 }}
                 >
                   <Plus size={14} />
                   {formStatus === "loading" ? "Adding..." : "Add to Pipeline"}
@@ -306,9 +306,9 @@ export default function ImportDealsPage() {
                     <button onClick={() => setRows([])} className="px-3 py-1.5 rounded text-xs border" style={{ borderColor: "var(--border)", color: "var(--text-muted)" }}>Clear</button>
                     <button
                       onClick={importCSV}
-                      disabled={csvStatus === "loading"}
+                      disabled={csvStatus === "loading" || !familyId}
                       className="flex items-center gap-1.5 px-4 py-1.5 rounded text-xs font-medium"
-                      style={{ background: "var(--accent)", color: "#fff", opacity: csvStatus === "loading" ? 0.7 : 1 }}
+                      style={{ background: "var(--accent)", color: "#fff", opacity: (csvStatus === "loading" || !familyId) ? 0.7 : 1 }}
                     >
                       {csvStatus === "loading" ? "Importing..." : `Import ${rows.length} deal${rows.length !== 1 ? "s" : ""}`}
                     </button>
