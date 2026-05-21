@@ -45,14 +45,15 @@ interface DashboardData {
 }
 
 // ---------------------------------------------------------------------------
-// Static approvals (not yet driven by DB)
+// Approval type for live data
 // ---------------------------------------------------------------------------
 
-const APPROVALS = [
-  { title: "Sign NDA — Phalanx Defense", agent: "Legal Review", priority: "high", id: "a1" },
-  { title: "Wire $500K to Arcadia escrow", agent: "CFO Agent", priority: "urgent", id: "a2" },
-  { title: "Schedule IC meeting for Meridian", agent: "Chief of Staff", priority: "normal", id: "a3" },
-];
+interface PendingApproval {
+  id: string;
+  title: string;
+  type: string;
+  priority: string;
+}
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -98,13 +99,19 @@ export default function DashboardPage() {
 
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [pendingApprovals, setPendingApprovals] = useState<PendingApproval[]>([]);
 
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch("/api/dashboard?familyId=family_demo");
-        const json: DashboardData = await res.json();
+        const [dashRes, approvalsRes] = await Promise.all([
+          fetch("/api/dashboard?familyId=family_demo"),
+          fetch("/api/approvals?familyId=family_demo&status=pending"),
+        ]);
+        const json: DashboardData = await dashRes.json();
         setData(json);
+        const approvalsJson = await approvalsRes.json();
+        setPendingApprovals((approvalsJson.approvals ?? []).slice(0, 3));
       } catch {
         // leave data null — UI will show loading state gracefully
       } finally {
@@ -162,8 +169,8 @@ export default function DashboardPage() {
           {
             icon: Clock,
             label: "Pending Approvals",
-            value: String(APPROVALS.length),
-            trend: `${APPROVALS.filter((a) => a.priority === "urgent").length} urgent`,
+            value: String(pendingApprovals.length),
+            trend: `${pendingApprovals.filter((a) => a.priority === "urgent").length} urgent`,
             color: "#f59e0b",
           },
           {
@@ -287,37 +294,46 @@ export default function DashboardPage() {
             className="ml-1 text-xs px-1.5 py-0.5 rounded"
             style={{ background: "var(--accent-muted)", color: "var(--accent)" }}
           >
-            {APPROVALS.length}
+            {pendingApprovals.length}
           </span>
+          <Link href="/approvals" className="ml-auto text-xs" style={{ color: "var(--accent)" }}>
+            View all →
+          </Link>
         </div>
         <div className="flex gap-4 p-4">
-          {APPROVALS.map((a) => (
+          {pendingApprovals.length === 0 && !loading && (
+            <div className="flex-1 py-6 text-center text-xs" style={{ color: "var(--text-muted)" }}>
+              All clear — no pending approvals
+            </div>
+          )}
+          {pendingApprovals.map((a) => (
             <div
               key={a.id}
               className="flex-1 p-4 rounded border"
               style={{ background: "var(--bg-elevated)", borderColor: "var(--border)" }}
             >
-              <div className="flex items-start justify-between gap-2 mb-3">
+              <div className="flex items-start justify-between gap-2 mb-2">
                 <div className="text-xs font-medium" style={{ color: "var(--text-primary)" }}>{a.title}</div>
                 <Badge label={a.priority} variant={priorityVariant[a.priority]} size="xs" />
               </div>
-              <div className="text-xs mb-4" style={{ color: "var(--text-muted)" }}>
-                via {a.agent}
+              <div className="mb-3">
+                <Badge
+                  label={a.type.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
+                  variant={
+                    a.type === "deal-advance" ? "accent"
+                    : a.type === "transaction" ? "warning"
+                    : "muted"
+                  }
+                  size="xs"
+                />
               </div>
-              <div className="flex gap-2">
-                <button
-                  className="flex items-center gap-1 px-2.5 py-1.5 rounded text-xs font-medium"
-                  style={{ background: "rgba(16,185,129,0.1)", color: "#10b981", border: "1px solid rgba(16,185,129,0.2)" }}
-                >
-                  <CheckCircle2 size={11} /> Approve
-                </button>
-                <button
-                  className="px-2.5 py-1.5 rounded text-xs"
-                  style={{ color: "var(--text-muted)", border: "1px solid var(--border)" }}
-                >
-                  Dismiss
-                </button>
-              </div>
+              <Link
+                href="/approvals"
+                className="text-xs"
+                style={{ color: "var(--accent)" }}
+              >
+                Open →
+              </Link>
             </div>
           ))}
         </div>

@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   TrendingUp,
   BarChart3,
+  CheckCircle2,
   DollarSign,
   Scale,
   Receipt,
@@ -16,12 +17,14 @@ import {
   Settings,
   Zap,
   Upload,
+  Plug,
 } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 
 const nav = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { label: "Approvals", href: "/approvals", icon: CheckCircle2 },
   { label: "Opportunities", href: "/opportunities", icon: TrendingUp },
   { label: "Portfolio", href: "/portfolio", icon: BarChart3 },
   { label: "Finance", href: "/finance", icon: DollarSign },
@@ -134,11 +137,27 @@ export default function Sidebar() {
           <span className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-400 agent-active" />
         </div>
         <Link
+          href="/integrations"
+          className="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm hover:bg-white/5 transition-colors"
+          style={
+            path === "/integrations"
+              ? { background: "rgba(59,130,246,0.12)", color: "var(--accent)" }
+              : { color: "var(--text-secondary)" }
+          }
+        >
+          <Plug size={15} strokeWidth={path === "/integrations" ? 2 : 1.5} />
+          Integrations
+        </Link>
+        <Link
           href="/settings"
           className="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm hover:bg-white/5 transition-colors mb-2"
-          style={{ color: "var(--text-secondary)" }}
+          style={
+            path === "/settings"
+              ? { background: "rgba(59,130,246,0.12)", color: "var(--accent)" }
+              : { color: "var(--text-secondary)" }
+          }
         >
-          <Settings size={15} strokeWidth={1.5} />
+          <Settings size={15} strokeWidth={path === "/settings" ? 2 : 1.5} />
           Settings
         </Link>
         <div className="px-3 py-2">

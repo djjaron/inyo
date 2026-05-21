@@ -119,6 +119,25 @@ export async function PATCH(
       where: { id },
       data,
     });
+
+    // Auto-create an approval when a deal is advanced to IC Review
+    if (data.status === "ic-review") {
+      try {
+        await prisma.approval.create({
+          data: {
+            familyId: deal.familyId,
+            type: "deal-advance",
+            title: `IC Review: ${deal.company}`,
+            description: `Deal flow recommends advancing ${deal.company} to IC Review. ${deal.dealScore ? `Score: ${deal.dealScore}/100.` : ""} ${deal.capitalAsk ? `Capital ask: $${(deal.capitalAsk / 1_000_000).toFixed(1)}M.` : ""}`.trim(),
+            status: "pending",
+            priority: "high",
+          },
+        });
+      } catch {
+        // best-effort — don't fail the deal update if approval creation fails
+      }
+    }
+
     return NextResponse.json({ deal });
   } catch (err: unknown) {
     // Handle not-found vs DB-unavailable
