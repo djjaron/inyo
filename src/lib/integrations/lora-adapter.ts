@@ -1,28 +1,32 @@
 /**
- * Kase (gpodz) LoRA Adapter
+ * Inyo LoRA Adapter
  *
- * Maps Inyo's family office data model to Kase's tenant schema.
- * Kase expects: context facts, named actions, and source connectors.
+ * A platform-agnostic integration layer that exposes Inyo's family office
+ * intelligence (agents, context, actions) to external AI interfaces.
  *
- * When gpodz integration is ready, configure KASE_TENANT_ID and
- * KASE_API_KEY in Netlify environment variables.
+ * Any AI agent platform that supports tenant-scoped context + named actions
+ * can connect to Inyo via this adapter.
+ *
+ * To activate: set INYO_LORA_SECRET and NEXT_PUBLIC_APP_URL in Netlify env vars.
+ * Point external platforms at: /api/integrations/lora
  */
 
-export interface KaseTenantContext {
+export interface InyoLoraContext {
   tenant: string;
+  platform: "inyo";
   knowledge: "tenant-scoped";
-  facts: KaseFact[];
-  actions: KaseAction[];
-  guard: KaseGuard;
+  facts: LoraFact[];
+  actions: LoraAction[];
+  guard: LoraGuard;
 }
 
-export interface KaseFact {
+export interface LoraFact {
   key: string;
   value: string | number | boolean | null;
   category: string;
 }
 
-export interface KaseAction {
+export interface LoraAction {
   id: string;
   label: string;
   description: string;
@@ -31,25 +35,25 @@ export interface KaseAction {
   auth: "staff" | "public";
 }
 
-export interface KaseGuard {
+export interface LoraGuard {
   mode: "authenticated" | "public-preview";
   signInUrl: string;
 }
 
 /**
- * Build the Kase tenant context payload from Inyo's live data.
- * Call this when Kase requests a context refresh.
+ * Build the Inyo LoRA context payload from live family office data.
+ * Call this when an external platform requests a context refresh.
  */
-export function buildKaseTenantContext(params: {
+export function buildLoraContext(params: {
   familyName: string;
   totalAum?: number;
   activeDeals?: number;
   portfolioCompanies?: number;
   baseUrl: string;
-}): KaseTenantContext {
+}): InyoLoraContext {
   const { familyName, totalAum, activeDeals, portfolioCompanies, baseUrl } = params;
 
-  const facts: KaseFact[] = [
+  const facts: LoraFact[] = [
     { key: "family_name", value: familyName, category: "identity" },
     { key: "platform", value: "Inyo Family Office OS", category: "identity" },
   ];
@@ -58,11 +62,11 @@ export function buildKaseTenantContext(params: {
   if (activeDeals != null) facts.push({ key: "active_deals", value: activeDeals, category: "deal_flow" });
   if (portfolioCompanies != null) facts.push({ key: "portfolio_companies", value: portfolioCompanies, category: "portfolio" });
 
-  const actions: KaseAction[] = [
+  const actions: LoraAction[] = [
     {
-      id: "deal-flow-analysis",
+      id: "deal-flow",
       label: "Analyze Deal",
-      description: "Run the Deal Flow Analyst agent on an inbound opportunity",
+      description: "Run the Deal Flow Analyst on an inbound opportunity",
       endpoint: `${baseUrl}/api/agents/deal-flow`,
       method: "POST",
       auth: "staff",
@@ -70,7 +74,7 @@ export function buildKaseTenantContext(params: {
     {
       id: "ic-memo",
       label: "Generate IC Memo",
-      description: "Draft an Investment Committee memo for a deal",
+      description: "Draft an Investment Committee memo",
       endpoint: `${baseUrl}/api/agents/ic-memo`,
       method: "POST",
       auth: "staff",
@@ -84,7 +88,7 @@ export function buildKaseTenantContext(params: {
       auth: "staff",
     },
     {
-      id: "cfo-analysis",
+      id: "cfo",
       label: "CFO Analysis",
       description: "Cash flow and liquidity analysis across entities",
       endpoint: `${baseUrl}/api/agents/cfo`,
@@ -92,10 +96,18 @@ export function buildKaseTenantContext(params: {
       auth: "staff",
     },
     {
-      id: "tax-intelligence",
+      id: "tax",
       label: "Tax Intelligence",
       description: "K-1 analysis and tax position optimization",
       endpoint: `${baseUrl}/api/agents/tax`,
+      method: "POST",
+      auth: "staff",
+    },
+    {
+      id: "legal",
+      label: "Legal Review",
+      description: "Document review and clause flagging",
+      endpoint: `${baseUrl}/api/agents/legal`,
       method: "POST",
       auth: "staff",
     },
@@ -127,6 +139,7 @@ export function buildKaseTenantContext(params: {
 
   return {
     tenant: familyName,
+    platform: "inyo",
     knowledge: "tenant-scoped",
     facts,
     actions,
@@ -138,27 +151,27 @@ export function buildKaseTenantContext(params: {
 }
 
 /**
- * Forward a Kase action call to the corresponding Inyo agent endpoint.
- * Returns the raw agent response.
+ * Route an external action call to the corresponding Inyo agent endpoint.
  */
-export async function forwardKaseAction(
+export async function routeLoraAction(
   actionId: string,
   payload: Record<string, unknown>,
   baseUrl: string,
 ): Promise<Response> {
   const actionMap: Record<string, string> = {
-    "deal-flow-analysis": "/api/agents/deal-flow",
+    "deal-flow": "/api/agents/deal-flow",
     "ic-memo": "/api/agents/ic-memo",
     "portfolio-monitor": "/api/agents/portfolio-monitor",
-    "cfo-analysis": "/api/agents/cfo",
-    "tax-intelligence": "/api/agents/tax",
+    "cfo": "/api/agents/cfo",
+    "tax": "/api/agents/tax",
+    "legal": "/api/agents/legal",
     "philanthropy": "/api/agents/philanthropy",
     "relationships": "/api/agents/relationships",
     "chief-of-staff": "/api/agents/chief-of-staff",
   };
 
   const path = actionMap[actionId];
-  if (!path) throw new Error(`Unknown Kase action: ${actionId}`);
+  if (!path) throw new Error(`Unknown action: ${actionId}`);
 
   return fetch(`${baseUrl}${path}`, {
     method: "POST",
