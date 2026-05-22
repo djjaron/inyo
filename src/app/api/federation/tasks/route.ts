@@ -31,34 +31,40 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400, headers: CORS });
   }
 
-  // Unwrap A2A envelope: Dividen may send { id, input: { agentType, ... } }
-  const payload =
+  // Unwrap A2A envelope: Dividen sends { id, input: { agentType, ... } }
+  const payload: Record<string, unknown> =
     raw.input && typeof raw.input === "object" && !Array.isArray(raw.input)
       ? (raw.input as Record<string, unknown>)
       : raw;
 
-  const taskId = ((raw.id ?? raw.taskId) as string | undefined) ?? randomUUID();
-  const agentType = (payload.agentType ?? payload.agent_type) as string | undefined;
-  const familyId = ((payload.familyId ?? payload.family_id) as string | undefined) ?? "dividen-external";
+  const taskId = (raw.id ?? raw.taskId ?? randomUUID()) as string;
+  const agentTypeValue = (payload.agentType ?? payload.agent_type ?? "") as string;
+  const familyId = (payload.familyId ?? payload.family_id ?? "dividen-external") as string;
 
-  // If caller put everything flat (no context sub-object), strip protocol fields and use remainder
-  const context =
-    payload.context && typeof payload.context === "object"
-      ? (payload.context as Record<string, unknown>)
-      : (({ agentType: _a, agent_type: _b, familyId: _c, family_id: _d, documents: _e, taskId: _f, id: _g, ...rest }) => rest)(payload);
+  // Build context: use explicit context sub-object, or flatten remaining fields
+  let context: Record<string, unknown>;
+  if (payload.context && typeof payload.context === "object" && !Array.isArray(payload.context)) {
+    context = payload.context as Record<string, unknown>;
+  } else {
+    const skip = new Set(["agentType", "agent_type", "familyId", "family_id", "documents", "taskId", "id"]);
+    context = {};
+    for (const [k, v] of Object.entries(payload)) {
+      if (!skip.has(k)) context[k] = v;
+    }
+  }
 
   const documents = payload.documents as { name: string; content: string }[] | undefined;
 
-  if (!agentType) {
+  if (!agentTypeValue) {
     return NextResponse.json(
-      { error: "agentType is required. Set it in the request body (or input.agentType for A2A envelope format)." },
+      { error: "agentType is required" },
       { status: 400, headers: CORS },
     );
   }
 
   try {
     const output = await runAgent({
-      agentType: agentType as AgentType,
+      agentType: agentTypeValue as AgentType,
       familyId,
       context,
       documents,
