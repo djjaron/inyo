@@ -32,12 +32,10 @@ function getCoreModules(): PromptModule[] {
 }
 
 function getAgentModules(agentType: AgentType): PromptModule[] {
-  const r = (id: AgentType) => (id === agentType ? 1.0 : 0.0)
-
   return [
     {
       id: "domain_deal-flow",
-      relevance: r("deal-flow"),
+      relevance: agentType === "deal-flow" ? 1.0 : 0.0,
       content: `You are the Deal Flow Analyst. Your role is to triage incoming investment opportunities for a family office.
 
 For each deal, you:
@@ -52,18 +50,18 @@ For each deal, you:
     },
     {
       id: "schema_deal-flow",
-      relevance: r("deal-flow"),
+      relevance: agentType === "deal-flow" ? 1.0 : 0.0,
       content: "Return JSON matching DealScoreOutput schema.",
     },
     {
       id: "domain_ic-memo",
-      relevance: r("ic-memo"),
+      relevance: agentType === "ic-memo" ? 1.0 : 0.0,
       content:
         "You are the IC Memo Writer. You produce institutional-quality investment committee memos.",
     },
     {
       id: "schema_ic-memo",
-      relevance: r("ic-memo"),
+      relevance: agentType === "ic-memo" ? 1.0 : 0.0,
       content: `Return a JSON object with EXACTLY these camelCase field names:
 {
   "executiveSummary": "2-3 sentence summary",
@@ -86,7 +84,7 @@ For each deal, you:
     },
     {
       id: "domain_portfolio-monitor",
-      relevance: r("portfolio-monitor"),
+      relevance: agentType === "portfolio-monitor" ? 1.0 : 0.0,
       content: `You are the Portfolio Monitor. You watch existing investments for material changes.
 
 Monitor for:
@@ -100,13 +98,13 @@ Monitor for:
     },
     {
       id: "schema_portfolio-monitor",
-      relevance: r("portfolio-monitor"),
+      relevance: agentType === "portfolio-monitor" ? 1.0 : 0.0,
       content:
         "Return JSON with: companyName, alerts (array), overallStatus, recommendation.",
     },
     {
       id: "domain_cfo",
-      relevance: r("cfo"),
+      relevance: agentType === "cfo" ? 1.0 : 0.0,
       content: `You are the Family Office CFO Agent. You analyze financial data for a family office.
 
 You will receive structured financial data in the context including:
@@ -124,12 +122,12 @@ Provide:
     },
     {
       id: "schema_cfo",
-      relevance: r("cfo"),
+      relevance: agentType === "cfo" ? 1.0 : 0.0,
       content: `Return JSON: { summary: string, liquidityStatus: "healthy"|"watch"|"critical", insights: string[], recommendations: string[], alerts?: string[] }`,
     },
     {
       id: "domain_legal",
-      relevance: r("legal"),
+      relevance: agentType === "legal" ? 1.0 : 0.0,
       content: `You are the Legal Review Agent. You review documents for a family office.
 
 Note: This is NOT legal advice. You provide legal spotting only.
@@ -145,13 +143,13 @@ Flag:
     },
     {
       id: "schema_legal",
-      relevance: r("legal"),
+      relevance: agentType === "legal" ? 1.0 : 0.0,
       content:
         "Return JSON with: documentType, flags (array with: clause, issue, severity, recommendation), summary, urgency.",
     },
     {
       id: "domain_tax",
-      relevance: r("tax"),
+      relevance: agentType === "tax" ? 1.0 : 0.0,
       content: `You are the Tax Intelligence Agent. You organize tax information.
 
 Handle:
@@ -164,13 +162,13 @@ Handle:
     },
     {
       id: "schema_tax",
-      relevance: r("tax"),
+      relevance: agentType === "tax" ? 1.0 : 0.0,
       content:
         "Return JSON with: taxYear, entities, k1Summary, estimatedPayments, deductions, filingDeadlines, alerts.",
     },
     {
       id: "domain_chief-of-staff",
-      relevance: r("chief-of-staff"),
+      relevance: agentType === "chief-of-staff" ? 1.0 : 0.0,
       content: `You are the Executive Chief of Staff. You handle operational tasks for a family office principal.
 
 Responsibilities:
@@ -183,13 +181,13 @@ Responsibilities:
     },
     {
       id: "schema_chief-of-staff",
-      relevance: r("chief-of-staff"),
+      relevance: agentType === "chief-of-staff" ? 1.0 : 0.0,
       content:
         "Return JSON with: action, summary, tasks (array), relationships (array), followUps, priority.",
     },
     {
       id: "domain_concierge",
-      relevance: r("concierge"),
+      relevance: agentType === "concierge" ? 1.0 : 0.0,
       content: `You are the Concierge and Lifestyle Agent. You handle household and personal operations.
 
 Handle:
@@ -201,13 +199,13 @@ Handle:
     },
     {
       id: "schema_concierge",
-      relevance: r("concierge"),
+      relevance: agentType === "concierge" ? 1.0 : 0.0,
       content:
         "Return JSON with: requestType, summary, steps, vendors, timeline, status.",
     },
     {
       id: "domain_philanthropy",
-      relevance: r("philanthropy"),
+      relevance: agentType === "philanthropy" ? 1.0 : 0.0,
       content: `You are the Philanthropy Agent. You support foundation and giving operations.
 
 Handle:
@@ -220,13 +218,13 @@ Handle:
     },
     {
       id: "schema_philanthropy",
-      relevance: r("philanthropy"),
+      relevance: agentType === "philanthropy" ? 1.0 : 0.0,
       content:
         "Return JSON with: type, summary, organizations, amounts, deadlines, impact, nextSteps.",
     },
     {
       id: "domain_relationships",
-      relevance: r("relationships"),
+      relevance: agentType === "relationships" ? 1.0 : 0.0,
       content: `You are the Relationship Intelligence Agent. You map and analyze the family office network.
 
 Answer questions about:
@@ -239,13 +237,13 @@ Answer questions about:
     },
     {
       id: "schema_relationships",
-      relevance: r("relationships"),
+      relevance: agentType === "relationships" ? 1.0 : 0.0,
       content:
         "Return JSON with: query, answer, contacts (array), connectionPaths, openItems, suggestions.",
     },
     {
       id: "domain_term-sheet",
-      relevance: r("term-sheet"),
+      relevance: agentType === "term-sheet" ? 1.0 : 0.0,
       content: `You are the Term Sheet Analyst. You extract and compare investment term sheets for a family office.
 
 Given one or more term sheets (as raw text), extract structured fields and flag non-standard terms.
@@ -266,7 +264,7 @@ For EACH term sheet, extract:
     },
     {
       id: "schema_term-sheet",
-      relevance: r("term-sheet"),
+      relevance: agentType === "term-sheet" ? 1.0 : 0.0,
       content: `Return JSON with EXACTLY:
 {
   "sheets": [
@@ -296,13 +294,13 @@ For EACH term sheet, extract:
     },
     {
       id: "domain_diligence",
-      relevance: r("diligence"),
+      relevance: agentType === "diligence" ? 1.0 : 0.0,
       content:
         "You are an expert investment due diligence analyst for a family office. Given a list of diligence checklist items for a specific deal, analyze each item using the provided deal context and return structured findings.",
     },
     {
       id: "schema_diligence",
-      relevance: r("diligence"),
+      relevance: agentType === "diligence" ? 1.0 : 0.0,
       content: `Return a JSON object with this structure:
 {
   "items": [
@@ -317,7 +315,7 @@ Use only information available in the deal context. If you cannot answer a quest
     },
     {
       id: "domain_deal-enrichment",
-      relevance: r("deal-enrichment"),
+      relevance: agentType === "deal-enrichment" ? 1.0 : 0.0,
       content: `You are the Deal Enrichment Analyst. You analyze investment opportunities using data sourced from the company's website, LinkedIn profiles of founders, and Crunchbase.
 
 Given the deal context and any sourced web content, you produce:
@@ -329,7 +327,7 @@ Risk factor sources you consider: company website credibility, LinkedIn founder 
     },
     {
       id: "schema_deal-enrichment",
-      relevance: r("deal-enrichment"),
+      relevance: agentType === "deal-enrichment" ? 1.0 : 0.0,
       content: `Return a JSON object with EXACTLY these fields:
 {
   "affinityScore": number (0-100),
