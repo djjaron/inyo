@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { runAgent } from "@/lib/agents/runtime";
+import { prisma } from "@/lib/prisma";
 
 const MOCK_CFO_OUTPUT = {
   summary:
@@ -56,12 +57,72 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ analysis: mockAnalysis, result: MOCK_CFO_OUTPUT });
   }
 
+  // Fetch real financial data; fall back to empty context on DB error
+  let financialContext: Array<{
+    id: string;
+    name: string;
+    type: string;
+    jurisdiction: string | null;
+    totalInflows: number;
+    totalOutflows: number;
+    net: number;
+    recentTransactions: Array<{
+      type: string;
+      category: string | null;
+      amount: number;
+      description: string | null;
+      date: string;
+    }>;
+  }> = [];
+  let totalNet = 0;
+
+  try {
+    const entities = await prisma.entity.findMany({
+      where: { familyId: familyId as string },
+      include: {
+        cashFlows: {
+          orderBy: { occurredAt: "desc" },
+          take: 50,
+        },
+      },
+    });
+
+    financialContext = entities.map((entity) => {
+      const inflows = entity.cashFlows
+        .filter((cf) => cf.type === "income" || cf.type === "distribution")
+        .reduce((sum, cf) => sum + Number(cf.amount), 0);
+      const outflows = entity.cashFlows
+        .filter((cf) => cf.type !== "income" && cf.type !== "distribution")
+        .reduce((sum, cf) => sum + Number(cf.amount), 0);
+      return {
+        id: entity.id,
+        name: entity.name,
+        type: entity.type,
+        jurisdiction: entity.jurisdiction,
+        totalInflows: inflows,
+        totalOutflows: outflows,
+        net: inflows - outflows,
+        recentTransactions: entity.cashFlows.slice(0, 10).map((cf) => ({
+          type: cf.type,
+          category: cf.category,
+          amount: Number(cf.amount),
+          description: cf.description,
+          date: cf.occurredAt.toISOString().split("T")[0],
+        })),
+      };
+    });
+
+    totalNet = financialContext.reduce((sum, e) => sum + e.net, 0);
+  } catch {
+    // Proceed with empty financial context
+  }
+
   let agentOutput;
   try {
     agentOutput = await runAgent({
       agentType: "cfo",
       familyId: familyId as string,
-      context: { query, ...((context as Record<string, unknown>) ?? {}) },
+      context: { query, familyId, entities: financialContext, totalNet },
     });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Agent execution failed";

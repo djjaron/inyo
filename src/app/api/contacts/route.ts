@@ -16,6 +16,12 @@ const MOCK_CONTACTS = [
     lastContactAt: new Date("2025-04-12"),
     introducedBy: "Marcus Webb",
     warmPathNotes: "Met at a16z founder dinner. Strong mutual connection.",
+    investorType: null,
+    assetClasses: [] as string[],
+    checkSizeMin: null,
+    checkSizeMax: null,
+    portfolioNotes: null,
+    lastDealTogether: null,
     createdAt: new Date("2025-03-10"),
     updatedAt: new Date("2025-04-12"),
   },
@@ -33,6 +39,12 @@ const MOCK_CONTACTS = [
     lastContactAt: new Date("2025-03-28"),
     introducedBy: null,
     warmPathNotes: "Quarterly LP meeting attendee. Pre-existing relationship.",
+    investorType: "vc" as string | null,
+    assetClasses: ["tech"] as string[],
+    checkSizeMin: 2_000_000 as number | null,
+    checkSizeMax: 20_000_000 as number | null,
+    portfolioNotes: "Focuses on Series A/B software companies." as string | null,
+    lastDealTogether: "ClearReg" as string | null,
     createdAt: new Date("2023-01-15"),
     updatedAt: new Date("2025-03-28"),
   },
@@ -50,6 +62,12 @@ const MOCK_CONTACTS = [
     lastContactAt: new Date("2025-04-01"),
     introducedBy: null,
     warmPathNotes: null,
+    investorType: null,
+    assetClasses: [] as string[],
+    checkSizeMin: null,
+    checkSizeMax: null,
+    portfolioNotes: null,
+    lastDealTogether: null,
     createdAt: new Date("2022-06-01"),
     updatedAt: new Date("2025-04-01"),
   },
@@ -67,6 +85,12 @@ const MOCK_CONTACTS = [
     lastContactAt: new Date("2025-04-05"),
     introducedBy: "Sarah Chen",
     warmPathNotes: "Sarah Chen intro. Active co-investor in seed deals.",
+    investorType: "vc" as string | null,
+    assetClasses: ["tech", "pe"] as string[],
+    checkSizeMin: 500_000 as number | null,
+    checkSizeMax: 5_000_000 as number | null,
+    portfolioNotes: "Seed-stage generalist with tech and PE focus." as string | null,
+    lastDealTogether: "Axiom Logistics" as string | null,
     createdAt: new Date("2025-04-05"),
     updatedAt: new Date("2025-04-05"),
   },
@@ -78,7 +102,7 @@ export async function GET(req: NextRequest) {
   const type = searchParams.get("type");
 
   try {
-    const where: Record<string, unknown> = {};
+    const where: Record<string, unknown> = { deletedAt: null };
     if (familyId) where.familyId = familyId;
     if (type) where.type = type;
 
@@ -119,7 +143,9 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const contact = await prisma.contact.create({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const prismaAny = prisma as any;
+    const contact = await prismaAny.contact.create({
       data: {
         familyId: familyId as string,
         name: name as string,
@@ -135,6 +161,12 @@ export async function POST(req: NextRequest) {
           : null,
         introducedBy: (body.introducedBy as string) ?? null,
         warmPathNotes: (body.warmPathNotes as string) ?? null,
+        investorType: (body.investorType as string) ?? null,
+        assetClasses: Array.isArray(body.assetClasses) ? (body.assetClasses as string[]) : [],
+        checkSizeMin: body.checkSizeMin != null ? Number(body.checkSizeMin) : null,
+        checkSizeMax: body.checkSizeMax != null ? Number(body.checkSizeMax) : null,
+        portfolioNotes: (body.portfolioNotes as string) ?? null,
+        lastDealTogether: (body.lastDealTogether as string) ?? null,
       },
     });
     return NextResponse.json({ contact }, { status: 201 });
@@ -143,6 +175,7 @@ export async function POST(req: NextRequest) {
       id: `contact_mock_${Date.now()}`,
       ...body,
       type: body.type ?? "contact",
+      assetClasses: Array.isArray(body.assetClasses) ? body.assetClasses : [],
       createdAt: new Date(),
       updatedAt: new Date(),
       _mock: true,

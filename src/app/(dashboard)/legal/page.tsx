@@ -1,12 +1,32 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
-import { Scale, Upload, FileText, AlertTriangle, Loader2, RefreshCw } from "lucide-react";
+import { useRef, useState, useEffect, useCallback } from "react";
+import { Scale, Upload, FileText, AlertTriangle, Loader2, RefreshCw, Calendar, Pencil } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import PageHeader from "@/components/ui/PageHeader";
 import { useFamilyId } from "@/context/FamilyContext";
 
 // ─── Types ────────────────────────────────────────────────────────────────
+
+type ExpiryStatus = "expired" | "critical" | "warning" | "upcoming";
+
+interface ExpiryDoc {
+  id: string;
+  name: string;
+  type: string;
+  dealId: string | null;
+  dealName: string | null;
+  expiresAt: string;
+  daysUntil: number;
+  status: ExpiryStatus;
+  keyDates: unknown[];
+}
+
+interface ExpiryResponse {
+  _mock: boolean;
+  expiring: ExpiryDoc[];
+  recentlyExpired: ExpiryDoc[];
+}
 
 interface LegalFlag {
   clause: string;
@@ -35,6 +55,25 @@ interface DocumentRow {
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────
+
+function expiryVariant(status: ExpiryStatus): "danger" | "warning" | "muted" {
+  if (status === "critical") return "danger";
+  if (status === "warning") return "warning";
+  return "muted";
+}
+
+function expiryBorderColor(status: ExpiryStatus): string {
+  if (status === "critical") return "#ef4444";
+  if (status === "warning") return "#f59e0b";
+  if (status === "expired") return "var(--border)";
+  return "var(--border)";
+}
+
+function expiryLabel(daysUntil: number): string {
+  if (daysUntil < 0) return `Expired ${Math.abs(daysUntil)} day${Math.abs(daysUntil) !== 1 ? "s" : ""} ago`;
+  if (daysUntil === 0) return "Expires today";
+  return `Expires in ${daysUntil} day${daysUntil !== 1 ? "s" : ""}`;
+}
 
 function riskVariant(level: string): "success" | "warning" | "danger" {
   if (level === "low") return "success";
@@ -78,6 +117,39 @@ export default function LegalPage() {
 
   const [isDragOver, setIsDragOver] = useState(false);
   const [recentDocs, setRecentDocs] = useState<DocumentRow[]>([]);
+
+  // Expiry tracking state
+  const [expiryData, setExpiryData] = useState<ExpiryResponse | null>(null);
+  const [editingExpiryId, setEditingExpiryId] = useState<string | null>(null);
+  const [editingExpiryDate, setEditingExpiryDate] = useState<string>("");
+
+  const loadExpiry = useCallback(() => {
+    if (!familyId) return;
+    fetch(`/api/documents/expiry?familyId=${familyId}`)
+      .then((r) => r.json())
+      .then((data: ExpiryResponse) => setExpiryData(data))
+      .catch(() => {});
+  }, [familyId]);
+
+  useEffect(() => {
+    loadExpiry();
+  }, [loadExpiry]);
+
+  async function saveExpiryDate(docId: string) {
+    if (!editingExpiryDate) return;
+    try {
+      await fetch(`/api/documents/${docId}/expiry`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ expiresAt: editingExpiryDate }),
+      });
+      setEditingExpiryId(null);
+      setEditingExpiryDate("");
+      loadExpiry();
+    } catch {
+      // ignore
+    }
+  }
 
   // Load recent documents
   useEffect(() => {
@@ -251,6 +323,150 @@ export default function LegalPage() {
       />
 
       <div className="flex-1 p-8 grid grid-cols-2 gap-6 overflow-auto">
+
+        {/* ── Expiring Documents ───────────────────────────────────────────── */}
+        <div className="col-span-2">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xs font-medium tracking-wider uppercase" style={{ color: "var(--text-muted)" }}>
+              Expiring Documents
+            </h2>
+            {expiryData?._mock && (
+              <Badge label="mock" variant="muted" size="xs" />
+            )}
+          </div>
+
+          {(!expiryData || (expiryData.expiring.length === 0 && expiryData.recentlyExpired.length === 0)) ? (
+            <div
+              className="rounded-md border px-5 py-4 text-xs"
+              style={{ borderColor: "var(--border)", background: "var(--bg-surface)", color: "var(--text-muted)" }}
+            >
+              No documents expiring in the next 90 days — your vault is clear.
+            </div>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {[...(expiryData?.expiring ?? []), ...(expiryData?.recentlyExpired ?? [])].map((doc) => (
+                <div
+                  key={doc.id}
+                  className="rounded-md border overflow-hidden"
+                  style={{
+                    borderColor: "var(--border)",
+                    borderLeft: `2px solid ${expiryBorderColor(doc.status)}`,
+                    background: doc.status === "expired" ? "var(--bg-base)" : "var(--bg-surface)",
+                    opacity: doc.status === "expired" ? 0.65 : 1,
+                  }}
+                >
+                  <div className="px-4 py-3">
+                    {/* Row 1: type badge + doc name + pencil */}
+                    <div className="flex items-center gap-2">
+                      <Badge label={docTypeLabel(doc.type)} variant="muted" size="xs" />
+                      <span
+                        className="flex-1 text-sm font-medium truncate"
+                        style={{ color: doc.status === "expired" ? "var(--text-muted)" : "var(--text-primary)" }}
+                      >
+                        {doc.name}
+                      </span>
+                      {/* Set / edit expiry inline */}
+                      {!doc.id.startsWith("mock-") && (
+                        <button
+                          title="Set expiry date"
+                          onClick={() => {
+                            if (editingExpiryId === doc.id) {
+                              setEditingExpiryId(null);
+                              setEditingExpiryDate("");
+                            } else {
+                              setEditingExpiryId(doc.id);
+                              setEditingExpiryDate(doc.expiresAt.slice(0, 10));
+                            }
+                          }}
+                          className="flex items-center justify-center rounded p-1 transition-colors shrink-0"
+                          style={{
+                            background: editingExpiryId === doc.id ? "rgba(59,130,246,0.12)" : "transparent",
+                            color: editingExpiryId === doc.id ? "var(--accent)" : "var(--text-muted)",
+                            border: "1px solid transparent",
+                          }}
+                        >
+                          <Pencil size={11} />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Row 2: deal name (left) + expiry status (right) */}
+                    <div className="flex items-center justify-between mt-1 gap-4">
+                      <div className="text-xs truncate" style={{ color: "var(--text-muted)" }}>
+                        {doc.dealName ?? ""}
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {doc.status !== "expired" && (
+                          <AlertTriangle
+                            size={12}
+                            style={{
+                              color: doc.status === "critical" ? "#ef4444" : doc.status === "warning" ? "#f59e0b" : "var(--text-muted)",
+                            }}
+                          />
+                        )}
+                        <span
+                          className="text-xs"
+                          style={{
+                            color:
+                              doc.status === "critical"
+                                ? "#ef4444"
+                                : doc.status === "warning"
+                                ? "#f59e0b"
+                                : "var(--text-muted)",
+                          }}
+                        >
+                          {expiryLabel(doc.daysUntil)}
+                        </span>
+                        <Badge
+                          label={doc.status}
+                          variant={expiryVariant(doc.status)}
+                          size="xs"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Inline date editor */}
+                  {editingExpiryId === doc.id && (
+                    <div
+                      className="flex items-center gap-2 px-4 pb-3"
+                      style={{ borderTop: "1px solid var(--border-subtle)" }}
+                    >
+                      <Calendar size={12} style={{ color: "var(--text-muted)" }} />
+                      <input
+                        type="date"
+                        value={editingExpiryDate}
+                        onChange={(e) => setEditingExpiryDate(e.target.value)}
+                        className="rounded px-2 py-1 text-xs"
+                        style={{
+                          background: "var(--bg-elevated)",
+                          border: "1px solid var(--border)",
+                          color: "var(--text-primary)",
+                          outline: "none",
+                        }}
+                      />
+                      <button
+                        onClick={() => saveExpiryDate(doc.id)}
+                        disabled={!editingExpiryDate}
+                        className="px-2 py-1 rounded text-xs disabled:opacity-40"
+                        style={{ background: "var(--accent)", color: "#fff" }}
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={() => { setEditingExpiryId(null); setEditingExpiryDate(""); }}
+                        className="px-2 py-1 rounded text-xs"
+                        style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", color: "var(--text-muted)" }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* Drop zone / Loading / Results */}
         {!reviewResult ? (

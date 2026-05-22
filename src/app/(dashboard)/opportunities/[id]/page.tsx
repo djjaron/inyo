@@ -2,7 +2,7 @@
 
 import { useState, useEffect, use } from "react";
 import Link from "next/link";
-import { ChevronLeft, Bot, FileText, RefreshCw, Zap, Loader2, Building2, Tag, DollarSign, Calendar, User, Link2 } from "lucide-react";
+import { ChevronLeft, Bot, FileText, RefreshCw, Zap, Loader2, Building2, Tag, DollarSign, Calendar, User, Globe, Link2, TrendingUp, Pencil, X, Plus, AlertTriangle, Users, ChevronDown, ChevronUp, Scale } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import ScoreRing from "@/components/ui/ScoreRing";
 import DealAnalysisPanel from "@/components/ui/DealAnalysisPanel";
@@ -22,7 +22,65 @@ const SELECTABLE_STATUSES = [
   "inbound", "reviewing", "diligence", "ic-review", "passed", "invested",
 ] as const;
 
-type Tab = "overview" | "analysis" | "memo";
+type Tab = "overview" | "analysis" | "memo" | "terms";
+
+interface TermSheetSheet {
+  label: string;
+  valuation: string | null;
+  investmentAmount: string | null;
+  ownership: string | null;
+  liquidationPref: string;
+  antiDilution: string;
+  boardSeats: string;
+  proRataRights: string;
+  dragAlong: string;
+  informationRights: string;
+  closingConditions: string[];
+  unusualTerms: Array<{ term: string; flag: string; severity: "high" | "medium" | "low" }>;
+  summary: string;
+}
+
+interface TermSheetResult {
+  sheets: TermSheetSheet[];
+  comparison: {
+    mostFavorable: string;
+    keyDifferences: string[];
+    redFlags: Array<{ sheet: string; term: string; issue: string }>;
+    recommendation: string;
+  };
+}
+
+interface Founder {
+  id: string;
+  name: string;
+  title?: string;
+  linkedinUrl?: string;
+}
+
+interface EnrichmentResult {
+  affinityScore: number;
+  riskScore: number;
+  fundabilityScore: number;
+  riskFactors: Array<{ factor: string; severity: "high" | "medium" | "low"; description: string; source: string }>;
+  fundabilityFactors: Array<{ factor: string; impact: "positive" | "negative"; description: string }>;
+  founderSignals: Array<{ name: string; signals: string[] }>;
+  webSignals: { websiteQuality: string; techStack: string[]; teamPagePresence: boolean; pressOrMedia: string[] };
+  summary: string;
+}
+
+interface CoInvestorMatch {
+  id: string;
+  name: string;
+  company?: string | null;
+  title?: string | null;
+  linkedIn?: string | null;
+  investorType?: string | null;
+  assetClasses: string[];
+  checkSizeMin?: number | null;
+  checkSizeMax?: number | null;
+  score: number;
+  lastContactAt?: string | null;
+}
 
 interface Deal {
   id: string; familyId: string; company: string; name?: string;
@@ -30,6 +88,13 @@ interface Deal {
   capitalAsk?: number; valuation?: number; description?: string;
   sourceType?: string; sourceContact?: string; dealScore?: number;
   createdAt: string; updatedAt?: string;
+  website?: string;
+  linkedinUrl?: string;
+  crunchbaseUrl?: string;
+  affinityScore?: number;
+  riskScore?: number;
+  fundabilityScore?: number;
+  enrichedAt?: string;
   documents?: Array<{ id: string; name: string; textContent?: string; createdAt: string }>;
   aiAnalyses?: Array<{ id: string; agentType: string; output: Record<string, unknown>; createdAt: string; _mock?: boolean }>;
 }
@@ -54,10 +119,35 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
 
   const [docText, setDocText] = useState("");
 
+  // Term sheet state
+  const [termSheets, setTermSheets] = useState([
+    { label: "Term Sheet 1", content: "" },
+    { label: "Term Sheet 2", content: "" },
+  ]);
+  const [termResult, setTermResult] = useState<TermSheetResult | null>(null);
+  const [termRunning, setTermRunning] = useState(false);
+  const [termAck, setTermAck] = useState<string | null>(null);
+
+  // Enrichment state
+  const [founders, setFounders] = useState<Founder[]>([]);
+  const [enrichment, setEnrichment] = useState<EnrichmentResult | null>(null);
+  const [enriching, setEnriching] = useState(false);
+  const [enrichProgress, setEnrichProgress] = useState("");
+  const [showAddFounder, setShowAddFounder] = useState(false);
+
+  // Co-investor match state
+  const [coMatches, setCoMatches] = useState<CoInvestorMatch[]>([]);
+  const [coMatchesExpanded, setCoMatchesExpanded] = useState(true);
+  const [coMatchesMock, setCoMatchesMock] = useState(false);
+
+  // Source URL editing state
+  const [sourceEditing, setSourceEditing] = useState(false);
+  const [sourceForm, setSourceForm] = useState({ website: "", linkedinUrl: "", crunchbaseUrl: "" });
+
   useEffect(() => {
     fetch(`/api/deals/${id}`)
       .then((r) => r.json())
-      .then((data) => {
+      .then(async (data) => {
         const d: Deal = data.deal ?? data;
         setDeal(d);
         // Pre-load most recent analysis results if available
@@ -67,6 +157,32 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
         if (la) { setAnalysis(la.output); setAnalysisMock(!!(la as { _mock?: boolean })._mock); }
         const lm = latest("ic-memo");
         if (lm) { setIcMemo(lm.output); setMemoMock(!!(lm as { _mock?: boolean })._mock); }
+
+        // Initialize sourceForm from deal data
+        setSourceForm({ website: d.website ?? "", linkedinUrl: d.linkedinUrl ?? "", crunchbaseUrl: d.crunchbaseUrl ?? "" });
+
+        // Load founders
+        try {
+          const foundersRes = await fetch(`/api/deals/${id}/founders`);
+          const foundersData = await foundersRes.json();
+          setFounders(foundersData.founders ?? []);
+        } catch {
+          // ignore founders fetch error
+        }
+
+        // If deal already has scores, load enrichment display
+        if (d.affinityScore != null) {
+          setEnrichment({
+            affinityScore: d.affinityScore,
+            riskScore: d.riskScore ?? 0,
+            fundabilityScore: d.fundabilityScore ?? 0,
+            riskFactors: [],
+            fundabilityFactors: [],
+            founderSignals: [],
+            webSignals: { websiteQuality: "", techStack: [], teamPagePresence: false, pressOrMedia: [] },
+            summary: "",
+          });
+        }
       })
       .catch(() => {
         setDeal({
@@ -76,6 +192,22 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
       })
       .finally(() => setLoading(false));
   }, [id]);
+
+  // Load co-investor matches once deal is available
+  useEffect(() => {
+    if (!deal) return;
+    const params = new URLSearchParams({ familyId: deal.familyId });
+    if (deal.sector) params.set("sector", deal.sector);
+    if (deal.stage) params.set("stage", deal.stage);
+    if (deal.capitalAsk) params.set("amount", String(deal.capitalAsk));
+    fetch(`/api/contacts/match?${params.toString()}`)
+      .then((r) => r.json())
+      .then((data) => {
+        setCoMatches(data.matches ?? []);
+        if (data._mock) setCoMatchesMock(true);
+      })
+      .catch(() => {});
+  }, [deal?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function runDealFlow() {
     if (!deal) return;
@@ -178,6 +310,52 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
     }
   }
 
+  async function runTermSheet() {
+    if (!deal || termRunning) return;
+    const validSheets = termSheets.filter((s) => s.content.trim());
+    if (!validSheets.length) return;
+    setTermRunning(true);
+    setTermAck("Analyzing term sheets…");
+    setTermResult(null);
+    try {
+      const res = await fetch("/api/agents/term-sheet/stream", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          familyId: deal.familyId,
+          dealId: deal.id,
+          sheets: validSheets,
+        }),
+      });
+      if (!res.body) throw new Error("No stream");
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buf = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+        const parts = buf.split("\n\n");
+        buf = parts.pop() ?? "";
+        for (const part of parts) {
+          if (!part.startsWith("data: ")) continue;
+          try {
+            const p = JSON.parse(part.slice(6));
+            if (p.type === "ack") setTermAck(p.message);
+            else if (p.type === "done") {
+              setTermResult(p.result ?? null);
+              setTermRunning(false);
+            } else if (p.type === "error") {
+              setTermRunning(false);
+            }
+          } catch {}
+        }
+      }
+    } catch {
+      setTermRunning(false);
+    }
+  }
+
   async function updateStatus(newStatus: string) {
     if (!deal || newStatus === deal.status) return;
     const prevStatus = deal.status;
@@ -194,6 +372,107 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
       setDeal({ ...deal, status: prevStatus });
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function saveSources() {
+    if (!deal) return;
+    await fetch(`/api/deals/${deal.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        website: sourceForm.website || null,
+        linkedinUrl: sourceForm.linkedinUrl || null,
+        crunchbaseUrl: sourceForm.crunchbaseUrl || null,
+      }),
+    });
+    const updated = await fetch(`/api/deals/${deal.id}`).then((r) => r.json());
+    if (updated.deal) {
+      setDeal(updated.deal);
+      setSourceForm({
+        website: updated.deal.website ?? "",
+        linkedinUrl: updated.deal.linkedinUrl ?? "",
+        crunchbaseUrl: updated.deal.crunchbaseUrl ?? "",
+      });
+    }
+    setSourceEditing(false);
+  }
+
+  async function addFounder(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    const name = (fd.get("name") as string).trim();
+    if (!name || !deal) return;
+    const res = await fetch(`/api/deals/${deal.id}/founders`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name,
+        title: (fd.get("title") as string) || undefined,
+        linkedinUrl: (fd.get("linkedinUrl") as string) || undefined,
+      }),
+    });
+    const data = await res.json();
+    if (data.founder) { setFounders((f) => [...f, data.founder as Founder]); setShowAddFounder(false); }
+  }
+
+  async function removeFounder(founderId: string) {
+    if (!deal) return;
+    await fetch(`/api/deals/${deal.id}/founders/${founderId}`, { method: "DELETE" });
+    setFounders((f) => f.filter((x) => x.id !== founderId));
+  }
+
+  async function runEnrichment() {
+    if (!deal || enriching) return;
+    setEnriching(true);
+    setEnrichProgress("Starting enrichment…");
+
+    const res = await fetch(`/api/deals/${deal.id}/enrich/stream`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        familyId: deal.familyId,
+        context: {
+          company: deal.company,
+          sector: deal.sector,
+          stage: deal.stage,
+          description: deal.description,
+          website: deal.website,
+          linkedinUrl: deal.linkedinUrl,
+          crunchbaseUrl: deal.crunchbaseUrl,
+        },
+      }),
+    });
+
+    const reader = res.body!.getReader();
+    const decoder = new TextDecoder();
+    let buf = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += decoder.decode(value, { stream: true });
+      const lines = buf.split("\n");
+      buf = lines.pop() ?? "";
+      for (const line of lines) {
+        if (!line.startsWith("data: ")) continue;
+        try {
+          const evt = JSON.parse(line.slice(6)) as { type: string; message?: string; result?: EnrichmentResult };
+          if (evt.type === "ack" || evt.type === "progress") setEnrichProgress(evt.message ?? "");
+          if (evt.type === "done") {
+            setEnrichment(evt.result as EnrichmentResult);
+            setEnriching(false);
+            setEnrichProgress("");
+            // Reload deal to get updated scores
+            const updated = await fetch(`/api/deals/${deal.id}`).then((r) => r.json());
+            if (updated.deal) setDeal(updated.deal as Deal);
+          }
+          if (evt.type === "error") {
+            setEnriching(false);
+            setEnrichProgress("");
+          }
+        } catch {}
+      }
     }
   }
 
@@ -218,7 +497,35 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
     { key: "overview", label: "Overview", icon: <Building2 size={13} /> },
     { key: "analysis", label: "Deal Analysis", icon: <Bot size={13} /> },
     { key: "memo", label: "IC Memo", icon: <FileText size={13} /> },
+    { key: "terms", label: "Terms", icon: <Scale size={13} /> },
   ];
+
+  const scoreCards: Array<{ label: string; value: number; color: string; inverted?: boolean }> = [
+    { label: "Affinity Score", value: enrichment?.affinityScore ?? deal.affinityScore ?? 0, color: "var(--accent)" },
+    { label: "Fundability", value: enrichment?.fundabilityScore ?? deal.fundabilityScore ?? 0, color: "#10b981" },
+    { label: "Risk Score", value: enrichment?.riskScore ?? deal.riskScore ?? 0, color: "#ef4444", inverted: true },
+  ];
+
+  const severityVariant: Record<string, "danger" | "warning" | "muted"> = {
+    high: "danger",
+    medium: "warning",
+    low: "muted",
+  };
+
+  function fmtCheck(min?: number | null, max?: number | null): string {
+    if (!min && !max) return "";
+    const fmt = (n: number) =>
+      n >= 1_000_000 ? `$${(n / 1_000_000).toFixed(0)}M` : `$${(n / 1_000).toFixed(0)}K`;
+    if (min && max) return `${fmt(min)}–${fmt(max)}`;
+    if (min) return `${fmt(min)}+`;
+    return `up to ${fmt(max!)}`;
+  }
+
+  function matchDot(score: number) {
+    if (score >= 8) return "#10b981";
+    if (score >= 5) return "#f59e0b";
+    return "var(--text-muted)";
+  }
 
   return (
     <div className="flex flex-col h-full">
@@ -351,10 +658,298 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
               {/* Deal Details */}
               <div className="md:col-span-2 space-y-5">
+
+                {/* Enrichment Score Cards — shown when scores exist */}
+                {(enrichment || deal.affinityScore != null) && (
+                  <div className="grid grid-cols-3 gap-4">
+                    {scoreCards.map(({ label, value, color, inverted }) => (
+                      <div
+                        key={label}
+                        className="rounded-lg border p-4 flex items-center gap-3"
+                        style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}
+                      >
+                        <div
+                          className="flex items-center justify-center rounded-full flex-shrink-0"
+                          style={{
+                            width: 48,
+                            height: 48,
+                            background: `${color}18`,
+                            border: `2px solid ${color}40`,
+                          }}
+                        >
+                          <span
+                            className="text-lg font-bold"
+                            style={{ color, fontVariantNumeric: "tabular-nums" }}
+                          >
+                            {value}
+                          </span>
+                        </div>
+                        <div>
+                          <div className="text-xs font-medium tracking-wider uppercase" style={{ color: "var(--text-muted)" }}>{label}</div>
+                          {inverted && (
+                            <div className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>higher = more risk</div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 {deal.description && (
                   <div className="p-4 rounded-lg" style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)" }}>
                     <div className="text-xs font-semibold tracking-wide uppercase mb-2" style={{ color: "var(--text-muted)" }}>Description</div>
                     <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{deal.description}</p>
+                  </div>
+                )}
+
+                {/* Data Sources & Enrichment */}
+                <div className="p-4 rounded-lg" style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)" }}>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="text-xs font-semibold tracking-wide uppercase" style={{ color: "var(--text-muted)" }}>
+                      Data Sources & Enrichment
+                    </div>
+                    <button
+                      onClick={() => setSourceEditing((v) => !v)}
+                      className="flex items-center gap-1 px-2 py-1 rounded text-xs transition-colors"
+                      style={{ color: "var(--text-muted)", border: "1px solid var(--border)" }}
+                    >
+                      {sourceEditing ? <X size={11} /> : <Pencil size={11} />}
+                      {sourceEditing ? "Cancel" : "Edit"}
+                    </button>
+                  </div>
+
+                  {/* URL fields */}
+                  <div className="space-y-2 mb-4">
+                    {sourceEditing ? (
+                      <>
+                        <div className="flex items-center gap-2">
+                          <Globe size={13} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
+                          <input
+                            type="url"
+                            placeholder="https://company.com"
+                            value={sourceForm.website}
+                            onChange={(e) => setSourceForm((f) => ({ ...f, website: e.target.value }))}
+                            className="flex-1 rounded px-2.5 py-1.5 text-xs outline-none"
+                            style={{ background: "var(--bg-surface)", border: "1px solid var(--border)", color: "var(--text-secondary)" }}
+                          />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Link2 size={13} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
+                          <input
+                            type="url"
+                            placeholder="https://linkedin.com/company/..."
+                            value={sourceForm.linkedinUrl}
+                            onChange={(e) => setSourceForm((f) => ({ ...f, linkedinUrl: e.target.value }))}
+                            className="flex-1 rounded px-2.5 py-1.5 text-xs outline-none"
+                            style={{ background: "var(--bg-surface)", border: "1px solid var(--border)", color: "var(--text-secondary)" }}
+                          />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <TrendingUp size={13} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
+                          <input
+                            type="url"
+                            placeholder="https://crunchbase.com/organization/..."
+                            value={sourceForm.crunchbaseUrl}
+                            onChange={(e) => setSourceForm((f) => ({ ...f, crunchbaseUrl: e.target.value }))}
+                            className="flex-1 rounded px-2.5 py-1.5 text-xs outline-none"
+                            style={{ background: "var(--bg-surface)", border: "1px solid var(--border)", color: "var(--text-secondary)" }}
+                          />
+                        </div>
+                        <button
+                          onClick={saveSources}
+                          className="mt-1 px-3 py-1.5 rounded text-xs font-medium"
+                          style={{ background: "var(--accent)", color: "#fff" }}
+                        >
+                          Save Sources
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        {[
+                          { icon: <Globe size={13} />, label: "Website", value: deal.website },
+                          { icon: <Link2 size={13} />, label: "LinkedIn", value: deal.linkedinUrl },
+                          { icon: <TrendingUp size={13} />, label: "Crunchbase", value: deal.crunchbaseUrl },
+                        ].map(({ icon, label, value }) => (
+                          <div key={label} className="flex items-center gap-2">
+                            <span style={{ color: "var(--text-muted)", flexShrink: 0 }}>{icon}</span>
+                            <span className="text-xs w-20 flex-shrink-0" style={{ color: "var(--text-muted)" }}>{label}</span>
+                            {value ? (
+                              <a
+                                href={value}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs truncate max-w-xs hover:underline"
+                                style={{ color: "var(--accent)" }}
+                              >
+                                {value}
+                              </a>
+                            ) : (
+                              <span className="text-xs" style={{ color: "var(--border)" }}>—</span>
+                            )}
+                          </div>
+                        ))}
+                      </>
+                    )}
+                  </div>
+
+                  {/* Founders */}
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="text-xs font-medium tracking-wider uppercase" style={{ color: "var(--text-muted)" }}>Founders</div>
+                      <button
+                        onClick={() => setShowAddFounder((v) => !v)}
+                        className="flex items-center gap-1 px-2 py-1 rounded text-xs"
+                        style={{ color: "var(--text-muted)", border: "1px solid var(--border)" }}
+                      >
+                        {showAddFounder ? <X size={11} /> : <Plus size={11} />}
+                        {showAddFounder ? "Cancel" : "Add"}
+                      </button>
+                    </div>
+
+                    {founders.length > 0 && (
+                      <div className="space-y-1.5 mb-2">
+                        {founders.map((f) => (
+                          <div
+                            key={f.id}
+                            className="flex items-center gap-2 py-1.5 px-2 rounded"
+                            style={{ background: "var(--bg-surface)" }}
+                          >
+                            <div className="flex-1 flex items-center gap-2 min-w-0">
+                              <span className="text-sm font-medium truncate" style={{ color: "var(--text-primary)" }}>{f.name}</span>
+                              {f.title && <span className="text-xs flex-shrink-0" style={{ color: "var(--text-muted)" }}>{f.title}</span>}
+                              {f.linkedinUrl && (
+                                <a
+                                  href={f.linkedinUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex-shrink-0 hover:opacity-70"
+                                  style={{ color: "var(--accent)" }}
+                                >
+                                  <Link2 size={11} />
+                                </a>
+                              )}
+                            </div>
+                            <button
+                              onClick={() => removeFounder(f.id)}
+                              className="flex-shrink-0 hover:opacity-70"
+                              style={{ color: "var(--text-muted)" }}
+                            >
+                              <X size={12} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {founders.length === 0 && !showAddFounder && (
+                      <p className="text-xs" style={{ color: "var(--border)" }}>No founders added yet.</p>
+                    )}
+
+                    {showAddFounder && (
+                      <form onSubmit={addFounder} className="space-y-2 p-3 rounded" style={{ background: "var(--bg-surface)", border: "1px solid var(--border)" }}>
+                        <input
+                          name="name"
+                          required
+                          placeholder="Full name"
+                          className="w-full rounded px-2.5 py-1.5 text-xs outline-none"
+                          style={{ background: "var(--bg-base)", border: "1px solid var(--border)", color: "var(--text-secondary)" }}
+                        />
+                        <input
+                          name="title"
+                          placeholder="Title (e.g. CEO)"
+                          className="w-full rounded px-2.5 py-1.5 text-xs outline-none"
+                          style={{ background: "var(--bg-base)", border: "1px solid var(--border)", color: "var(--text-secondary)" }}
+                        />
+                        <input
+                          name="linkedinUrl"
+                          type="url"
+                          placeholder="LinkedIn URL (optional)"
+                          className="w-full rounded px-2.5 py-1.5 text-xs outline-none"
+                          style={{ background: "var(--bg-base)", border: "1px solid var(--border)", color: "var(--text-secondary)" }}
+                        />
+                        <button
+                          type="submit"
+                          className="px-3 py-1.5 rounded text-xs font-medium"
+                          style={{ background: "var(--accent)", color: "#fff" }}
+                        >
+                          Add Founder
+                        </button>
+                      </form>
+                    )}
+                  </div>
+
+                  {/* Enrich button */}
+                  <div className="flex items-center gap-3 pt-1" style={{ borderTop: "1px solid var(--border)" }}>
+                    <button
+                      onClick={runEnrichment}
+                      disabled={enriching}
+                      className="flex items-center gap-1.5 px-3 py-2 rounded text-xs font-medium disabled:opacity-50 transition-opacity"
+                      style={{ background: "var(--accent)", color: "#fff" }}
+                    >
+                      {enriching ? <Loader2 size={12} className="animate-spin" /> : <Zap size={12} />}
+                      Enrich Deal
+                    </button>
+                    {enrichProgress && (
+                      <span className="text-xs" style={{ color: "var(--text-muted)" }}>{enrichProgress}</span>
+                    )}
+                    {deal.enrichedAt && !enriching && (
+                      <span className="text-xs ml-auto" style={{ color: "var(--text-muted)" }}>
+                        Last enriched {formatDate(deal.enrichedAt)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Risk Factors — shown after enrichment */}
+                {enrichment && enrichment.riskFactors.length > 0 && (
+                  <div className="p-4 rounded-lg" style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)" }}>
+                    <div className="flex items-center gap-2 mb-3">
+                      <AlertTriangle size={13} style={{ color: "#ef4444" }} />
+                      <div className="text-xs font-semibold tracking-wide uppercase" style={{ color: "var(--text-muted)" }}>Risk Factors</div>
+                    </div>
+                    <div className="space-y-2">
+                      {enrichment.riskFactors.map((rf, i) => (
+                        <div
+                          key={i}
+                          className="flex items-start gap-3 py-2"
+                          style={{ borderBottom: i < enrichment.riskFactors.length - 1 ? "1px solid var(--border)" : "none" }}
+                        >
+                          <Badge label={rf.severity} variant={severityVariant[rf.severity] ?? "muted"} size="xs" />
+                          <div className="flex-1 min-w-0">
+                            <div className="text-xs font-medium mb-0.5" style={{ color: "var(--text-primary)" }}>{rf.factor}</div>
+                            <div className="text-xs leading-relaxed" style={{ color: "var(--text-muted)" }}>{rf.description}</div>
+                            {rf.source && (
+                              <div className="text-xs mt-0.5" style={{ color: "var(--border)" }}>Source: {rf.source}</div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Fundability Factors — shown after enrichment */}
+                {enrichment && enrichment.fundabilityFactors.length > 0 && (
+                  <div className="p-4 rounded-lg" style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)" }}>
+                    <div className="text-xs font-semibold tracking-wide uppercase mb-3" style={{ color: "var(--text-muted)" }}>Fundability Signals</div>
+                    <div className="space-y-1.5">
+                      {enrichment.fundabilityFactors.map((ff, i) => (
+                        <div key={i} className="flex items-start gap-2">
+                          <span
+                            className="text-xs flex-shrink-0 mt-0.5"
+                            style={{ color: ff.impact === "positive" ? "#10b981" : "#ef4444" }}
+                          >
+                            {ff.impact === "positive" ? "+" : "−"}
+                          </span>
+                          <div>
+                            <span className="text-xs font-medium" style={{ color: "var(--text-primary)" }}>{ff.factor}</span>
+                            {ff.description && (
+                              <span className="text-xs ml-1.5" style={{ color: "var(--text-muted)" }}>{ff.description}</span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
 
@@ -442,6 +1037,107 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                     <div className="text-sm capitalize" style={{ color: "var(--text-secondary)" }}>{f.value}</div>
                   </div>
                 ))}
+
+                {/* Co-Investor Matches */}
+                <div
+                  className="rounded-lg border overflow-hidden"
+                  style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}
+                >
+                  <button
+                    onClick={() => setCoMatchesExpanded((v) => !v)}
+                    className="w-full flex items-center justify-between px-3 py-2.5"
+                    style={{ color: "var(--text-primary)" }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Users size={12} style={{ color: "var(--accent)" }} />
+                      <span className="text-xs font-semibold tracking-wide uppercase" style={{ color: "var(--text-muted)" }}>
+                        Co-Investor Matches
+                      </span>
+                      {coMatchesMock && (
+                        <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: "var(--bg-elevated)", color: "var(--text-muted)", fontSize: "10px" }}>demo</span>
+                      )}
+                    </div>
+                    {coMatchesExpanded
+                      ? <ChevronUp size={12} style={{ color: "var(--text-muted)" }} />
+                      : <ChevronDown size={12} style={{ color: "var(--text-muted)" }} />
+                    }
+                  </button>
+
+                  {coMatchesExpanded && (
+                    <div className="px-3 pb-3 space-y-2">
+                      {coMatches.length === 0 ? (
+                        <p className="text-xs py-2" style={{ color: "var(--text-muted)" }}>No matches found.</p>
+                      ) : (
+                        coMatches.slice(0, 3).map((m) => (
+                          <div
+                            key={m.id}
+                            className="p-2.5 rounded-md border"
+                            style={{ background: "var(--bg-elevated)", borderColor: "var(--border)" }}
+                          >
+                            <div className="flex items-start justify-between gap-1 mb-1">
+                              <div className="min-w-0">
+                                <div className="text-xs font-medium truncate" style={{ color: "var(--text-primary)" }}>{m.name}</div>
+                                {m.company && (
+                                  <div className="text-xs truncate" style={{ color: "var(--text-muted)" }}>{m.company}</div>
+                                )}
+                              </div>
+                              <span
+                                className="flex-shrink-0 w-2 h-2 rounded-full mt-0.5"
+                                style={{ background: matchDot(m.score), marginTop: "3px" }}
+                                title={`Match score: ${m.score}`}
+                              />
+                            </div>
+
+                            <div className="flex flex-wrap gap-1 mb-1.5">
+                              {m.investorType && (
+                                <Badge label={m.investorType.replace(/-/g, " ")} variant="accent" size="xs" />
+                              )}
+                              {m.assetClasses.slice(0, 3).map((cls) => (
+                                <span
+                                  key={cls}
+                                  className="text-xs px-1.5 py-0.5 rounded"
+                                  style={{ background: "var(--bg-surface)", color: "var(--text-muted)", border: "1px solid var(--border)", fontSize: "10px" }}
+                                >
+                                  {cls}
+                                </span>
+                              ))}
+                            </div>
+
+                            {fmtCheck(m.checkSizeMin, m.checkSizeMax) && (
+                              <div className="text-xs mb-1.5" style={{ color: "var(--text-secondary)" }}>
+                                {fmtCheck(m.checkSizeMin, m.checkSizeMax)}
+                              </div>
+                            )}
+
+                            {m.linkedIn ? (
+                              <a
+                                href={m.linkedIn}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs font-medium hover:underline"
+                                style={{ color: "var(--accent)" }}
+                              >
+                                Reach Out →
+                              </a>
+                            ) : (
+                              <Link href={`/relationships`} className="text-xs font-medium hover:underline" style={{ color: "var(--accent)" }}>
+                                View Contact →
+                              </Link>
+                            )}
+                          </div>
+                        ))
+                      )}
+
+                      <Link
+                        href="/relationships"
+                        className="block text-xs text-center pt-1 hover:underline"
+                        style={{ color: "var(--text-muted)" }}
+                      >
+                        View all investors →
+                      </Link>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -546,6 +1242,333 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                 >
                   <FileText size={14} /> Generate IC Memo
                 </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {tab === "terms" && (
+          <div className="p-8 max-w-5xl">
+            {termRunning ? (
+              /* ── Running state ── */
+              <div className="flex flex-col gap-3 py-12">
+                <div className="flex items-center gap-3" style={{ color: "var(--text-muted)" }}>
+                  <Loader2 size={16} className="animate-spin flex-shrink-0" style={{ color: "var(--accent)" }} />
+                  <span className="text-sm">{termAck ?? "Analyzing term sheets…"}</span>
+                </div>
+                {termAck && (
+                  <div className="h-1 w-full rounded-full overflow-hidden" style={{ background: "var(--border)" }}>
+                    <div
+                      className="h-full rounded-full"
+                      style={{ background: "var(--accent)", width: "100%", animation: "indeterminate 2s linear infinite" }}
+                    />
+                  </div>
+                )}
+              </div>
+            ) : termResult ? (
+              /* ── Results view ── */
+              <div className="space-y-6">
+                {/* Header with re-analyze */}
+                <div className="flex items-center justify-between">
+                  <span className="text-xs" style={{ color: "var(--text-muted)" }}>Term Sheet Comparison</span>
+                  <button
+                    onClick={() => setTermResult(null)}
+                    className="flex items-center gap-1 px-2.5 py-1 rounded text-xs"
+                    style={{ color: "var(--text-muted)", border: "1px solid var(--border)" }}
+                  >
+                    <RefreshCw size={11} /> Re-analyze
+                  </button>
+                </div>
+
+                {/* Sheet cards — side by side */}
+                <div className="flex gap-4 flex-wrap">
+                  {termResult.sheets.map((sheet) => {
+                    const isFavorable = sheet.label === termResult.comparison.mostFavorable;
+                    return (
+                      <div
+                        key={sheet.label}
+                        className="flex-1 min-w-[280px] rounded-lg border p-5 space-y-4"
+                        style={{
+                          background: "var(--bg-elevated)",
+                          borderColor: isFavorable ? "var(--accent)" : "var(--border)",
+                        }}
+                      >
+                        {/* Sheet label + favorite badge */}
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+                            {sheet.label}
+                          </h3>
+                          {isFavorable && (
+                            <span
+                              className="text-xs px-2 py-0.5 rounded-full font-medium"
+                              style={{ background: "var(--accent)20", color: "var(--accent)", border: "1px solid var(--accent)40" }}
+                            >
+                              Most Favorable
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Field grid */}
+                        <div className="grid grid-cols-1 gap-2">
+                          {[
+                            { label: "Valuation", value: sheet.valuation },
+                            { label: "Investment", value: sheet.investmentAmount },
+                            { label: "Ownership", value: sheet.ownership },
+                            { label: "Liquidation Pref", value: sheet.liquidationPref },
+                            { label: "Anti-Dilution", value: sheet.antiDilution },
+                            { label: "Board Seats", value: sheet.boardSeats },
+                            { label: "Pro-Rata Rights", value: sheet.proRataRights },
+                            { label: "Drag-Along", value: sheet.dragAlong },
+                            { label: "Info Rights", value: sheet.informationRights },
+                          ].map(({ label, value }) => (
+                            <div key={label} className="flex gap-3 py-1.5" style={{ borderBottom: "1px solid var(--border)" }}>
+                              <span className="text-xs w-32 flex-shrink-0 font-medium" style={{ color: "var(--text-muted)" }}>
+                                {label}
+                              </span>
+                              <span className="text-sm flex-1" style={{ color: value ? "var(--text-secondary)" : "var(--border)" }}>
+                                {value ?? "—"}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Closing conditions */}
+                        {sheet.closingConditions.length > 0 && (
+                          <div>
+                            <div className="text-xs font-medium mb-1.5" style={{ color: "var(--text-muted)" }}>
+                              Closing Conditions
+                            </div>
+                            <ul className="space-y-1">
+                              {sheet.closingConditions.map((c, i) => (
+                                <li key={i} className="flex items-start gap-1.5">
+                                  <span className="text-xs mt-0.5 flex-shrink-0" style={{ color: "var(--text-muted)" }}>·</span>
+                                  <span className="text-xs" style={{ color: "var(--text-secondary)" }}>{c}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {/* Unusual terms */}
+                        {sheet.unusualTerms.length > 0 && (
+                          <div>
+                            <div className="flex items-center gap-1.5 mb-2">
+                              <AlertTriangle size={12} style={{ color: "#f59e0b" }} />
+                              <div className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>
+                                Non-Standard Terms
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              {sheet.unusualTerms.map((ut, i) => (
+                                <div
+                                  key={i}
+                                  className="p-2.5 rounded-md"
+                                  style={{
+                                    background: "var(--bg-surface)",
+                                    border: `1px solid ${ut.severity === "high" ? "#ef444440" : ut.severity === "medium" ? "#f59e0b40" : "var(--border)"}`,
+                                  }}
+                                >
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <span
+                                      className="text-xs px-1.5 py-0.5 rounded font-medium"
+                                      style={{
+                                        background: ut.severity === "high" ? "#ef444420" : ut.severity === "medium" ? "#f59e0b20" : "var(--bg-elevated)",
+                                        color: ut.severity === "high" ? "#ef4444" : ut.severity === "medium" ? "#f59e0b" : "var(--text-muted)",
+                                      }}
+                                    >
+                                      {ut.severity}
+                                    </span>
+                                    <span className="text-xs font-medium" style={{ color: "var(--text-primary)" }}>{ut.term}</span>
+                                  </div>
+                                  <p className="text-xs" style={{ color: "var(--text-muted)" }}>{ut.flag}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Summary */}
+                        {sheet.summary && (
+                          <p className="text-xs leading-relaxed pt-1" style={{ color: "var(--text-muted)", borderTop: "1px solid var(--border)", paddingTop: "12px" }}>
+                            {sheet.summary}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Comparison section */}
+                <div className="space-y-4">
+                  {/* Key differences */}
+                  {termResult.comparison.keyDifferences.length > 0 && (
+                    <div
+                      className="p-4 rounded-lg"
+                      style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)" }}
+                    >
+                      <div className="text-xs font-semibold tracking-wide uppercase mb-3" style={{ color: "var(--text-muted)" }}>
+                        Key Differences
+                      </div>
+                      <ul className="space-y-2">
+                        {termResult.comparison.keyDifferences.map((d, i) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <span className="text-xs flex-shrink-0 mt-0.5" style={{ color: "var(--accent)" }}>·</span>
+                            <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{d}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Red flags */}
+                  {termResult.comparison.redFlags.length > 0 && (
+                    <div
+                      className="p-4 rounded-lg"
+                      style={{ background: "var(--bg-elevated)", border: "1px solid #ef444430" }}
+                    >
+                      <div className="flex items-center gap-2 mb-3">
+                        <AlertTriangle size={13} style={{ color: "#ef4444" }} />
+                        <div className="text-xs font-semibold tracking-wide uppercase" style={{ color: "var(--text-muted)" }}>
+                          Red Flags
+                        </div>
+                      </div>
+                      <div className="space-y-0" style={{ border: "1px solid var(--border)", borderRadius: "6px", overflow: "hidden" }}>
+                        <div
+                          className="grid grid-cols-3 gap-3 px-3 py-2 text-xs font-medium"
+                          style={{ background: "var(--bg-surface)", color: "var(--text-muted)", borderBottom: "1px solid var(--border)" }}
+                        >
+                          <span>Sheet</span>
+                          <span>Term</span>
+                          <span>Issue</span>
+                        </div>
+                        {termResult.comparison.redFlags.map((rf, i) => (
+                          <div
+                            key={i}
+                            className="grid grid-cols-3 gap-3 px-3 py-2.5 text-xs"
+                            style={{
+                              color: "var(--text-secondary)",
+                              borderBottom: i < termResult.comparison.redFlags.length - 1 ? "1px solid var(--border)" : "none",
+                              background: i % 2 === 0 ? "var(--bg-elevated)" : "var(--bg-surface)",
+                            }}
+                          >
+                            <span style={{ color: "var(--text-muted)" }}>{rf.sheet}</span>
+                            <span className="font-medium" style={{ color: "var(--text-primary)" }}>{rf.term}</span>
+                            <span>{rf.issue}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Recommendation */}
+                  {termResult.comparison.recommendation && (
+                    <div
+                      className="p-4 rounded-lg"
+                      style={{ background: "var(--accent)0d", border: "1px solid var(--accent)30" }}
+                    >
+                      <div className="text-xs font-semibold tracking-wide uppercase mb-2" style={{ color: "var(--accent)" }}>
+                        Recommendation
+                      </div>
+                      <p className="text-sm leading-relaxed" style={{ color: "var(--text-primary)" }}>
+                        {termResult.comparison.recommendation}
+                      </p>
+                      {termResult.comparison.mostFavorable && (
+                        <p className="text-xs mt-2" style={{ color: "var(--text-muted)" }}>
+                          Most favorable: <span style={{ color: "var(--accent)" }}>{termResult.comparison.mostFavorable}</span>
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              /* ── Input view ── */
+              <div className="space-y-5">
+                <div>
+                  <h2 className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>
+                    Term Sheet Comparison
+                  </h2>
+                  <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+                    Paste raw term sheet text below. The AI will extract structured fields, compare side-by-side, and flag non-market-standard terms.
+                  </p>
+                </div>
+
+                {/* Sheet inputs */}
+                <div className="flex gap-4 flex-wrap">
+                  {termSheets.map((sheet, idx) => (
+                    <div key={idx} className="flex-1 min-w-[260px] space-y-2">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={sheet.label}
+                          onChange={(e) =>
+                            setTermSheets((prev) =>
+                              prev.map((s, i) => i === idx ? { ...s, label: e.target.value } : s)
+                            )
+                          }
+                          placeholder={`Term Sheet ${idx + 1}`}
+                          className="flex-1 rounded px-2.5 py-1.5 text-xs font-medium outline-none"
+                          style={{
+                            background: "var(--bg-elevated)",
+                            border: "1px solid var(--border)",
+                            color: "var(--text-primary)",
+                          }}
+                        />
+                        {termSheets.length > 1 && (
+                          <button
+                            onClick={() => setTermSheets((prev) => prev.filter((_, i) => i !== idx))}
+                            className="flex-shrink-0 hover:opacity-70"
+                            style={{ color: "var(--text-muted)" }}
+                          >
+                            <X size={13} />
+                          </button>
+                        )}
+                      </div>
+                      <textarea
+                        value={sheet.content}
+                        onChange={(e) =>
+                          setTermSheets((prev) =>
+                            prev.map((s, i) => i === idx ? { ...s, content: e.target.value } : s)
+                          )
+                        }
+                        placeholder={`Paste ${sheet.label || `Term Sheet ${idx + 1}`} text here…`}
+                        rows={14}
+                        className="w-full rounded text-xs p-3 resize-none outline-none"
+                        style={{
+                          background: "var(--bg-elevated)",
+                          border: "1px solid var(--border)",
+                          color: "var(--text-secondary)",
+                          fontFamily: "inherit",
+                        }}
+                      />
+                      <div className="text-xs" style={{ color: "var(--border)" }}>
+                        {sheet.content.length > 0 ? `${sheet.content.length.toLocaleString()} chars` : "Empty"}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center gap-3 flex-wrap">
+                  <button
+                    onClick={() =>
+                      setTermSheets((prev) => [...prev, { label: `Term Sheet ${prev.length + 1}`, content: "" }])
+                    }
+                    className="flex items-center gap-1.5 px-3 py-2 rounded text-xs font-medium transition-opacity"
+                    style={{ background: "var(--bg-elevated)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}
+                  >
+                    <Plus size={12} /> Add Another Sheet
+                  </button>
+                  <button
+                    onClick={runTermSheet}
+                    disabled={termRunning || !termSheets.some((s) => s.content.trim())}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded text-xs font-medium transition-opacity disabled:opacity-50"
+                    style={{ background: "var(--accent)", color: "#fff" }}
+                  >
+                    {termRunning ? <Loader2 size={12} className="animate-spin" /> : <Scale size={12} />}
+                    Analyze Terms
+                  </button>
+                </div>
               </div>
             )}
           </div>

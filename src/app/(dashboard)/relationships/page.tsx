@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Clock, Loader2, Sparkles } from "lucide-react";
+import { Search, Clock, Loader2, Sparkles, Plus, X, DollarSign } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import PageHeader from "@/components/ui/PageHeader";
 import { useFamilyId } from "@/context/FamilyContext";
@@ -19,7 +19,29 @@ interface Contact {
   introducedBy?: string | null;
   warmPathNotes?: string | null;
   notes?: string | null;
+  investorType?: string | null;
+  assetClasses?: string[];
+  checkSizeMin?: number | null;
+  checkSizeMax?: number | null;
+  portfolioNotes?: string | null;
+  lastDealTogether?: string | null;
+  linkedIn?: string | null;
 }
+
+const ASSET_CLASS_OPTIONS = ["tech", "real-estate", "sports", "credit", "pe", "other"] as const;
+
+const investorTypeVariant: Record<string, "accent" | "success" | "warning" | "muted" | "default"> = {
+  lp: "warning",
+  "co-investor": "accent",
+  "family-office": "success",
+  vc: "accent",
+  pe: "success",
+  angel: "warning",
+  strategic: "muted",
+};
+
+const INVESTOR_FILTERS = ["All", "LPs", "Co-Investors", "Family Offices", "VCs"] as const;
+type InvestorFilter = typeof INVESTOR_FILTERS[number];
 
 interface Interaction {
   id: string;
@@ -80,8 +102,20 @@ export default function RelationshipsPage() {
   const familyId = useFamilyId();
 
   const [filter, setFilter] = useState("All");
+  const [investorFilter, setInvestorFilter] = useState<InvestorFilter>("All");
   const [search, setSearch] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+
+  // Modal form state
+  const [modalForm, setModalForm] = useState({
+    name: "", email: "", phone: "", company: "", title: "",
+    type: "co-investor", linkedIn: "", notes: "",
+    investorType: "", assetClasses: [] as string[],
+    checkSizeMin: "", checkSizeMax: "", portfolioNotes: "",
+  });
+  const [modalSaving, setModalSaving] = useState(false);
+  const [modalError, setModalError] = useState<string | null>(null);
 
   // Data state
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -175,6 +209,81 @@ export default function RelationshipsPage() {
     if (e.key === "Enter") handleAsk();
   }
 
+  function fmtCheck(min?: number | null, max?: number | null): string {
+    if (!min && !max) return "";
+    const fmt = (n: number) =>
+      n >= 1_000_000 ? `$${(n / 1_000_000).toFixed(0)}M` : `$${(n / 1_000).toFixed(0)}K`;
+    if (min && max) return `${fmt(min)}–${fmt(max)}`;
+    if (min) return `${fmt(min)}+`;
+    return `up to ${fmt(max!)}`;
+  }
+
+  async function saveContact() {
+    if (!modalForm.name.trim()) { setModalError("Name is required"); return; }
+    setModalSaving(true);
+    setModalError(null);
+    try {
+      const fid = familyId ?? "family_demo";
+      const body = {
+        familyId: fid,
+        name: modalForm.name.trim(),
+        email: modalForm.email || null,
+        phone: modalForm.phone || null,
+        company: modalForm.company || null,
+        title: modalForm.title || null,
+        type: modalForm.type || "co-investor",
+        linkedIn: modalForm.linkedIn || null,
+        notes: modalForm.notes || null,
+        investorType: modalForm.investorType || null,
+        assetClasses: modalForm.assetClasses,
+        checkSizeMin: modalForm.checkSizeMin ? parseFloat(modalForm.checkSizeMin) : null,
+        checkSizeMax: modalForm.checkSizeMax ? parseFloat(modalForm.checkSizeMax) : null,
+        portfolioNotes: modalForm.portfolioNotes || null,
+      };
+      const res = await fetch("/api/contacts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!res.ok) { setModalError(data.error ?? "Failed to save"); return; }
+      setContacts((prev) => [data.contact as Contact, ...prev]);
+      setShowAddModal(false);
+      setModalForm({
+        name: "", email: "", phone: "", company: "", title: "",
+        type: "co-investor", linkedIn: "", notes: "",
+        investorType: "", assetClasses: [],
+        checkSizeMin: "", checkSizeMax: "", portfolioNotes: "",
+      });
+    } catch {
+      setModalError("Network error — please try again");
+    } finally {
+      setModalSaving(false);
+    }
+  }
+
+  function toggleAssetClass(cls: string) {
+    setModalForm((f) => ({
+      ...f,
+      assetClasses: f.assetClasses.includes(cls)
+        ? f.assetClasses.filter((c) => c !== cls)
+        : [...f.assetClasses, cls],
+    }));
+  }
+
+  // Investor network contacts: have investorType set or type is lp/gp/co-investor
+  const investorContacts = contacts.filter((c) =>
+    c.investorType || ["lp", "gp", "co-investor"].includes(c.type)
+  );
+
+  const filteredInvestors = investorContacts.filter((c) => {
+    if (investorFilter === "LPs") return c.investorType === "lp" || c.type === "lp";
+    if (investorFilter === "Co-Investors") return c.investorType === "co-investor" || c.type === "co-investor";
+    if (investorFilter === "Family Offices") return c.investorType === "family-office";
+    if (investorFilter === "VCs") return c.investorType === "vc" || c.type === "gp";
+    return true;
+  });
+
   const filtered = contacts.filter((c) => {
     const typeMatch = filter === "All" || c.type === typeMap[filter];
     const searchMatch =
@@ -211,6 +320,13 @@ export default function RelationshipsPage() {
                 style={{ color: "var(--text-primary)" }}
               />
             </div>
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded text-xs font-medium"
+              style={{ background: "var(--accent)", color: "#fff" }}
+            >
+              <Plus size={12} /> Add LP / Co-Investor
+            </button>
           </div>
         }
       />
@@ -353,6 +469,96 @@ export default function RelationshipsPage() {
         )}
       </div>
 
+      {/* Investor Network Section */}
+      <div className="px-6 pt-4 pb-2">
+        <div className="rounded-lg border" style={{ background: "var(--bg-elevated)", borderColor: "var(--border)" }}>
+          <div className="px-4 py-3 border-b flex items-center justify-between" style={{ borderColor: "var(--border)" }}>
+            <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Investor Network</span>
+            <div className="flex items-center gap-1">
+              {INVESTOR_FILTERS.map((f) => (
+                <button
+                  key={f}
+                  onClick={() => setInvestorFilter(f)}
+                  className="px-2.5 py-1 rounded text-xs whitespace-nowrap transition-colors"
+                  style={
+                    investorFilter === f
+                      ? { background: "var(--accent)", color: "#fff" }
+                      : { color: "var(--text-secondary)", background: "transparent" }
+                  }
+                >
+                  {f}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {filteredInvestors.length === 0 ? (
+            <div className="px-4 py-8 text-center text-xs" style={{ color: "var(--text-muted)" }}>
+              No investor contacts yet.{" "}
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="underline hover:no-underline"
+                style={{ color: "var(--accent)" }}
+              >
+                Add one
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 gap-3 p-3">
+              {filteredInvestors.map((c) => (
+                <div
+                  key={c.id}
+                  className="p-3 rounded-md border"
+                  style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}
+                >
+                  <div className="flex items-start gap-2 mb-2">
+                    <div
+                      className="w-8 h-8 rounded-md flex items-center justify-center text-xs font-semibold shrink-0"
+                      style={{ background: "var(--accent-muted)", color: "var(--accent)" }}
+                    >
+                      {initials(c.name)}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-medium truncate" style={{ color: "var(--text-primary)" }}>{c.name}</div>
+                      <div className="text-xs truncate" style={{ color: "var(--text-muted)" }}>
+                        {[c.title, c.company].filter(Boolean).join(", ") || "—"}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    {c.investorType && (
+                      <Badge label={c.investorType.replace(/-/g, " ")} variant={investorTypeVariant[c.investorType] ?? "default"} size="xs" />
+                    )}
+                    {(c.assetClasses ?? []).slice(0, 3).map((cls) => (
+                      <span
+                        key={cls}
+                        className="text-xs px-1.5 py-0.5 rounded"
+                        style={{ background: "var(--bg-elevated)", color: "var(--text-muted)", border: "1px solid var(--border)", fontSize: "10px" }}
+                      >
+                        {cls}
+                      </span>
+                    ))}
+                  </div>
+
+                  {(c.checkSizeMin || c.checkSizeMax) && (
+                    <div className="flex items-center gap-1 text-xs mb-1.5" style={{ color: "var(--text-secondary)" }}>
+                      <DollarSign size={10} style={{ color: "var(--text-muted)" }} />
+                      {fmtCheck(c.checkSizeMin, c.checkSizeMax)}
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-1 text-xs" style={{ color: "var(--text-muted)" }}>
+                    <Clock size={10} />
+                    {formatDate(c.lastContactAt)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
       <div className="flex-1 flex overflow-hidden mt-4">
         {/* Contact grid */}
         <div className="flex-1 overflow-auto p-6 pt-2">
@@ -472,6 +678,208 @@ export default function RelationshipsPage() {
           )}
         </div>
       </div>
+      {/* Add LP/Co-Investor Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.6)" }}>
+          <div
+            className="w-full max-w-lg rounded-lg border overflow-hidden"
+            style={{ background: "var(--bg-surface)", borderColor: "var(--border)", maxHeight: "90vh", overflowY: "auto" }}
+          >
+            {/* Modal header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: "var(--border)" }}>
+              <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Add LP / Co-Investor</span>
+              <button onClick={() => setShowAddModal(false)} style={{ color: "var(--text-muted)" }}>
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Modal form */}
+            <div className="px-5 py-4 space-y-4">
+              {/* Basic fields */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs mb-1 block" style={{ color: "var(--text-muted)" }}>Full Name *</label>
+                  <input
+                    value={modalForm.name}
+                    onChange={(e) => setModalForm((f) => ({ ...f, name: e.target.value }))}
+                    placeholder="Jane Smith"
+                    className="w-full rounded px-2.5 py-1.5 text-xs outline-none"
+                    style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs mb-1 block" style={{ color: "var(--text-muted)" }}>Company</label>
+                  <input
+                    value={modalForm.company}
+                    onChange={(e) => setModalForm((f) => ({ ...f, company: e.target.value }))}
+                    placeholder="Acme Capital"
+                    className="w-full rounded px-2.5 py-1.5 text-xs outline-none"
+                    style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs mb-1 block" style={{ color: "var(--text-muted)" }}>Title</label>
+                  <input
+                    value={modalForm.title}
+                    onChange={(e) => setModalForm((f) => ({ ...f, title: e.target.value }))}
+                    placeholder="Managing Partner"
+                    className="w-full rounded px-2.5 py-1.5 text-xs outline-none"
+                    style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs mb-1 block" style={{ color: "var(--text-muted)" }}>Email</label>
+                  <input
+                    type="email"
+                    value={modalForm.email}
+                    onChange={(e) => setModalForm((f) => ({ ...f, email: e.target.value }))}
+                    placeholder="jane@acme.com"
+                    className="w-full rounded px-2.5 py-1.5 text-xs outline-none"
+                    style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs mb-1 block" style={{ color: "var(--text-muted)" }}>LinkedIn URL</label>
+                  <input
+                    type="url"
+                    value={modalForm.linkedIn}
+                    onChange={(e) => setModalForm((f) => ({ ...f, linkedIn: e.target.value }))}
+                    placeholder="https://linkedin.com/in/..."
+                    className="w-full rounded px-2.5 py-1.5 text-xs outline-none"
+                    style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs mb-1 block" style={{ color: "var(--text-muted)" }}>Contact Type</label>
+                  <select
+                    value={modalForm.type}
+                    onChange={(e) => setModalForm((f) => ({ ...f, type: e.target.value }))}
+                    className="w-full rounded px-2.5 py-1.5 text-xs outline-none"
+                    style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
+                  >
+                    {["co-investor", "lp", "gp", "advisor", "contact"].map((t) => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Investor type */}
+              <div>
+                <label className="text-xs mb-1 block" style={{ color: "var(--text-muted)" }}>Investor Type</label>
+                <select
+                  value={modalForm.investorType}
+                  onChange={(e) => setModalForm((f) => ({ ...f, investorType: e.target.value }))}
+                  className="w-full rounded px-2.5 py-1.5 text-xs outline-none"
+                  style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
+                >
+                  <option value="">— Select investor type —</option>
+                  {["lp", "co-investor", "family-office", "vc", "pe", "angel", "strategic"].map((t) => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Asset classes */}
+              <div>
+                <label className="text-xs mb-2 block" style={{ color: "var(--text-muted)" }}>Asset Classes</label>
+                <div className="flex flex-wrap gap-2">
+                  {ASSET_CLASS_OPTIONS.map((cls) => (
+                    <label key={cls} className="flex items-center gap-1.5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={modalForm.assetClasses.includes(cls)}
+                        onChange={() => toggleAssetClass(cls)}
+                        className="rounded"
+                        style={{ accentColor: "var(--accent)" }}
+                      />
+                      <span className="text-xs capitalize" style={{ color: "var(--text-secondary)" }}>{cls}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Check size */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs mb-1 block" style={{ color: "var(--text-muted)" }}>Min Check Size ($)</label>
+                  <input
+                    type="number"
+                    value={modalForm.checkSizeMin}
+                    onChange={(e) => setModalForm((f) => ({ ...f, checkSizeMin: e.target.value }))}
+                    placeholder="1000000"
+                    className="w-full rounded px-2.5 py-1.5 text-xs outline-none"
+                    style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs mb-1 block" style={{ color: "var(--text-muted)" }}>Max Check Size ($)</label>
+                  <input
+                    type="number"
+                    value={modalForm.checkSizeMax}
+                    onChange={(e) => setModalForm((f) => ({ ...f, checkSizeMax: e.target.value }))}
+                    placeholder="10000000"
+                    className="w-full rounded px-2.5 py-1.5 text-xs outline-none"
+                    style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
+                  />
+                </div>
+              </div>
+
+              {/* Portfolio notes */}
+              <div>
+                <label className="text-xs mb-1 block" style={{ color: "var(--text-muted)" }}>Portfolio Notes / Thesis</label>
+                <textarea
+                  value={modalForm.portfolioNotes}
+                  onChange={(e) => setModalForm((f) => ({ ...f, portfolioNotes: e.target.value }))}
+                  placeholder="Investment thesis, focus areas, prior deals..."
+                  rows={3}
+                  className="w-full rounded px-2.5 py-1.5 text-xs outline-none resize-none"
+                  style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", color: "var(--text-primary)", fontFamily: "inherit" }}
+                />
+              </div>
+
+              {/* General notes */}
+              <div>
+                <label className="text-xs mb-1 block" style={{ color: "var(--text-muted)" }}>Notes</label>
+                <textarea
+                  value={modalForm.notes}
+                  onChange={(e) => setModalForm((f) => ({ ...f, notes: e.target.value }))}
+                  placeholder="Any additional notes..."
+                  rows={2}
+                  className="w-full rounded px-2.5 py-1.5 text-xs outline-none resize-none"
+                  style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", color: "var(--text-primary)", fontFamily: "inherit" }}
+                />
+              </div>
+
+              {modalError && (
+                <div className="text-xs px-3 py-2 rounded border" style={{ color: "#ef4444", borderColor: "rgba(239,68,68,0.2)", background: "rgba(239,68,68,0.05)" }}>
+                  {modalError}
+                </div>
+              )}
+            </div>
+
+            {/* Modal footer */}
+            <div className="flex items-center justify-end gap-2 px-5 py-4 border-t" style={{ borderColor: "var(--border)" }}>
+              <button
+                onClick={() => setShowAddModal(false)}
+                className="px-3 py-1.5 rounded text-xs"
+                style={{ color: "var(--text-muted)", border: "1px solid var(--border)" }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={saveContact}
+                disabled={modalSaving}
+                className="flex items-center gap-1.5 px-4 py-1.5 rounded text-xs font-medium disabled:opacity-50"
+                style={{ background: "var(--accent)", color: "#fff" }}
+              >
+                {modalSaving ? <Loader2 size={11} className="animate-spin" /> : <Plus size={11} />}
+                {modalSaving ? "Saving…" : "Add Contact"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

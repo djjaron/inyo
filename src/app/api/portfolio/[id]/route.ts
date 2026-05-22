@@ -31,7 +31,7 @@ export async function GET(
 
   try {
     const company = await prisma.portfolioCompany.findUnique({
-      where: { id },
+      where: { id, deletedAt: null },
       include: {
         alerts: { orderBy: { createdAt: "desc" } },
         aiAnalyses: { orderBy: { createdAt: "desc" } },
@@ -97,5 +97,26 @@ export async function PATCH(
       company: { ...MOCK_COMPANY, id, ...data, updatedAt: new Date() },
       _mock: true,
     });
+  }
+}
+
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+
+  try {
+    await prisma.portfolioCompany.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
+    return NextResponse.json({ success: true });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes("Record to update not found")) {
+      return NextResponse.json({ error: "Company not found" }, { status: 404 });
+    }
+    return NextResponse.json({ error: "Database unavailable" }, { status: 500 });
   }
 }

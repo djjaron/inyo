@@ -42,17 +42,18 @@ model Family {
 }
 
 model Entity {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   familyId    String
   name        String
-  type        String   // llc, lp, trust, corp, foundation, individual
+  type        String    // llc, lp, trust, corp, foundation, individual
   jurisdiction String?
   taxId       String?
   description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  family      Family   @relation(fields: [familyId], references: [id])
+  family      Family    @relation(fields: [familyId], references: [id])
   deals       Deal[]
   cashFlows   CashFlow[]
 
@@ -78,15 +79,24 @@ model Deal {
   icMemoUrl       String?
   dataRoomUrl     String?
   pitchDeckUrl    String?
-  investedAt      DateTime?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  website           String?
+  linkedinUrl       String?
+  crunchbaseUrl     String?
+  affinityScore     Float?
+  riskScore         Float?
+  fundabilityScore  Float?
+  enrichedAt        DateTime?
+  investedAt        DateTime?
+  deletedAt         DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   family          Family   @relation(fields: [familyId], references: [id])
   entity          Entity?  @relation(fields: [entityId], references: [id])
   documents       Document[]
   aiAnalyses      AIAnalysis[]
   contacts        DealContact[]
+  founders        Founder[]
 
   @@map("deals")
 }
@@ -105,12 +115,12 @@ model DealContact {
 }
 
 model PortfolioCompany {
-  id              String   @id @default(cuid())
+  id              String    @id @default(cuid())
   familyId        String?
   name            String
   sector          String?
   stage           String?
-  status          String   @default("active") // active, exited, written-off, watchlist
+  status          String    @default("active") // active, exited, written-off, watchlist
   investedAmount  Float?
   currentValue    Float?
   ownership       Float?
@@ -119,9 +129,10 @@ model PortfolioCompany {
   lastFundingRound String?
   website         String?
   description     String?
-  alertLevel      String   @default("normal") // normal, watch, alert, critical
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  alertLevel      String    @default("normal") // normal, watch, alert, critical
+  deletedAt       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   alerts          PortfolioAlert[]
   documents       Document[]
@@ -159,9 +170,16 @@ model Contact {
   notes         String?
   lastContactAt DateTime?
   introducedBy  String?
-  warmPathNotes String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  warmPathNotes     String?
+  investorType      String?   // lp, co-investor, family-office, vc, pe, angel, strategic
+  assetClasses      String[]  // ["tech", "real-estate", "sports", "credit", "pe", "other"]
+  checkSizeMin      Float?
+  checkSizeMax      Float?
+  portfolioNotes    String?
+  lastDealTogether  String?
+  deletedAt         DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   family        Family   @relation(fields: [familyId], references: [id])
   deals         DealContact[]
@@ -187,41 +205,62 @@ model Interaction {
 }
 
 model Document {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   familyId    String
   dealId      String?
   companyId   String?
   contactId   String?
   name        String
-  type        String   // pitch-deck, ic-memo, nda, lpa, safe, k1, tax-doc, bank-statement, report, contract, other
+  type        String    // pitch-deck, ic-memo, nda, lpa, safe, k1, tax-doc, bank-statement, report, contract, other
   mimeType    String?
   storageUrl  String?
   textContent String?
-  processed   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  checksum    String?
+  fileSize    Int?
+  processed   Boolean   @default(false)
+  expiresAt   DateTime?
+  keyDates    Json?     // [{ label: string, date: string, type: "expiry"|"deadline"|"closing"|"renewal" }]
+  alertDays   Int?      @default(30)  // days before expiry to show warning
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  family      Family   @relation(fields: [familyId], references: [id])
-  deal        Deal?    @relation(fields: [dealId], references: [id])
+  family      Family    @relation(fields: [familyId], references: [id])
+  deal        Deal?     @relation(fields: [dealId], references: [id])
   company     PortfolioCompany? @relation(fields: [companyId], references: [id])
-  contact     Contact? @relation(fields: [contactId], references: [id])
+  contact     Contact?  @relation(fields: [contactId], references: [id])
   aiAnalyses  AIAnalysis[]
+  versions    DocumentVersion[]
 
   @@map("documents")
 }
 
-model CashFlow {
+model DocumentVersion {
   id          String   @id @default(cuid())
-  entityId    String
-  type        String   // income, expense, distribution, capital-call, tax-payment
-  category    String?
-  amount      Float
-  currency    String   @default("USD")
-  description String?
-  occurredAt  DateTime
+  documentId  String
+  document    Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  name        String
+  textContent String?
+  checksum    String?
+  mimeType    String?
   createdAt   DateTime @default(now())
 
-  entity      Entity   @relation(fields: [entityId], references: [id])
+  @@map("document_versions")
+}
+
+model CashFlow {
+  id          String    @id @default(cuid())
+  entityId    String
+  type        String    // income, expense, distribution, capital-call, tax-payment
+  category    String?
+  amount      Float
+  currency    String    @default("USD")
+  description String?
+  occurredAt  DateTime
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+
+  entity      Entity    @relation(fields: [entityId], references: [id])
 
   @@map("cash_flows")
 }
@@ -281,4 +320,33 @@ model Approval {
   agentRun    AgentRun? @relation(fields: [agentRunId], references: [id])
 
   @@map("approvals")
+}
+
+model Founder {
+  id          String    @id @default(cuid())
+  dealId      String
+  deal        Deal      @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  name        String
+  title       String?
+  linkedinUrl String?
+  bio         String?
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("founders")
+}
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  familyId     String?
+  action       String   // create, update, delete, restore
+  resourceType String   // document, deal, contact, entity, cashflow, founder
+  resourceId   String
+  resourceName String?
+  diff         Json?    // { before: {...}, after: {...} } — optional snapshot
+  performedBy  String?  // userId or "system"
+  createdAt    DateTime @default(now())
+
+  @@map("audit_logs")
 }

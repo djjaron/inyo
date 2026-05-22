@@ -83,7 +83,7 @@ export async function GET(req: NextRequest) {
   const pageSize = 20;
 
   try {
-    const where: Record<string, unknown> = {};
+    const where: Record<string, unknown> = { deletedAt: null };
     if (familyId) where.familyId = familyId;
     if (status) where.status = status;
 

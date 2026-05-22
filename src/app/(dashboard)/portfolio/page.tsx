@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { BarChart3, AlertTriangle, Loader2 } from "lucide-react";
+import { BarChart3, AlertTriangle, Loader2, ChevronDown, ChevronUp, TrendingUp, TrendingDown } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import PageHeader from "@/components/ui/PageHeader";
 import { formatCurrency } from "@/lib/utils";
@@ -42,6 +42,46 @@ interface FlatAlert {
   createdAt: string;
 }
 
+// --- Analytics types ---
+interface SectorBucket {
+  sector: string;
+  count: number;
+  totalValue: number;
+  pct: number;
+}
+
+interface StageBucket {
+  stage: string;
+  count: number;
+  totalValue: number;
+  pct: number;
+}
+
+interface VintageBucket {
+  year: number;
+  count: number;
+  deployed: number;
+}
+
+interface ConcentrationWarning {
+  type: string;
+  label: string;
+  pct: number;
+  message: string;
+}
+
+interface AnalyticsData {
+  allocationBySector: SectorBucket[];
+  allocationByStage: StageBucket[];
+  vintageByYear: VintageBucket[];
+  concentrationWarnings: ConcentrationWarning[];
+  totalDeployed: number;
+  totalPortfolioValue: number;
+  companiesCount: number;
+  _mock?: boolean;
+}
+
+// --- Color palettes ---
 const alertColor: Record<string, string> = {
   critical: "#ef4444",
   warning: "#f59e0b",
@@ -58,10 +98,114 @@ const statusVariant: Record<string, "success" | "warning" | "danger" | "muted"> 
   "written-off": "danger",
 };
 
+const SECTOR_COLORS = ["#6366f1", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4"];
+const STAGE_COLORS = ["#10b981", "#6366f1", "#f59e0b", "#8b5cf6", "#06b6d4", "#ef4444"];
+
 function moicColor(moic: number): string {
   if (moic >= 2) return "#10b981";
   if (moic >= 1) return "#f59e0b";
   return "#ef4444";
+}
+
+// --- Sub-components ---
+
+function AllocationBars({
+  items,
+  labelKey,
+  colors,
+}: {
+  items: Array<{ label: string; count: number; totalValue: number; pct: number }>;
+  labelKey: string;
+  colors: string[];
+}) {
+  return (
+    <div className="flex flex-col gap-2.5">
+      {items.map((item, i) => (
+        <div key={`${labelKey}-${item.label}`} className="flex items-center gap-3">
+          {/* Bar track */}
+          <div
+            className="relative flex-1 rounded"
+            style={{ height: 6, background: "var(--bg-elevated)" }}
+          >
+            <div
+              className="absolute inset-y-0 left-0 rounded"
+              style={{
+                width: `${item.pct}%`,
+                background: colors[i % colors.length],
+                height: 6,
+                borderRadius: 3,
+              }}
+            />
+          </div>
+          {/* Label + stats */}
+          <div className="flex items-center gap-2 w-64 shrink-0">
+            <span
+              className="text-xs font-medium truncate flex-1"
+              style={{ color: "var(--text-primary)" }}
+            >
+              {item.label}
+            </span>
+            <span
+              className="text-xs tabular-nums"
+              style={{ color: "var(--text-muted)", minWidth: 28, textAlign: "right" }}
+            >
+              {item.pct}%
+            </span>
+            <span
+              className="text-xs tabular-nums"
+              style={{ color: "var(--text-secondary)", minWidth: 46, textAlign: "right" }}
+            >
+              {formatCurrency(item.totalValue)}
+            </span>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function VintageHeatmap({ items }: { items: VintageBucket[] }) {
+  const maxDeployed = Math.max(...items.map((v) => v.deployed), 1);
+  return (
+    <div className="flex flex-col gap-2">
+      {items.map((v) => (
+        <div key={v.year} className="flex items-center gap-3">
+          <span
+            className="text-xs tabular-nums font-medium"
+            style={{ color: "var(--text-muted)", width: 36 }}
+          >
+            {v.year}
+          </span>
+          <div
+            className="relative rounded"
+            style={{ height: 6, flex: 1, background: "var(--bg-elevated)" }}
+          >
+            <div
+              className="absolute inset-y-0 left-0 rounded"
+              style={{
+                width: `${(v.deployed / maxDeployed) * 100}%`,
+                background: "var(--accent)",
+                height: 6,
+                borderRadius: 3,
+              }}
+            />
+          </div>
+          <span
+            className="text-xs tabular-nums"
+            style={{ color: "var(--text-secondary)", minWidth: 46, textAlign: "right" }}
+          >
+            {formatCurrency(v.deployed)}
+          </span>
+          <span
+            className="text-xs tabular-nums"
+            style={{ color: "var(--text-muted)", minWidth: 44, textAlign: "right" }}
+          >
+            {v.count} {v.count === 1 ? "co" : "cos"}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export default function PortfolioPage() {
@@ -69,6 +213,11 @@ export default function PortfolioPage() {
   const [companies, setCompanies] = useState<PortfolioCompany[]>([]);
   const [isMock, setIsMock] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  // Construction analytics state
+  const [showConstruction, setShowConstruction] = useState(false);
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
 
   useEffect(() => {
     if (!familyId) return;
@@ -84,6 +233,18 @@ export default function PortfolioPage() {
         setCompanies([]);
       })
       .finally(() => setLoading(false));
+  }, [familyId]);
+
+  // Fetch analytics in parallel
+  useEffect(() => {
+    if (!familyId) return;
+
+    setAnalyticsLoading(true);
+    fetch(`/api/portfolio/analytics?familyId=${familyId}`)
+      .then((r) => r.json())
+      .then((data: AnalyticsData) => setAnalytics(data))
+      .catch(() => setAnalytics(null))
+      .finally(() => setAnalyticsLoading(false));
   }, [familyId]);
 
   const totalInvested = companies.reduce((s, c) => s + (c.investedAmount ?? 0), 0);
@@ -103,6 +264,12 @@ export default function PortfolioPage() {
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   const needsAttention = companies.filter((c) => c.alertLevel !== "normal").length;
+
+  // Analytics derived values
+  const unrealizedGL = analytics
+    ? analytics.totalPortfolioValue - analytics.totalDeployed
+    : 0;
+  const unrealizedPositive = unrealizedGL >= 0;
 
   return (
     <div className="flex flex-col h-full">
@@ -159,6 +326,171 @@ export default function PortfolioPage() {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* ── Portfolio Construction Analytics ── */}
+      <div
+        className="border-b"
+        style={{ borderColor: "var(--border)", background: "var(--bg-surface)" }}
+      >
+        {/* Toggle header */}
+        <button
+          onClick={() => setShowConstruction((v) => !v)}
+          className="w-full flex items-center justify-between px-6 py-3.5 text-left transition-colors"
+          style={{ background: "transparent" }}
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+              Portfolio Construction
+            </span>
+            {analytics?._mock && (
+              <span
+                className="text-xs px-1.5 py-0.5 rounded"
+                style={{ background: "rgba(245,158,11,0.08)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.18)" }}
+              >
+                demo
+              </span>
+            )}
+            {analyticsLoading && (
+              <Loader2 size={12} className="animate-spin" style={{ color: "var(--text-muted)" }} />
+            )}
+          </div>
+          {showConstruction ? (
+            <ChevronUp size={15} style={{ color: "var(--text-muted)" }} />
+          ) : (
+            <ChevronDown size={15} style={{ color: "var(--text-muted)" }} />
+          )}
+        </button>
+
+        {/* Expanded content */}
+        {showConstruction && analytics && (
+          <div className="px-6 pb-6">
+            {/* Summary pills */}
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              {[
+                { label: "Total Deployed", value: formatCurrency(analytics.totalDeployed) },
+                { label: "Portfolio Value", value: formatCurrency(analytics.totalPortfolioValue) },
+                { label: "Companies", value: String(analytics.companiesCount) },
+              ].map(({ label, value }) => (
+                <div
+                  key={label}
+                  className="flex items-center gap-2 px-3 py-2 rounded"
+                  style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)" }}
+                >
+                  <span className="text-xs" style={{ color: "var(--text-muted)" }}>{label}</span>
+                  <span className="text-sm font-semibold tabular-nums" style={{ color: "var(--text-primary)" }}>
+                    {value}
+                  </span>
+                </div>
+              ))}
+              {/* Unrealized G/L pill */}
+              <div
+                className="flex items-center gap-2 px-3 py-2 rounded"
+                style={{
+                  background: unrealizedPositive ? "rgba(16,185,129,0.06)" : "rgba(239,68,68,0.06)",
+                  border: unrealizedPositive ? "1px solid rgba(16,185,129,0.18)" : "1px solid rgba(239,68,68,0.18)",
+                }}
+              >
+                <span className="text-xs" style={{ color: "var(--text-muted)" }}>Unrealized G/L</span>
+                <span className="flex items-center gap-1 text-sm font-semibold tabular-nums" style={{ color: unrealizedPositive ? "#10b981" : "#ef4444" }}>
+                  {unrealizedPositive ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
+                  {unrealizedPositive ? "+" : ""}{formatCurrency(unrealizedGL)}
+                </span>
+              </div>
+            </div>
+
+            {/* Concentration warnings */}
+            {analytics.concentrationWarnings.length > 0 && (
+              <div className="mb-5 flex flex-col gap-2">
+                {analytics.concentrationWarnings.map((w) => (
+                  <div
+                    key={`${w.type}-${w.label}`}
+                    className="flex items-start gap-2 px-3 py-2.5 rounded text-xs"
+                    style={{
+                      background: "rgba(245,158,11,0.08)",
+                      border: "1px solid rgba(245,158,11,0.2)",
+                      color: "#f59e0b",
+                    }}
+                  >
+                    <AlertTriangle size={13} className="shrink-0 mt-0.5" />
+                    <span>{w.message}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-8">
+              {/* Left column: Sector + Stage */}
+              <div className="flex flex-col gap-6">
+                {/* Allocation by Sector */}
+                <div>
+                  <div
+                    className="text-xs font-medium mb-3 uppercase tracking-wide"
+                    style={{ color: "var(--text-muted)" }}
+                  >
+                    Allocation by Sector
+                  </div>
+                  <AllocationBars
+                    items={analytics.allocationBySector.map((s) => ({
+                      label: s.sector,
+                      count: s.count,
+                      totalValue: s.totalValue,
+                      pct: s.pct,
+                    }))}
+                    labelKey="sector"
+                    colors={SECTOR_COLORS}
+                  />
+                </div>
+
+                {/* Allocation by Stage */}
+                <div>
+                  <div
+                    className="text-xs font-medium mb-3 uppercase tracking-wide"
+                    style={{ color: "var(--text-muted)" }}
+                  >
+                    Allocation by Stage
+                  </div>
+                  <AllocationBars
+                    items={analytics.allocationByStage.map((s) => ({
+                      label: s.stage,
+                      count: s.count,
+                      totalValue: s.totalValue,
+                      pct: s.pct,
+                    }))}
+                    labelKey="stage"
+                    colors={STAGE_COLORS}
+                  />
+                </div>
+              </div>
+
+              {/* Right column: Vintage */}
+              <div>
+                <div
+                  className="text-xs font-medium mb-3 uppercase tracking-wide"
+                  style={{ color: "var(--text-muted)" }}
+                >
+                  Vintage Year
+                </div>
+                <VintageHeatmap items={analytics.vintageByYear} />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Loading state when expanded but data not ready */}
+        {showConstruction && !analytics && analyticsLoading && (
+          <div className="px-6 pb-6 flex items-center gap-2 text-sm" style={{ color: "var(--text-muted)" }}>
+            <Loader2 size={14} className="animate-spin" />
+            Loading analytics…
+          </div>
+        )}
+
+        {/* Empty state when done loading but no data */}
+        {showConstruction && !analytics && !analyticsLoading && (
+          <div className="px-6 pb-6 text-sm" style={{ color: "var(--text-muted)" }}>
+            No analytics data available.
+          </div>
+        )}
       </div>
 
       {/* Main content */}

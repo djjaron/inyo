@@ -8,7 +8,9 @@ export type AgentType =
   | "chief-of-staff"
   | "concierge"
   | "philanthropy"
-  | "relationships";
+  | "relationships"
+  | "deal-enrichment"
+  | "term-sheet";
 
 export type DealStatus =
   | "inbound"

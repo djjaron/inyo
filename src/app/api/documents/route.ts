@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const documents = await prisma.document.findMany({
-      where: { familyId },
+      where: { familyId, deletedAt: null },
       orderBy: { createdAt: "desc" },
       take: 20,
     });

@@ -51,10 +51,11 @@ export async function GET(
 
   try {
     const deal = await prisma.deal.findUnique({
-      where: { id },
+      where: { id, deletedAt: null },
       include: {
         documents: true,
         aiAnalyses: { orderBy: { createdAt: "desc" } },
+        founders: { orderBy: { createdAt: "asc" } },
       },
     });
 
@@ -66,6 +67,27 @@ export async function GET(
   } catch {
     // DB unavailable — return mock deal (id matched or first)
     return NextResponse.json({ deal: { ...MOCK_DEAL, id }, _mock: true });
+  }
+}
+
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+
+  try {
+    const deal = await prisma.deal.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
+    return NextResponse.json({ success: true, deletedAt: deal.deletedAt });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes("Record to update not found")) {
+      return NextResponse.json({ error: "Deal not found" }, { status: 404 });
+    }
+    return NextResponse.json({ error: "Database unavailable" }, { status: 500 });
   }
 }
 
@@ -99,6 +121,13 @@ export async function PATCH(
     "icMemoUrl",
     "dataRoomUrl",
     "pitchDeckUrl",
+    "website",
+    "linkedinUrl",
+    "crunchbaseUrl",
+    "affinityScore",
+    "riskScore",
+    "fundabilityScore",
+    "enrichedAt",
     "investedAt",
     "entityId",
   ] as const;
