@@ -8,6 +8,7 @@ import {
   BarChart3,
   CheckCircle2,
   DollarSign,
+  Calendar,
   Scale,
   Receipt,
   Briefcase,
@@ -18,6 +19,7 @@ import {
   Zap,
   Upload,
   Plug,
+  Layers,
 } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
@@ -28,11 +30,13 @@ const nav = [
   { label: "Opportunities", href: "/opportunities", icon: TrendingUp },
   { label: "Portfolio", href: "/portfolio", icon: BarChart3 },
   { label: "Finance", href: "/finance", icon: DollarSign },
+  { label: "Calendar", href: "/calendar", icon: Calendar },
   { label: "Legal", href: "/legal", icon: Scale },
   { label: "Tax", href: "/tax", icon: Receipt },
   { label: "Concierge", href: "/concierge", icon: Briefcase },
   { label: "Philanthropy", href: "/philanthropy", icon: Heart },
   { label: "Relationships", href: "/relationships", icon: Users },
+  { label: "SPV", href: "/spv", icon: Layers },
   { label: "Marketplace", href: "/marketplace", icon: Store },
 ];
 

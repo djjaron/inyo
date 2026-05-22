@@ -37,6 +37,7 @@ model Family {
   documents   Document[]
   agentRuns   AgentRun[]
   approvals   Approval[]
+  spvs          SPV[]
 
   @@map("families")
 }
@@ -97,6 +98,7 @@ model Deal {
   aiAnalyses      AIAnalysis[]
   contacts        DealContact[]
   founders        Founder[]
+  spvs            SPV[]
 
   @@map("deals")
 }
@@ -349,4 +351,52 @@ model AuditLog {
   createdAt    DateTime @default(now())
 
   @@map("audit_logs")
+}
+
+model SPV {
+  id              String    @id @default(cuid())
+  familyId        String
+  dealId          String?
+  name            String
+  status          String    @default("draft")   // draft, launching, active, closed, cancelled
+  spvType         String    @default("syndicate") // syndicate, secondary, layered
+  sydecarId       String?   // ID returned by Sydecar API
+  sydecarUrl      String?   // Link to Sydecar dashboard for this SPV
+  targetRaise     Float?
+  totalCommitted  Float?    @default(0)
+  managementFee   Float?    @default(2)   // percentage e.g. 2.0 = 2%
+  carry           Float?    @default(20)  // percentage e.g. 20.0 = 20%
+  closingDate     DateTime?
+  investmentType  String?   // equity, convertible-note, safe, debt
+  description     String?
+  launchedAt      DateTime?
+  deletedAt       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  family    Family       @relation(fields: [familyId], references: [id])
+  deal      Deal?        @relation(fields: [dealId], references: [id])
+  investors SPVInvestor[]
+
+  @@map("spvs")
+}
+
+model SPVInvestor {
+  id            String    @id @default(cuid())
+  spvId         String
+  spv           SPV       @relation(fields: [spvId], references: [id], onDelete: Cascade)
+  contactId     String?
+  name          String
+  email         String
+  commitment    Float     @default(0)
+  status        String    @default("invited")   // invited, committed, funded, withdrawn
+  sydecarPersonId String? // Person ID from Sydecar
+  sydecarProfileId String? // Profile ID from Sydecar
+  invitedAt     DateTime?
+  committedAt   DateTime?
+  fundedAt      DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("spv_investors")
 }

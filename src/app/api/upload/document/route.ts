@@ -63,10 +63,14 @@ export async function POST(req: NextRequest) {
   // Extract text
   let textContent = "";
   if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
-    const parser = new PDFParse({ data: buffer });
-    const parsed = await parser.getText();
-    await parser.destroy();
-    textContent = parsed.text;
+    try {
+      const parser = new PDFParse({ data: buffer });
+      const parsed = await parser.getText();
+      await parser.destroy();
+      textContent = parsed.text;
+    } catch {
+      textContent = "";
+    }
   } else {
     // .txt, .md, plain text
     textContent = buffer.toString("utf-8");

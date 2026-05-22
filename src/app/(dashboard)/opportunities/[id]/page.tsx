@@ -2,7 +2,7 @@
 
 import { useState, useEffect, use } from "react";
 import Link from "next/link";
-import { ChevronLeft, Bot, FileText, RefreshCw, Zap, Loader2, Building2, Tag, DollarSign, Calendar, User, Globe, Link2, TrendingUp, Pencil, X, Plus, AlertTriangle, Users, ChevronDown, ChevronUp, Scale } from "lucide-react";
+import { ChevronLeft, Bot, FileText, RefreshCw, Zap, Loader2, Building2, Tag, DollarSign, Calendar, User, Globe, Link2, TrendingUp, Pencil, X, Plus, AlertTriangle, Users, ChevronDown, ChevronUp, Scale, Layers } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import ScoreRing from "@/components/ui/ScoreRing";
 import DealAnalysisPanel from "@/components/ui/DealAnalysisPanel";
@@ -21,6 +21,14 @@ const statusLabel: Record<string, string> = {
 const SELECTABLE_STATUSES = [
   "inbound", "reviewing", "diligence", "ic-review", "passed", "invested",
 ] as const;
+
+const spvStatusVariant: Record<string, "success" | "warning" | "accent" | "danger" | "muted" | "default"> = {
+  active: "success",
+  launching: "warning",
+  draft: "muted",
+  closed: "default",
+  cancelled: "danger",
+};
 
 type Tab = "overview" | "analysis" | "memo" | "terms";
 
@@ -82,6 +90,22 @@ interface CoInvestorMatch {
   lastContactAt?: string | null;
 }
 
+interface SPVSummary {
+  id: string;
+  name: string;
+  status: "draft" | "launching" | "active" | "closed" | "cancelled";
+  spvType: string;
+  sydecarId?: string;
+  sydecarUrl?: string;
+  targetRaise?: number;
+  totalCommitted?: number;
+  managementFee?: number;
+  carry?: number;
+  closingDate?: string;
+  launchedAt?: string;
+  investors?: Array<{ id: string; name: string; status: string; commitment: number }>;
+}
+
 interface Deal {
   id: string; familyId: string; company: string; name?: string;
   sector?: string; stage?: string; status: string;
@@ -140,6 +164,11 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
   const [coMatchesExpanded, setCoMatchesExpanded] = useState(true);
   const [coMatchesMock, setCoMatchesMock] = useState(false);
 
+  // SPV state
+  const [spvs, setSpvs] = useState<SPVSummary[]>([]);
+  const [showCreateSpv, setShowCreateSpv] = useState(false);
+  const [launchingSpv, setLaunchingSpv] = useState<string | null>(null);
+
   // Source URL editing state
   const [sourceEditing, setSourceEditing] = useState(false);
   const [sourceForm, setSourceForm] = useState({ website: "", linkedinUrl: "", crunchbaseUrl: "" });
@@ -169,6 +198,13 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
         } catch {
           // ignore founders fetch error
         }
+
+        // Load SPVs linked to this deal
+        try {
+          const spvRes = await fetch(`/api/spv?familyId=${d.familyId}&dealId=${d.id}`);
+          const spvData = await spvRes.json();
+          setSpvs(spvData.spvs ?? []);
+        } catch { /* ignore */ }
 
         // If deal already has scores, load enrichment display
         if (d.affinityScore != null) {
@@ -420,6 +456,46 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
     if (!deal) return;
     await fetch(`/api/deals/${deal.id}/founders/${founderId}`, { method: "DELETE" });
     setFounders((f) => f.filter((x) => x.id !== founderId));
+  }
+
+  async function createSpvFromDeal(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!deal) return;
+    const fd = new FormData(e.currentTarget);
+    const res = await fetch("/api/spv", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        familyId: deal.familyId,
+        dealId: deal.id,
+        name: fd.get("name") as string,
+        spvType: fd.get("spvType") as string,
+        investmentType: fd.get("investmentType") as string,
+        targetRaise: parseFloat(fd.get("targetRaise") as string) || undefined,
+        managementFee: parseFloat(fd.get("managementFee") as string) || 2,
+        carry: parseFloat(fd.get("carry") as string) || 20,
+      }),
+    });
+    const data = await res.json();
+    if (data.spv) {
+      setSpvs(s => [...s, data.spv]);
+      setShowCreateSpv(false);
+    }
+  }
+
+  async function launchSpv(spvId: string) {
+    setLaunchingSpv(spvId);
+    try {
+      const res = await fetch(`/api/spv/${spvId}/launch`, { method: "POST" });
+      const data = await res.json();
+      if (data.launched) {
+        // Refresh SPVs list
+        const spvRes = await fetch(`/api/spv?familyId=${deal!.familyId}&dealId=${deal!.id}`);
+        const spvData = await spvRes.json();
+        setSpvs(spvData.spvs ?? []);
+      }
+    } catch { /* silently fail */ }
+    finally { setLaunchingSpv(null); }
   }
 
   async function runEnrichment() {
@@ -1138,6 +1214,76 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                     </div>
                   )}
                 </div>
+
+                {/* Special Purpose Vehicles */}
+                <div
+                  className="rounded-lg border overflow-hidden"
+                  style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}
+                >
+                  <div className="flex items-center justify-between px-3 py-2.5">
+                    <div className="flex items-center gap-2">
+                      <Layers size={12} style={{ color: "var(--accent)" }} />
+                      <span className="text-xs font-semibold tracking-wide uppercase" style={{ color: "var(--text-muted)" }}>
+                        Special Purpose Vehicles
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => setShowCreateSpv(true)}
+                      className="flex items-center gap-1 px-2 py-1 rounded text-xs transition-colors"
+                      style={{ color: "var(--text-muted)", border: "1px solid var(--border)" }}
+                    >
+                      <Plus size={11} /> {spvs.length > 0 ? "Add" : "Create SPV"}
+                    </button>
+                  </div>
+
+                  <div className="px-3 pb-3">
+                    {spvs.length === 0 ? (
+                      <p className="text-xs py-1" style={{ color: "var(--text-muted)" }}>No SPVs for this deal.</p>
+                    ) : (
+                      <div className="space-y-2.5">
+                        {spvs.map((spv) => (
+                          <div
+                            key={spv.id}
+                            className="p-2.5 rounded-md border"
+                            style={{ background: "var(--bg-elevated)", borderColor: "var(--border)" }}
+                          >
+                            <div className="flex items-center justify-between gap-1 mb-1.5">
+                              <span className="text-xs font-medium truncate" style={{ color: "var(--text-primary)" }}>{spv.name}</span>
+                              <Badge label={spv.status} variant={spvStatusVariant[spv.status] ?? "muted"} size="xs" />
+                            </div>
+                            <div className="text-xs mb-1.5" style={{ color: "var(--text-muted)" }}>
+                              {formatCurrency(spv.totalCommitted ?? 0)} / {spv.targetRaise ? formatCurrency(spv.targetRaise) : "—"}
+                              {" · "}
+                              {spv.investors?.length ?? 0} investor{(spv.investors?.length ?? 0) !== 1 ? "s" : ""}
+                            </div>
+                            {spv.sydecarUrl && (
+                              <a
+                                href={spv.sydecarUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs font-medium hover:underline block mb-1"
+                                style={{ color: "var(--accent)" }}
+                              >
+                                View on Sydecar ↗
+                              </a>
+                            )}
+                            {spv.status === "draft" && (
+                              <button
+                                onClick={() => launchSpv(spv.id)}
+                                disabled={launchingSpv === spv.id}
+                                className="flex items-center gap-1 px-2 py-1 rounded text-xs font-medium disabled:opacity-50 transition-opacity"
+                                style={{ background: "var(--bg-surface)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}
+                              >
+                                {launchingSpv === spv.id ? <Loader2 size={11} className="animate-spin" /> : <Zap size={11} />}
+                                Launch to Sydecar
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1244,6 +1390,157 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                 </button>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Create SPV Modal */}
+        {showCreateSpv && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center"
+            style={{ background: "rgba(0,0,0,0.5)" }}
+            onClick={() => setShowCreateSpv(false)}
+          >
+            <div
+              className="w-full max-w-md rounded-xl shadow-2xl p-6"
+              style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-base font-semibold" style={{ color: "var(--text-primary)" }}>
+                  Create SPV from Deal
+                </h2>
+                <button
+                  onClick={() => setShowCreateSpv(false)}
+                  className="hover:opacity-70"
+                  style={{ color: "var(--text-muted)" }}
+                >
+                  <X size={16} />
+                </button>
+              </div>
+              <form onSubmit={createSpvFromDeal} className="flex flex-col gap-4">
+                <div>
+                  <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>
+                    SPV Name <span style={{ color: "#ef4444" }}>*</span>
+                  </label>
+                  <input
+                    name="name"
+                    type="text"
+                    required
+                    defaultValue={`${deal.company} SPV`}
+                    className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none"
+                    style={{ background: "var(--bg-surface)", borderColor: "var(--border)", color: "var(--text-primary)" }}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>
+                      SPV Type
+                    </label>
+                    <select
+                      name="spvType"
+                      defaultValue="Syndicate"
+                      className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none"
+                      style={{ background: "var(--bg-surface)", borderColor: "var(--border)", color: "var(--text-primary)" }}
+                    >
+                      <option value="Syndicate">Syndicate</option>
+                      <option value="Fund">Fund</option>
+                      <option value="Co-Invest">Co-Invest</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>
+                      Investment Type
+                    </label>
+                    {deal.stage === "series-a" || deal.stage === "series-b" ? (
+                      <input
+                        name="investmentType"
+                        type="text"
+                        value="Equity"
+                        readOnly
+                        className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none"
+                        style={{ background: "var(--bg-surface)", borderColor: "var(--border)", color: "var(--text-muted)" }}
+                      />
+                    ) : (
+                      <select
+                        name="investmentType"
+                        defaultValue="SAFE"
+                        className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none"
+                        style={{ background: "var(--bg-surface)", borderColor: "var(--border)", color: "var(--text-primary)" }}
+                      >
+                        <option value="SAFE">SAFE</option>
+                        <option value="Convertible Note">Convertible Note</option>
+                        <option value="Equity">Equity</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>
+                    Target Raise ($)
+                  </label>
+                  <input
+                    name="targetRaise"
+                    type="number"
+                    min="0"
+                    step="1000"
+                    defaultValue={deal.capitalAsk ?? ""}
+                    placeholder="e.g. 2000000"
+                    className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none"
+                    style={{ background: "var(--bg-surface)", borderColor: "var(--border)", color: "var(--text-primary)" }}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>
+                      Management Fee (%)
+                    </label>
+                    <input
+                      name="managementFee"
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="0.1"
+                      defaultValue={2}
+                      className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none"
+                      style={{ background: "var(--bg-surface)", borderColor: "var(--border)", color: "var(--text-primary)" }}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>
+                      Carry (%)
+                    </label>
+                    <input
+                      name="carry"
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="1"
+                      defaultValue={20}
+                      className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none"
+                      style={{ background: "var(--bg-surface)", borderColor: "var(--border)", color: "var(--text-primary)" }}
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 pt-1">
+                  <button
+                    type="submit"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium"
+                    style={{ background: "var(--accent)", color: "#fff" }}
+                  >
+                    <Layers size={14} /> Create SPV
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateSpv(false)}
+                    className="px-4 py-2 rounded-md text-sm font-medium"
+                    style={{ background: "var(--bg-surface)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         )}
 
