@@ -7,3 +7,13 @@
 
 [build.environment]
   NODE_VERSION = "20"
+
+[functions]
+  included_files = ["prisma/**"]
+
+[[headers]]
+  for = "/api/federation/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization, X-Dividen-Key"
