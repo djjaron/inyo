@@ -16,7 +16,9 @@
   --success: #10b981;
   --warning: #f59e0b;
   --danger: #ef4444;
-  --sidebar-width: 220px;
+  --sidebar-width: 240px;
+  --panel-width: 360px;
+  --col2-min-width: 480px;
 }
 
 * {
