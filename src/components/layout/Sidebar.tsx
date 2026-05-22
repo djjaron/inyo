@@ -20,6 +20,7 @@ import {
   Upload,
   Plug,
   Layers,
+  Code2,
 } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
@@ -38,6 +39,7 @@ const nav = [
   { label: "Relationships", href: "/relationships", icon: Users },
   { label: "SPV", href: "/spv", icon: Layers },
   { label: "Marketplace", href: "/marketplace", icon: Store },
+  { label: "Federation", href: "/federation", icon: Plug },
 ];
 
 const importLinks = [
@@ -152,6 +154,18 @@ export default function Sidebar() {
         >
           <Plug size={15} strokeWidth={path === "/integrations" ? 2 : 1.5} />
           Integrations
+        </Link>
+        <Link
+          href="/api-docs"
+          className="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm hover:bg-white/5 transition-colors"
+          style={
+            path === "/api-docs"
+              ? { background: "rgba(59,130,246,0.12)", color: "var(--accent)" }
+              : { color: "var(--text-secondary)" }
+          }
+        >
+          <Code2 size={15} strokeWidth={path === "/api-docs" ? 2 : 1.5} />
+          API Docs
         </Link>
         <Link
           href="/settings"

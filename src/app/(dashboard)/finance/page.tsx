@@ -4,8 +4,10 @@ import { useEffect, useState, useCallback } from "react";
 import { Trash2 } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import PageHeader from "@/components/ui/PageHeader";
+import ContextPanel from "@/components/ui/ContextPanel";
 import { formatCurrency } from "@/lib/utils";
 import { useFamilyId } from "@/context/FamilyContext";
+import { usePanel } from "@/context/PanelContext";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -433,10 +435,70 @@ function LogTransactionModal({
   );
 }
 
+// ── Entity Detail Panel ───────────────────────────────────────────────────────
+
+function EntityDetailPanel({ entity, onLogTransaction }: { entity: Entity; onLogTransaction: () => void }) {
+  return (
+    <ContextPanel title={entity.name} subtitle={entity.type.toUpperCase()}>
+      <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-3">
+          <div
+            className="rounded-md p-3 flex items-center justify-between"
+            style={{ background: "var(--bg-surface)", border: "1px solid var(--border)" }}
+          >
+            <span className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>Net</span>
+            <span
+              className="text-sm font-semibold font-mono"
+              style={{
+                color: entity.net >= 0 ? "#10b981" : "#ef4444",
+                fontVariantNumeric: "tabular-nums",
+              }}
+            >
+              {entity.net >= 0 ? "+" : ""}{formatCurrency(entity.net)}
+            </span>
+          </div>
+          <div
+            className="rounded-md p-3 flex items-center justify-between"
+            style={{ background: "var(--bg-surface)", border: "1px solid var(--border)" }}
+          >
+            <span className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>Total Inflows</span>
+            <span
+              className="text-sm font-semibold font-mono"
+              style={{ color: "#10b981", fontVariantNumeric: "tabular-nums" }}
+            >
+              +{formatCurrency(entity.totalInflows)}
+            </span>
+          </div>
+          <div
+            className="rounded-md p-3 flex items-center justify-between"
+            style={{ background: "var(--bg-surface)", border: "1px solid var(--border)" }}
+          >
+            <span className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>Total Outflows</span>
+            <span
+              className="text-sm font-semibold font-mono"
+              style={{ color: "#ef4444", fontVariantNumeric: "tabular-nums" }}
+            >
+              -{formatCurrency(entity.totalOutflows)}
+            </span>
+          </div>
+        </div>
+        <button
+          onClick={onLogTransaction}
+          className="w-full py-2 rounded text-sm font-semibold"
+          style={{ background: "var(--accent)", color: "#fff" }}
+        >
+          Log Transaction
+        </button>
+      </div>
+    </ContextPanel>
+  );
+}
+
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export default function FinancePage() {
   const familyId = useFamilyId();
+  const { openPanel, closePanel } = usePanel();
 
   // Data state
   const [entities, setEntities] = useState<Entity[]>([]);
@@ -591,9 +653,20 @@ export default function FinancePage() {
                   return (
                     <button
                       key={entity.id}
-                      onClick={() =>
-                        setSelectedEntityId(isSelected ? null : entity.id)
-                      }
+                      onClick={() => {
+                        if (isSelected) {
+                          setSelectedEntityId(null);
+                          closePanel();
+                        } else {
+                          setSelectedEntityId(entity.id);
+                          openPanel(
+                            <EntityDetailPanel
+                              entity={entity}
+                              onLogTransaction={() => setShowLogTransaction(true)}
+                            />
+                          );
+                        }
+                      }}
                       className="shrink-0 w-52 rounded-lg border p-4 text-left transition-all"
                       style={{
                         background: isSelected

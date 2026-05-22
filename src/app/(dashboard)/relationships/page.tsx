@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Clock, Loader2, Sparkles, Plus, X, DollarSign } from "lucide-react";
+import { Search, Clock, Loader2, Sparkles, Plus, X, DollarSign, Mail, Phone, Link, ExternalLink } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import PageHeader from "@/components/ui/PageHeader";
+import ContextPanel from "@/components/ui/ContextPanel";
 import { useFamilyId } from "@/context/FamilyContext";
+import { usePanel } from "@/context/PanelContext";
 
 // ── Types ───────────────────────────────────────────────────────────────────
 
@@ -12,6 +14,7 @@ interface Contact {
   id: string;
   name: string;
   email?: string | null;
+  phone?: string | null;
   company?: string | null;
   title?: string | null;
   type: string;
@@ -96,15 +99,247 @@ const typeVariant: Record<string, "accent" | "success" | "warning" | "muted" | "
   founder: "accent", gp: "success", lp: "warning", attorney: "muted", advisor: "default", banker: "muted", family: "success",
 };
 
+// ── ContactDetailPanel ────────────────────────────────────────────────────────
+
+function ContactDetailPanel({ contact, interactions }: { contact: Contact; interactions: Interaction[] }) {
+  const [panelTab, setPanelTab] = useState<"overview" | "interactions">("overview");
+
+  const contactInteractions = interactions.filter(
+    (i) => i.contact.name === contact.name
+  );
+
+  function fmtCheck(min?: number | null, max?: number | null): string {
+    if (!min && !max) return "";
+    const fmt = (n: number) =>
+      n >= 1_000_000 ? `$${(n / 1_000_000).toFixed(0)}M` : `$${(n / 1_000).toFixed(0)}K`;
+    if (min && max) return `${fmt(min)}–${fmt(max)}`;
+    if (min) return `${fmt(min)}+`;
+    return `up to ${fmt(max!)}`;
+  }
+
+  return (
+    <ContextPanel
+      title={contact.name}
+      subtitle={[contact.title, contact.company].filter(Boolean).join(", ") || undefined}
+      tabs={[
+        { id: "overview", label: "Overview" },
+        { id: "interactions", label: "Interactions", badge: contactInteractions.length || undefined },
+      ]}
+      activeTab={panelTab}
+      onTabChange={(id) => setPanelTab(id as "overview" | "interactions")}
+    >
+      {panelTab === "overview" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div
+              style={{
+                width: 48,
+                height: 48,
+                borderRadius: 10,
+                background: "var(--accent-muted)",
+                color: "var(--accent)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 16,
+                fontWeight: 600,
+                flexShrink: 0,
+              }}
+            >
+              {initials(contact.name)}
+            </div>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: 15, fontWeight: 600, color: "var(--text-primary)" }}>{contact.name}</div>
+              {(contact.title || contact.company) && (
+                <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>
+                  {[contact.title, contact.company].filter(Boolean).join(", ")}
+                </div>
+              )}
+              <div style={{ marginTop: 6, display: "flex", flexWrap: "wrap", gap: 4 }}>
+                <Badge label={contact.type} variant={typeVariant[contact.type] ?? "default"} size="xs" />
+                {contact.investorType && (
+                  <Badge
+                    label={contact.investorType.replace(/-/g, " ")}
+                    variant={investorTypeVariant[contact.investorType] ?? "default"}
+                    size="xs"
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {contact.email && (
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <Mail size={12} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
+                <a
+                  href={`mailto:${contact.email}`}
+                  style={{ fontSize: 12, color: "var(--accent)", textDecoration: "none" }}
+                >
+                  {contact.email}
+                </a>
+              </div>
+            )}
+            {contact.phone && (
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <Phone size={12} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
+                <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{contact.phone}</span>
+              </div>
+            )}
+            {contact.linkedIn && (
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <Link size={12} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
+                <a
+                  href={contact.linkedIn}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ fontSize: 12, color: "var(--accent)", textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}
+                >
+                  LinkedIn <ExternalLink size={10} />
+                </a>
+              </div>
+            )}
+          </div>
+
+          {(contact.assetClasses ?? []).length > 0 && (
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 500, color: "var(--text-muted)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                Asset Classes
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                {(contact.assetClasses ?? []).map((cls) => (
+                  <span
+                    key={cls}
+                    style={{
+                      fontSize: 11,
+                      padding: "2px 8px",
+                      borderRadius: 4,
+                      background: "var(--bg-elevated)",
+                      color: "var(--text-secondary)",
+                      border: "1px solid var(--border)",
+                    }}
+                  >
+                    {cls}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {(contact.checkSizeMin || contact.checkSizeMax) && (
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 500, color: "var(--text-muted)", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                Check Size
+              </div>
+              <div style={{ fontSize: 13, color: "var(--text-secondary)", display: "flex", alignItems: "center", gap: 5 }}>
+                <DollarSign size={12} style={{ color: "var(--text-muted)" }} />
+                {fmtCheck(contact.checkSizeMin, contact.checkSizeMax)}
+              </div>
+            </div>
+          )}
+
+          {contact.warmPathNotes && (
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 500, color: "var(--text-muted)", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                Warm Path
+              </div>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.6 }}>{contact.warmPathNotes}</div>
+            </div>
+          )}
+
+          {contact.portfolioNotes && (
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 500, color: "var(--text-muted)", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                Portfolio Notes
+              </div>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.6 }}>{contact.portfolioNotes}</div>
+            </div>
+          )}
+
+          {contact.notes && (
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 500, color: "var(--text-muted)", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                Notes
+              </div>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.6 }}>{contact.notes}</div>
+            </div>
+          )}
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {contact.lastContactAt && (
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Last Contact</span>
+                <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{formatDate(contact.lastContactAt)}</span>
+              </div>
+            )}
+            {contact.introducedBy && (
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Introduced By</span>
+                <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{contact.introducedBy}</span>
+              </div>
+            )}
+            {contact.lastDealTogether && (
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Last Deal Together</span>
+                <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{contact.lastDealTogether}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {panelTab === "interactions" && (
+        <div>
+          {contactInteractions.length === 0 ? (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                height: 120,
+                fontSize: 13,
+                color: "var(--text-muted)",
+              }}
+            >
+              No interactions recorded
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              {contactInteractions.map((i) => (
+                <div
+                  key={i.id}
+                  style={{
+                    padding: "12px 0",
+                    borderBottom: "1px solid var(--border)",
+                  }}
+                >
+                  <div style={{ fontSize: 12, fontWeight: 500, color: "var(--text-primary)", marginBottom: 3 }}>
+                    {i.subject ?? "—"}
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <Badge label={i.type} variant="muted" size="xs" />
+                    <span style={{ fontSize: 11, color: "var(--text-muted)" }}>{relativeTime(i.occurredAt)} ago</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </ContextPanel>
+  );
+}
+
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default function RelationshipsPage() {
   const familyId = useFamilyId();
+  const { openPanel, closePanel, isPanelOpen } = usePanel();
 
   const [filter, setFilter] = useState("All");
   const [investorFilter, setInvestorFilter] = useState<InvestorFilter>("All");
   const [search, setSearch] = useState("");
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
 
   // Modal form state
@@ -128,6 +363,13 @@ export default function RelationshipsPage() {
   const [queryLoading, setQueryLoading] = useState(false);
   const [queryResult, setQueryResult] = useState<RelationshipResult | null>(null);
   const [queryError, setQueryError] = useState<string | null>(null);
+
+  // Sync selectedContactId with panel open state
+  useEffect(() => {
+    if (!isPanelOpen) {
+      setSelectedContactId(null);
+    }
+  }, [isPanelOpen]);
 
   // Fetch data on mount and whenever familyId resolves
   useEffect(() => {
@@ -269,6 +511,16 @@ export default function RelationshipsPage() {
         ? f.assetClasses.filter((c) => c !== cls)
         : [...f.assetClasses, cls],
     }));
+  }
+
+  function openContactPanel(contact: Contact) {
+    if (selectedContactId === contact.id) {
+      closePanel();
+      setSelectedContactId(null);
+      return;
+    }
+    setSelectedContactId(contact.id);
+    openPanel(<ContactDetailPanel contact={contact} interactions={interactions} />);
   }
 
   // Investor network contacts: have investorType set or type is lp/gp/co-investor
@@ -559,125 +811,71 @@ export default function RelationshipsPage() {
         </div>
       </div>
 
-      <div className="flex-1 flex overflow-hidden mt-4">
-        {/* Contact grid */}
-        <div className="flex-1 overflow-auto p-6 pt-2">
-          {loadingData ? (
-            <div
-              className="flex items-center justify-center h-32 gap-2 text-sm"
-              style={{ color: "var(--text-muted)" }}
-            >
-              <Loader2 size={16} className="animate-spin" />
-              Loading contacts…
-            </div>
-          ) : filtered.length === 0 ? (
-            <div
-              className="flex items-center justify-center h-32 text-sm"
-              style={{ color: "var(--text-muted)" }}
-            >
-              No contacts found
-            </div>
-          ) : (
-            <div className="grid grid-cols-3 gap-3">
-              {filtered.map((c) => (
-                <div
-                  key={c.id}
-                  className="p-4 rounded-md border cursor-pointer transition-colors group"
-                  style={{ background: "var(--bg-surface)", borderColor: expandedId === c.id ? "var(--accent)" : "var(--border)" }}
-                  onClick={() => setExpandedId(id => id === c.id ? null : c.id)}
-                >
-                  <div className="flex items-start gap-3 mb-3">
-                    <div
-                      className="w-9 h-9 rounded-md flex items-center justify-center text-sm font-semibold shrink-0"
-                      style={{ background: "var(--accent-muted)", color: "var(--accent)" }}
-                    >
-                      {initials(c.name)}
+      <div className="flex-1 overflow-auto p-6 pt-2">
+        {loadingData ? (
+          <div
+            className="flex items-center justify-center h-32 gap-2 text-sm"
+            style={{ color: "var(--text-muted)" }}
+          >
+            <Loader2 size={16} className="animate-spin" />
+            Loading contacts…
+          </div>
+        ) : filtered.length === 0 ? (
+          <div
+            className="flex items-center justify-center h-32 text-sm"
+            style={{ color: "var(--text-muted)" }}
+          >
+            No contacts found
+          </div>
+        ) : (
+          <div className="grid grid-cols-3 gap-3">
+            {filtered.map((c) => (
+              <div
+                key={c.id}
+                className="p-4 rounded-md border cursor-pointer transition-colors group"
+                style={{
+                  background: "var(--bg-surface)",
+                  borderColor: selectedContactId === c.id ? "var(--accent)" : "var(--border)",
+                  borderLeft: selectedContactId === c.id ? "2px solid var(--accent)" : undefined,
+                }}
+                onClick={() => openContactPanel(c)}
+              >
+                <div className="flex items-start gap-3 mb-3">
+                  <div
+                    className="w-9 h-9 rounded-md flex items-center justify-center text-sm font-semibold shrink-0"
+                    style={{ background: "var(--accent-muted)", color: "var(--accent)" }}
+                  >
+                    {initials(c.name)}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-sm font-medium truncate" style={{ color: "var(--text-primary)" }}>
+                      {c.name}
                     </div>
-                    <div className="min-w-0">
-                      <div className="text-sm font-medium truncate" style={{ color: "var(--text-primary)" }}>
-                        {c.name}
-                      </div>
-                      <div className="text-xs truncate" style={{ color: "var(--text-muted)" }}>
-                        {[c.title, c.company].filter(Boolean).join(", ") || "—"}
-                      </div>
+                    <div className="text-xs truncate" style={{ color: "var(--text-muted)" }}>
+                      {[c.title, c.company].filter(Boolean).join(", ") || "—"}
                     </div>
                   </div>
+                </div>
 
-                  <div className="flex items-center justify-between">
-                    <Badge label={c.type} variant={typeVariant[c.type] ?? "default"} size="xs" />
-                    {c.introducedBy && (
-                      <div className="text-xs truncate max-w-[100px]" style={{ color: "var(--text-muted)" }}>
-                        via {c.introducedBy}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="mt-3 flex items-center gap-1 text-xs" style={{ color: "var(--text-muted)" }}>
-                    <Clock size={10} />
-                    Last contact: {formatDate(c.lastContactAt)}
-                  </div>
-
-                  {expandedId === c.id && (
-                    <div className="mt-3 pt-3 flex flex-col gap-1.5" style={{ borderTop: "1px solid var(--border)" }}>
-                      {c.email && (
-                        <div className="text-xs" style={{ color: "var(--text-secondary)" }}>{c.email}</div>
-                      )}
-                      {c.warmPathNotes && (
-                        <div className="text-xs" style={{ color: "var(--text-muted)" }}>{c.warmPathNotes}</div>
-                      )}
-                      {c.notes && (
-                        <div className="text-xs" style={{ color: "var(--text-muted)" }}>{c.notes}</div>
-                      )}
-                      {!c.email && !c.warmPathNotes && !c.notes && (
-                        <div className="text-xs" style={{ color: "var(--text-muted)" }}>No additional details</div>
-                      )}
+                <div className="flex items-center justify-between">
+                  <Badge label={c.type} variant={typeVariant[c.type] ?? "default"} size="xs" />
+                  {c.introducedBy && (
+                    <div className="text-xs truncate max-w-[100px]" style={{ color: "var(--text-muted)" }}>
+                      via {c.introducedBy}
                     </div>
                   )}
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
 
-        {/* Interaction feed */}
-        <div
-          className="w-72 shrink-0 border-l overflow-auto"
-          style={{ borderColor: "var(--border)", background: "var(--bg-surface)" }}
-        >
-          <div
-            className="px-4 py-3.5 border-b text-sm font-medium"
-            style={{ borderColor: "var(--border)", color: "var(--text-primary)" }}
-          >
-            Recent Interactions
-          </div>
-
-          {loadingData ? (
-            <div className="flex items-center justify-center h-20 gap-2 text-xs" style={{ color: "var(--text-muted)" }}>
-              <Loader2 size={13} className="animate-spin" />
-              Loading…
-            </div>
-          ) : interactions.length === 0 ? (
-            <div className="px-4 py-6 text-xs text-center" style={{ color: "var(--text-muted)" }}>
-              No interactions yet
-            </div>
-          ) : (
-            interactions.map((i) => (
-              <div key={i.id} className="px-4 py-3.5 border-b" style={{ borderColor: "var(--border-subtle)" }}>
-                <div className="text-xs font-medium mb-0.5" style={{ color: "var(--text-primary)" }}>
-                  {i.contact.name}
-                </div>
-                <div className="text-xs mb-1" style={{ color: "var(--text-secondary)" }}>
-                  {i.subject ?? "—"}
-                </div>
-                <div className="flex items-center gap-1.5 text-xs" style={{ color: "var(--text-muted)" }}>
-                  <Badge label={i.type} variant="muted" size="xs" />
-                  {relativeTime(i.occurredAt)} ago
+                <div className="mt-3 flex items-center gap-1 text-xs" style={{ color: "var(--text-muted)" }}>
+                  <Clock size={10} />
+                  Last contact: {formatDate(c.lastContactAt)}
                 </div>
               </div>
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
+
       {/* Add LP/Co-Investor Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.6)" }}>

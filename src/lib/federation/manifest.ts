@@ -1,0 +1,123 @@
+import type { AgentType } from "@/types";
+
+export interface AgentCapability {
+  type: string;
+  name: string;
+  description: string;
+  model: "deep" | "fast";
+}
+
+export interface InstanceManifest {
+  instanceId: string;
+  name: string;
+  description: string;
+  version: string;
+  protocol: string;
+  capabilities: AgentCapability[];
+  endpoints: {
+    manifest: string;
+    inbound: string;
+    health: string;
+  };
+  tags: string[];
+  generatedAt: string;
+}
+
+const CAPABILITIES: AgentCapability[] = [
+  {
+    type: "deal-flow" satisfies AgentType,
+    name: "Deal Flow Analyst",
+    description: "Scores and triages inbound investment opportunities",
+    model: "deep",
+  },
+  {
+    type: "ic-memo" satisfies AgentType,
+    name: "IC Memo Writer",
+    description: "Generates institutional investment committee memos",
+    model: "deep",
+  },
+  {
+    type: "portfolio-monitor" satisfies AgentType,
+    name: "Portfolio Monitor",
+    description: "Watches investments for material changes and alerts",
+    model: "deep",
+  },
+  {
+    type: "cfo" satisfies AgentType,
+    name: "CFO Agent",
+    description: "Analyzes cash flow, entity liquidity, and expense reporting",
+    model: "deep",
+  },
+  {
+    type: "legal" satisfies AgentType,
+    name: "Legal Review Agent",
+    description: "Reviews documents for risk flags and compliance issues",
+    model: "deep",
+  },
+  {
+    type: "tax" satisfies AgentType,
+    name: "Tax Intelligence Agent",
+    description: "Organizes K-1s, deadlines, and tax obligations",
+    model: "deep",
+  },
+  {
+    type: "chief-of-staff" satisfies AgentType,
+    name: "Chief of Staff",
+    description: "Handles inbox triage, follow-ups, and operational tasks",
+    model: "fast",
+  },
+  {
+    type: "concierge" satisfies AgentType,
+    name: "Concierge Agent",
+    description: "Manages travel, household, and lifestyle operations",
+    model: "fast",
+  },
+  {
+    type: "philanthropy" satisfies AgentType,
+    name: "Philanthropy Agent",
+    description: "Supports foundation giving and grant tracking",
+    model: "fast",
+  },
+  {
+    type: "relationships" satisfies AgentType,
+    name: "Relationship Intelligence",
+    description: "Maps network, warm paths, and interaction history",
+    model: "fast",
+  },
+  {
+    type: "deal-enrichment" satisfies AgentType,
+    name: "Deal Enrichment Analyst",
+    description: "Scores deals using web, LinkedIn, and Crunchbase signals",
+    model: "deep",
+  },
+  {
+    type: "term-sheet" satisfies AgentType,
+    name: "Term Sheet Analyst",
+    description: "Extracts and compares investment term sheets",
+    model: "deep",
+  },
+  {
+    type: "diligence" satisfies AgentType,
+    name: "Diligence Agent",
+    description: "Reviews deal diligence checklists with AI analysis",
+    model: "deep",
+  },
+];
+
+export function buildManifest(baseUrl: string): InstanceManifest {
+  return {
+    instanceId: "inyo",
+    name: "Inyo",
+    description: "Private AI operating system for modern family offices",
+    version: "1.0.0",
+    protocol: "dividen/1.0",
+    capabilities: CAPABILITIES,
+    endpoints: {
+      manifest: `${baseUrl}/api/federation/manifest`,
+      inbound: `${baseUrl}/api/federation/tasks`,
+      health: `${baseUrl}/api/federation/status`,
+    },
+    tags: ["family-office", "investment", "wealth-management", "legal", "tax"],
+    generatedAt: new Date().toISOString(),
+  };
+}

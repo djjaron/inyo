@@ -1,10 +1,12 @@
 "use client";
 
 import { useRef, useState, useEffect, useCallback } from "react";
-import { Scale, Upload, FileText, AlertTriangle, Loader2, RefreshCw, Calendar, Pencil } from "lucide-react";
+import { Scale, Upload, FileText, AlertTriangle, Loader2, Calendar, Pencil } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import PageHeader from "@/components/ui/PageHeader";
+import ContextPanel from "@/components/ui/ContextPanel";
 import { useFamilyId } from "@/context/FamilyContext";
+import { usePanel } from "@/context/PanelContext";
 
 // ─── Types ────────────────────────────────────────────────────────────────
 
@@ -102,10 +104,133 @@ function docTypeLabel(type: string): string {
   return map[type] ?? type;
 }
 
+// ─── Legal Review Panel ───────────────────────────────────────────────────
+
+function LegalReviewPanelContent({
+  result,
+  docName,
+  isMock,
+}: {
+  result: LegalReviewResult;
+  docName: string;
+  isMock: boolean;
+}) {
+  return (
+    <ContextPanel
+      title={docName}
+      subtitle={result.documentType}
+      actions={
+        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          <Badge label={`Risk: ${result.riskLevel}`} variant={riskVariant(result.riskLevel)} size="sm" />
+          {isMock && <Badge label="mock" variant="muted" size="xs" />}
+        </div>
+      }
+    >
+      <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+        <div>
+          <div className="text-xs font-medium tracking-wider uppercase mb-2" style={{ color: "var(--text-muted)" }}>
+            Summary
+          </div>
+          <div className="text-sm leading-relaxed" style={{ color: "var(--text-primary)" }}>
+            {result.summary}
+          </div>
+        </div>
+
+        <div>
+          <div className="text-xs font-medium tracking-wider uppercase mb-3" style={{ color: "var(--text-muted)" }}>
+            Flagged Clauses ({result.flags.length})
+          </div>
+          {result.flags.length === 0 ? (
+            <div className="text-sm" style={{ color: "#10b981" }}>No issues flagged — document appears clean.</div>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {result.flags.map((flag, i) => (
+                <div
+                  key={i}
+                  className="flex gap-3 rounded-md px-4 py-3"
+                  style={{ background: "var(--bg-surface)", border: "1px solid var(--border)" }}
+                >
+                  <div
+                    className="mt-1 shrink-0 rounded-full"
+                    style={{
+                      width: 8,
+                      height: 8,
+                      background: severityColor(flag.severity),
+                      boxShadow: `0 0 4px ${severityColor(flag.severity)}66`,
+                    }}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-medium mb-1" style={{ color: "var(--text-primary)" }}>
+                      {flag.clause}
+                    </div>
+                    <div className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                      {flag.issue}
+                    </div>
+                  </div>
+                  <div className="shrink-0">
+                    <Badge
+                      label={flag.severity}
+                      variant={flag.severity === "high" ? "danger" : flag.severity === "medium" ? "warning" : "muted"}
+                      size="xs"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {Object.keys(result.keyTerms).length > 0 && (
+          <div>
+            <div className="text-xs font-medium tracking-wider uppercase mb-3" style={{ color: "var(--text-muted)" }}>
+              Key Terms
+            </div>
+            <div
+              className="rounded-md border overflow-hidden"
+              style={{ borderColor: "var(--border)" }}
+            >
+              {Object.entries(result.keyTerms).map(([term, value], i) => (
+                <div
+                  key={term}
+                  className="flex justify-between px-4 py-2.5 text-xs"
+                  style={{
+                    background: i % 2 === 0 ? "var(--bg-surface)" : "var(--bg-elevated)",
+                    borderBottom: "1px solid var(--border-subtle)",
+                  }}
+                >
+                  <span style={{ color: "var(--text-muted)" }}>{term}</span>
+                  <span style={{ color: "var(--text-primary)" }}>{value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div>
+          <div className="text-xs font-medium tracking-wider uppercase mb-2" style={{ color: "var(--text-muted)" }}>
+            Recommendation
+          </div>
+          <div
+            className="rounded-md px-4 py-3 text-sm leading-relaxed"
+            style={{
+              background: "rgba(59,130,246,0.07)",
+              border: "1px solid rgba(59,130,246,0.2)",
+              color: "var(--text-primary)",
+            }}
+          >
+            {result.recommendation}
+          </div>
+        </div>
+      </div>
+    </ContextPanel>
+  );
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────
 
 export default function LegalPage() {
   const familyId = useFamilyId();
+  const { openPanel } = usePanel();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [uploading, setUploading] = useState(false);
@@ -228,6 +353,13 @@ export default function LegalPage() {
       const legalData = await legalRes.json();
       setReviewResult(legalData.result as LegalReviewResult);
       setIsMock(legalData.analysis?._mock === true);
+      openPanel(
+        <LegalReviewPanelContent
+          result={legalData.result as LegalReviewResult}
+          docName={file.name}
+          isMock={legalData.analysis?._mock === true}
+        />
+      );
     } catch {
       setError("Legal review failed. Please try again.");
     } finally {
@@ -280,6 +412,13 @@ export default function LegalPage() {
       const legalData = await legalRes.json();
       setReviewResult(legalData.result as LegalReviewResult);
       setIsMock(legalData.analysis?._mock === true);
+      openPanel(
+        <LegalReviewPanelContent
+          result={legalData.result as LegalReviewResult}
+          docName={file.name}
+          isMock={legalData.analysis?._mock === true}
+        />
+      );
     } catch {
       setError("Legal review failed. Please try again.");
     } finally {
@@ -468,210 +607,70 @@ export default function LegalPage() {
           )}
         </div>
 
-        {/* Drop zone / Loading / Results */}
-        {!reviewResult ? (
-          <div
-            className="col-span-2 flex flex-col items-center justify-center rounded-md border border-dashed p-16 text-center grid-bg"
-            style={{
-              borderColor: isDragOver && !isLoading ? "var(--accent)" : "var(--border)",
-              background: isDragOver && !isLoading ? "rgba(59,130,246,0.06)" : "var(--bg-surface)",
-            }}
-            onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
-            onDragEnter={(e) => { e.preventDefault(); setIsDragOver(true); }}
-            onDragLeave={(e) => { e.preventDefault(); setIsDragOver(false); }}
-            onDrop={(e) => {
-              e.preventDefault();
-              setIsDragOver(false);
-              if (isLoading || !familyId) return;
-              const file = e.dataTransfer.files?.[0];
-              if (!file) return;
-              handleDrop(file);
-            }}
-          >
-            {isLoading ? (
-              <>
-                <Loader2
-                  size={28}
-                  className="mb-4 animate-spin"
-                  style={{ color: "var(--accent)" }}
-                />
-                <div className="text-sm font-medium mb-1" style={{ color: "var(--text-primary)" }}>
-                  {uploading ? "Uploading document..." : "Analyzing document..."}
-                </div>
-                <div className="text-xs" style={{ color: "var(--text-muted)" }}>
-                  {reviewing ? "AI is reviewing clauses and flagging risks" : "Extracting text content"}
-                </div>
-              </>
-            ) : (
-              <>
-                <Scale size={28} className="mb-4" style={{ color: isDragOver ? "var(--accent)" : "var(--text-muted)" }} />
-                <div className="text-sm font-medium mb-1" style={{ color: "var(--text-primary)" }}>
-                  {isDragOver ? "Drop to analyze" : "Drop a document to review"}
-                </div>
-                <div className="text-xs mb-4" style={{ color: "var(--text-muted)" }}>
-                  {isDragOver ? "" : "NDAs, subscription docs, LP agreements, SAFE notes, side letters, loan agreements, employment contracts"}
-                </div>
-                {error && (
-                  <div
-                    className="text-xs mb-3 px-3 py-2 rounded"
-                    style={{ color: "#ef4444", background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}
-                  >
-                    {error}
-                  </div>
-                )}
-                <button
-                  onClick={openFilePicker}
-                  disabled={!familyId}
-                  className="px-4 py-2 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                  style={{ background: "var(--accent)", color: "#fff" }}
+        {/* Drop zone */}
+        <div
+          className="col-span-2 flex flex-col items-center justify-center rounded-md border border-dashed p-16 text-center grid-bg"
+          style={{
+            borderColor: isDragOver && !isLoading ? "var(--accent)" : "var(--border)",
+            background: isDragOver && !isLoading ? "rgba(59,130,246,0.06)" : "var(--bg-surface)",
+          }}
+          onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
+          onDragEnter={(e) => { e.preventDefault(); setIsDragOver(true); }}
+          onDragLeave={(e) => { e.preventDefault(); setIsDragOver(false); }}
+          onDrop={(e) => {
+            e.preventDefault();
+            setIsDragOver(false);
+            if (isLoading || !familyId) return;
+            const file = e.dataTransfer.files?.[0];
+            if (!file) return;
+            handleDrop(file);
+          }}
+        >
+          {isLoading ? (
+            <>
+              <Loader2
+                size={28}
+                className="mb-4 animate-spin"
+                style={{ color: "var(--accent)" }}
+              />
+              <div className="text-sm font-medium mb-1" style={{ color: "var(--text-primary)" }}>
+                {uploading ? "Uploading document..." : "Analyzing document..."}
+              </div>
+              <div className="text-xs" style={{ color: "var(--text-muted)" }}>
+                {reviewing ? "AI is reviewing clauses and flagging risks" : "Extracting text content"}
+              </div>
+            </>
+          ) : (
+            <>
+              <Scale size={28} className="mb-4" style={{ color: isDragOver ? "var(--accent)" : "var(--text-muted)" }} />
+              <div className="text-sm font-medium mb-1" style={{ color: "var(--text-primary)" }}>
+                {isDragOver ? "Drop to analyze" : "Drop a document to review"}
+              </div>
+              <div className="text-xs mb-4" style={{ color: "var(--text-muted)" }}>
+                {isDragOver ? "" : "NDAs, subscription docs, LP agreements, SAFE notes, side letters, loan agreements, employment contracts"}
+              </div>
+              {error && (
+                <div
+                  className="text-xs mb-3 px-3 py-2 rounded"
+                  style={{ color: "#ef4444", background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}
                 >
-                  Select File
-                </button>
-                <div className="mt-3 text-xs" style={{ color: "var(--text-muted)" }}>
-                  Not legal advice. Legal spotting only.
-                </div>
-              </>
-            )}
-          </div>
-        ) : (
-          /* ── Review Results Panel ── */
-          <div className="col-span-2 rounded-md border overflow-hidden" style={{ borderColor: "var(--border)" }}>
-            {/* Header */}
-            <div
-              className="flex items-center justify-between px-6 py-4 border-b"
-              style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}
-            >
-              <div className="flex items-center gap-3">
-                <FileText size={16} style={{ color: "var(--text-muted)" }} />
-                <div>
-                  <div className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
-                    {reviewedDocName}
-                  </div>
-                  <div className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
-                    {reviewResult.documentType}
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <Badge label={`Risk: ${reviewResult.riskLevel}`} variant={riskVariant(reviewResult.riskLevel)} size="sm" />
-                {isMock && (
-                  <Badge label="mock" variant="muted" size="xs" />
-                )}
-                <button
-                  onClick={resetReview}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs border transition-colors"
-                  style={{ background: "var(--bg-elevated)", borderColor: "var(--border)", color: "var(--text-secondary)" }}
-                >
-                  <RefreshCw size={11} />
-                  Review another document
-                </button>
-              </div>
-            </div>
-
-            <div className="p-6 grid grid-cols-2 gap-6" style={{ background: "var(--bg-base)" }}>
-
-              {/* Summary */}
-              <div className="col-span-2">
-                <div className="text-xs font-medium tracking-wider uppercase mb-2" style={{ color: "var(--text-muted)" }}>
-                  Summary
-                </div>
-                <div className="text-sm leading-relaxed" style={{ color: "var(--text-primary)" }}>
-                  {reviewResult.summary}
-                </div>
-              </div>
-
-              {/* Flags */}
-              <div className="col-span-2">
-                <div className="text-xs font-medium tracking-wider uppercase mb-3" style={{ color: "var(--text-muted)" }}>
-                  Flagged Clauses ({reviewResult.flags.length})
-                </div>
-                {reviewResult.flags.length === 0 ? (
-                  <div className="text-sm" style={{ color: "#10b981" }}>No issues flagged — document appears clean.</div>
-                ) : (
-                  <div className="flex flex-col gap-3">
-                    {reviewResult.flags.map((flag, i) => (
-                      <div
-                        key={i}
-                        className="flex gap-3 rounded-md px-4 py-3"
-                        style={{ background: "var(--bg-surface)", border: "1px solid var(--border)" }}
-                      >
-                        <div
-                          className="mt-1 shrink-0 rounded-full"
-                          style={{
-                            width: 8,
-                            height: 8,
-                            background: severityColor(flag.severity),
-                            boxShadow: `0 0 4px ${severityColor(flag.severity)}66`,
-                          }}
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="text-xs font-medium mb-1" style={{ color: "var(--text-primary)" }}>
-                            {flag.clause}
-                          </div>
-                          <div className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-                            {flag.issue}
-                          </div>
-                        </div>
-                        <div className="shrink-0">
-                          <Badge
-                            label={flag.severity}
-                            variant={flag.severity === "high" ? "danger" : flag.severity === "medium" ? "warning" : "muted"}
-                            size="xs"
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Key Terms */}
-              {Object.keys(reviewResult.keyTerms).length > 0 && (
-                <div className="col-span-2">
-                  <div className="text-xs font-medium tracking-wider uppercase mb-3" style={{ color: "var(--text-muted)" }}>
-                    Key Terms
-                  </div>
-                  <div
-                    className="rounded-md border grid grid-cols-2 overflow-hidden"
-                    style={{ borderColor: "var(--border)" }}
-                  >
-                    {Object.entries(reviewResult.keyTerms).map(([term, value], i) => (
-                      <div
-                        key={term}
-                        className="flex justify-between px-4 py-2.5 text-xs"
-                        style={{
-                          background: i % 2 === 0 ? "var(--bg-surface)" : "var(--bg-elevated)",
-                          borderBottom: "1px solid var(--border-subtle)",
-                        }}
-                      >
-                        <span style={{ color: "var(--text-muted)" }}>{term}</span>
-                        <span style={{ color: "var(--text-primary)" }}>{value}</span>
-                      </div>
-                    ))}
-                  </div>
+                  {error}
                 </div>
               )}
-
-              {/* Recommendation */}
-              <div className="col-span-2">
-                <div className="text-xs font-medium tracking-wider uppercase mb-2" style={{ color: "var(--text-muted)" }}>
-                  Recommendation
-                </div>
-                <div
-                  className="rounded-md px-4 py-3 text-sm leading-relaxed"
-                  style={{
-                    background: "rgba(59,130,246,0.07)",
-                    border: "1px solid rgba(59,130,246,0.2)",
-                    color: "var(--text-primary)",
-                  }}
-                >
-                  {reviewResult.recommendation}
-                </div>
+              <button
+                onClick={openFilePicker}
+                disabled={!familyId}
+                className="px-4 py-2 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ background: "var(--accent)", color: "#fff" }}
+              >
+                Select File
+              </button>
+              <div className="mt-3 text-xs" style={{ color: "var(--text-muted)" }}>
+                Not legal advice. Legal spotting only.
               </div>
-
-            </div>
-          </div>
-        )}
+            </>
+          )}
+        </div>
 
         {/* Recent Reviews */}
         <div className="col-span-2">

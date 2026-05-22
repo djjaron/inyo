@@ -1,5 +1,9 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { Prisma } from "@prisma/client";
 import { AgentType } from "@/types";
+import { prisma } from "@/lib/prisma";
+import { buildSystemPrompt } from "./prompts";
+import { parseActionTags, dispatchActions } from "./actions";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -39,63 +43,140 @@ function parseAgentText(text: string): Record<string, unknown> {
 }
 
 export async function runAgent(input: AgentInput): Promise<AgentOutput> {
-  const { agentType, context, documents, systemPromptOverride } = input;
+  const { agentType, familyId, context, documents, systemPromptOverride } = input;
 
-  const systemPrompt = systemPromptOverride ?? getSystemPrompt(agentType);
+  const systemPrompt = systemPromptOverride ?? buildSystemPrompt(agentType, context);
   const userContent = buildUserContent(agentType, context, documents);
   const model = getModel(agentType);
 
-  const response = await client.messages.create({
-    model,
-    max_tokens: 4096,
-    system: systemPrompt,
-    messages: [{ role: "user", content: userContent }],
-  });
+  let runId: string | undefined;
+  try {
+    const run = await prisma.agentRun.create({
+      data: {
+        familyId,
+        agentType,
+        status: "running",
+        input: context as Prisma.InputJsonValue,
+        startedAt: new Date(),
+      },
+    });
+    runId = run.id;
+  } catch {
+    // DB unavailable — continue without persistence
+  }
 
-  const text = response.content.find((b) => b.type === "text")?.text ?? "";
+  try {
+    const response = await client.messages.create({
+      model,
+      max_tokens: 4096,
+      system: systemPrompt,
+      messages: [{ role: "user", content: userContent }],
+    });
 
-  return {
-    result: parseAgentText(text),
-    tokensUsed: response.usage.input_tokens + response.usage.output_tokens,
-    model,
-  };
+    const text = response.content.find((b) => b.type === "text")?.text ?? "";
+    const result = parseAgentText(text);
+    const tokensUsed = response.usage.input_tokens + response.usage.output_tokens;
+
+    const tags = parseActionTags(text);
+    if (tags.length > 0) {
+      dispatchActions(tags, familyId, runId).catch(() => {});
+    }
+
+    if (runId) {
+      prisma.agentRun
+        .update({
+          where: { id: runId },
+          data: { status: "completed", output: result as Prisma.InputJsonValue, completedAt: new Date() },
+        })
+        .catch(() => {});
+    }
+
+    return { result, tokensUsed, model };
+  } catch (err) {
+    if (runId) {
+      prisma.agentRun
+        .update({
+          where: { id: runId },
+          data: { status: "failed", error: String(err), completedAt: new Date() },
+        })
+        .catch(() => {});
+    }
+    throw err;
+  }
 }
 
 export async function streamAgent(
   input: AgentInput,
   onChunk: (text: string) => void,
 ): Promise<AgentOutput> {
-  const { agentType, context, documents, systemPromptOverride } = input;
+  const { agentType, familyId, context, documents, systemPromptOverride } = input;
 
-  const systemPrompt = systemPromptOverride ?? getSystemPrompt(agentType);
+  const systemPrompt = systemPromptOverride ?? buildSystemPrompt(agentType, context);
   const userContent = buildUserContent(agentType, context, documents);
   const model = getModel(agentType);
 
-  const stream = client.messages.stream({
-    model,
-    max_tokens: 4096,
-    system: systemPrompt,
-    messages: [{ role: "user", content: userContent }],
-  });
-
-  let fullText = "";
-  for await (const event of stream) {
-    if (
-      event.type === "content_block_delta" &&
-      event.delta.type === "text_delta"
-    ) {
-      fullText += event.delta.text;
-      onChunk(event.delta.text);
-    }
+  let runId: string | undefined;
+  try {
+    const run = await prisma.agentRun.create({
+      data: {
+        familyId,
+        agentType,
+        status: "running",
+        input: context as Prisma.InputJsonValue,
+        startedAt: new Date(),
+      },
+    });
+    runId = run.id;
+  } catch {
+    // DB unavailable — continue
   }
 
-  const finalMsg = await stream.finalMessage();
+  try {
+    const stream = client.messages.stream({
+      model,
+      max_tokens: 4096,
+      system: systemPrompt,
+      messages: [{ role: "user", content: userContent }],
+    });
 
-  return {
-    result: parseAgentText(fullText),
-    tokensUsed: finalMsg.usage.input_tokens + finalMsg.usage.output_tokens,
-    model,
-  };
+    let fullText = "";
+    for await (const event of stream) {
+      if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+        fullText += event.delta.text;
+        onChunk(event.delta.text);
+      }
+    }
+
+    const finalMsg = await stream.finalMessage();
+    const result = parseAgentText(fullText);
+    const tokensUsed = finalMsg.usage.input_tokens + finalMsg.usage.output_tokens;
+
+    const tags = parseActionTags(fullText);
+    if (tags.length > 0) {
+      dispatchActions(tags, familyId, runId).catch(() => {});
+    }
+
+    if (runId) {
+      prisma.agentRun
+        .update({
+          where: { id: runId },
+          data: { status: "completed", output: result as Prisma.InputJsonValue, completedAt: new Date() },
+        })
+        .catch(() => {});
+    }
+
+    return { result, tokensUsed, model };
+  } catch (err) {
+    if (runId) {
+      prisma.agentRun
+        .update({
+          where: { id: runId },
+          data: { status: "failed", error: String(err), completedAt: new Date() },
+        })
+        .catch(() => {});
+    }
+    throw err;
+  }
 }
 
 function buildUserContent(

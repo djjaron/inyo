@@ -2,13 +2,15 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { TrendingUp, Plus, Filter, ChevronRight, Bot, Zap, RefreshCw, ChevronDown } from "lucide-react";
+import { TrendingUp, Plus, Filter, ChevronRight, ExternalLink, Zap, RefreshCw, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import Badge from "@/components/ui/Badge";
 import ScoreRing from "@/components/ui/ScoreRing";
 import PageHeader from "@/components/ui/PageHeader";
+import ContextPanel from "@/components/ui/ContextPanel";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { useFamilyId } from "@/context/FamilyContext";
+import { usePanel } from "@/context/PanelContext";
 
 const STATUS_FILTERS = ["All", "Inbound", "Reviewing", "Diligence", "IC Review", "Invested", "Passed"] as const;
 
@@ -31,6 +33,27 @@ interface Deal {
   createdAt: string; sourceType?: string;
 }
 
+interface FullDeal {
+  id: string;
+  company: string;
+  sector?: string;
+  stage?: string;
+  status: string;
+  capitalAsk?: number;
+  valuation?: number;
+  ownership?: number;
+  description?: string;
+  sourceType?: string;
+  sourceContact?: string;
+  dealScore?: number;
+  icMemoUrl?: string | null;
+  dataRoomUrl?: string | null;
+  pitchDeckUrl?: string | null;
+  website?: string | null;
+  linkedinUrl?: string | null;
+  crunchbaseUrl?: string | null;
+}
+
 // Fallback mock data used when DB has no deals
 const MOCK_DEALS: Deal[] = [
   { id: "mock-1", company: "Meridian AI", sector: "Enterprise AI", stage: "series-b", capitalAsk: 12_000_000, dealScore: 84, status: "diligence", createdAt: "2026-05-14", sourceType: "lp-intro" },
@@ -39,6 +62,191 @@ const MOCK_DEALS: Deal[] = [
   { id: "mock-4", company: "Arcadia Energy", sector: "Clean Energy", stage: "growth", capitalAsk: 45_000_000, dealScore: 79, status: "ic-review", createdAt: "2026-05-08", sourceType: "broker" },
   { id: "mock-5", company: "Terrace REIT", sector: "Real Estate", stage: "pe", capitalAsk: 18_000_000, dealScore: 73, status: "inbound", createdAt: "2026-04-25", sourceType: "broker" },
 ];
+
+function DealPreviewPanel({ deal, familyId }: { deal: Deal; familyId: string }) {
+  const [fullDeal, setFullDeal] = useState<FullDeal | null>(null);
+  const [fetching, setFetching] = useState(true);
+
+  // familyId is threaded through props but not used in this fetch since the API uses deal.id
+  void familyId;
+
+  useEffect(() => {
+    setFetching(true);
+    setFullDeal(null);
+    fetch(`/api/deals/${deal.id}`)
+      .then((r) => r.json())
+      .then((data) => {
+        setFullDeal(data.deal ?? null);
+      })
+      .catch(() => {
+        setFullDeal(null);
+      })
+      .finally(() => {
+        setFetching(false);
+      });
+  }, [deal.id]);
+
+  const d = fullDeal ?? deal as FullDeal;
+
+  const subtitle = [d.sector, d.stage?.replace(/-/g, " ")].filter(Boolean).join(" · ") || undefined;
+
+  const links: { label: string; url: string }[] = (
+    [
+      { label: "Pitch Deck", url: fullDeal?.pitchDeckUrl },
+      { label: "IC Memo", url: fullDeal?.icMemoUrl },
+      { label: "Data Room", url: fullDeal?.dataRoomUrl },
+      { label: "Website", url: fullDeal?.website },
+      { label: "LinkedIn", url: fullDeal?.linkedinUrl },
+      { label: "Crunchbase", url: fullDeal?.crunchbaseUrl },
+    ] as { label: string; url: string | null | undefined }[]
+  ).filter((l): l is { label: string; url: string } => typeof l.url === "string" && l.url.length > 0);
+
+  return (
+    <ContextPanel
+      title={deal.company}
+      subtitle={subtitle}
+      actions={
+        <Badge
+          label={statusLabel[deal.status] ?? deal.status}
+          variant={statusVariant[deal.status] ?? "default"}
+          size="xs"
+        />
+      }
+    >
+      {fetching ? (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "32px 0",
+          }}
+        >
+          <div
+            style={{
+              width: 20,
+              height: 20,
+              borderRadius: "50%",
+              border: "2px solid var(--border)",
+              borderTopColor: "var(--accent)",
+              animation: "spin 0.7s linear infinite",
+            }}
+          />
+          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        </div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+
+          {/* Score */}
+          {d.dealScore != null && (
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+              <ScoreRing score={d.dealScore} size={48} />
+              <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Deal Score</span>
+            </div>
+          )}
+
+          {/* Metrics grid */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "10px 12px",
+            }}
+          >
+            {[
+              { label: "Capital Ask", value: d.capitalAsk ? formatCurrency(d.capitalAsk) : null },
+              { label: "Valuation", value: fullDeal?.valuation ? formatCurrency(fullDeal.valuation) : null },
+              { label: "Ownership", value: fullDeal?.ownership != null ? `${fullDeal.ownership}%` : null },
+              { label: "Source", value: d.sourceType ? d.sourceType.replace(/-/g, " ") : null },
+            ].map(({ label, value }) => (
+              <div key={label}>
+                <div style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 3 }}>
+                  {label}
+                </div>
+                <div style={{ fontSize: 12, color: "var(--text-secondary)", fontVariantNumeric: "tabular-nums" }}>
+                  {value ?? "—"}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Description */}
+          {d.description && (
+            <div>
+              <div style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>
+                Description
+              </div>
+              <p style={{ fontSize: 12, lineHeight: 1.6, color: "var(--text-secondary)", margin: 0 }}>
+                {d.description}
+              </p>
+            </div>
+          )}
+
+          {/* Links */}
+          {links.length > 0 && (
+            <div>
+              <div style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>
+                Links
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                {links.map(({ label, url }) => (
+                  <a
+                    key={label}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 4,
+                      fontSize: 11,
+                      padding: "4px 8px",
+                      borderRadius: 4,
+                      background: "var(--bg-elevated)",
+                      color: "var(--text-secondary)",
+                      border: "1px solid var(--border)",
+                      textDecoration: "none",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = "var(--accent)";
+                      e.currentTarget.style.borderColor = "var(--accent)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = "var(--text-secondary)";
+                      e.currentTarget.style.borderColor = "var(--border)";
+                    }}
+                  >
+                    <ExternalLink size={10} />
+                    {label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Full details CTA */}
+          <Link
+            href={`/opportunities/${deal.id}`}
+            style={{
+              display: "block",
+              textAlign: "center",
+              padding: "8px 12px",
+              borderRadius: 6,
+              background: "var(--accent)",
+              color: "#fff",
+              fontSize: 12,
+              fontWeight: 500,
+              textDecoration: "none",
+              marginTop: 4,
+            }}
+          >
+            View Full Details →
+          </Link>
+        </div>
+      )}
+    </ContextPanel>
+  );
+}
 
 function StatusDropdown({
   deal,
@@ -139,10 +347,17 @@ function StatusDropdown({
 export default function OpportunitiesPage() {
   const familyId = useFamilyId();
   const router = useRouter();
+  const { openPanel, closePanel, isPanelOpen } = usePanel();
   const [filter, setFilter] = useState("All");
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
   const [usingMock, setUsingMock] = useState(false);
+  const [selectedDealId, setSelectedDealId] = useState<string | null>(null);
+
+  // Keep row highlight in sync when panel is closed externally (e.g. via X button)
+  useEffect(() => {
+    if (!isPanelOpen) setSelectedDealId(null);
+  }, [isPanelOpen]);
 
   async function loadDeals(fid: string) {
     setLoading(true);
@@ -187,9 +402,22 @@ export default function OpportunitiesPage() {
     }
   }, []);
 
+  function openDealPanel(deal: Deal) {
+    if (selectedDealId === deal.id) {
+      setSelectedDealId(null);
+      closePanel();
+    } else {
+      setSelectedDealId(deal.id);
+      openPanel(<DealPreviewPanel deal={deal} familyId={familyId ?? "demo"} />);
+    }
+  }
+
   const filtered = filter === "All"
     ? deals
     : deals.filter((d) => d.status === filter.toLowerCase().replace(" ", "-"));
+
+  // router is kept for potential future use
+  void router;
 
   return (
     <div className="flex flex-col h-full">
@@ -254,10 +482,15 @@ export default function OpportunitiesPage() {
                 <tr
                   key={deal.id}
                   className="group transition-colors"
-                  style={{ borderBottom: "1px solid var(--border-subtle)", cursor: "pointer" }}
-                  onClick={() => router.push(`/opportunities/${deal.id}`)}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-elevated)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                  style={{
+                    borderBottom: "1px solid var(--border-subtle)",
+                    cursor: "pointer",
+                    background: selectedDealId === deal.id ? "var(--bg-elevated)" : "transparent",
+                    borderLeft: selectedDealId === deal.id ? "2px solid var(--accent)" : "2px solid transparent",
+                  }}
+                  onClick={() => openDealPanel(deal)}
+                  onMouseEnter={(e) => { if (selectedDealId !== deal.id) e.currentTarget.style.background = "var(--bg-elevated)"; }}
+                  onMouseLeave={(e) => { if (selectedDealId !== deal.id) e.currentTarget.style.background = "transparent"; }}
                 >
                   <td className="py-3 px-3">
                     <div className="font-medium" style={{ color: "var(--text-primary)" }}>{deal.company}</div>
@@ -282,10 +515,11 @@ export default function OpportunitiesPage() {
                   <td className="py-3 px-3">
                     <Link
                       href={`/opportunities/${deal.id}`}
+                      onClick={(e) => e.stopPropagation()}
                       className="flex items-center gap-1 px-2.5 py-1 rounded text-xs transition-opacity"
                       style={{ background: "var(--accent-muted)", color: "var(--accent)", border: "1px solid rgba(59,130,246,0.2)" }}
                     >
-                      <Bot size={11} /> Open
+                      <ExternalLink size={11} /> Full Details
                     </Link>
                   </td>
                 </tr>

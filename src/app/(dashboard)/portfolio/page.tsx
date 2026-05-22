@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { BarChart3, AlertTriangle, Loader2, ChevronDown, ChevronUp, TrendingUp, TrendingDown } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import PageHeader from "@/components/ui/PageHeader";
+import ContextPanel from "@/components/ui/ContextPanel";
 import { formatCurrency } from "@/lib/utils";
 import { useFamilyId } from "@/context/FamilyContext";
+import { usePanel } from "@/context/PanelContext";
 
 interface PortfolioAlert {
   id: string;
@@ -33,13 +34,6 @@ interface PortfolioCompany {
   alertLevel: string;
   description?: string;
   alerts: PortfolioAlert[];
-}
-
-interface FlatAlert {
-  company: string;
-  title: string;
-  severity: string;
-  createdAt: string;
 }
 
 // --- Analytics types ---
@@ -208,11 +202,234 @@ function VintageHeatmap({ items }: { items: VintageBucket[] }) {
   );
 }
 
+// --- Company Detail Panel ---
+
+function CompanyDetailPanel({ company }: { company: PortfolioCompany }) {
+  const moic =
+    company.investedAmount && company.currentValue && company.investedAmount > 0
+      ? company.currentValue / company.investedAmount
+      : null;
+
+  return (
+    <ContextPanel
+      title={company.name}
+      subtitle={[company.sector, company.stage].filter(Boolean).join(" · ") || undefined}
+      actions={
+        <Badge
+          label={company.status}
+          variant={statusVariant[company.status] ?? "muted"}
+          size="xs"
+        />
+      }
+    >
+      {/* Metrics section */}
+      <div style={{ marginBottom: 20 }}>
+        <div
+          style={{
+            fontSize: 10,
+            textTransform: "uppercase",
+            letterSpacing: "0.08em",
+            color: "var(--text-muted)",
+            marginBottom: 8,
+          }}
+        >
+          Metrics
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          {[
+            {
+              label: "Invested",
+              value: company.investedAmount ? formatCurrency(company.investedAmount) : "—",
+              color: "var(--text-primary)" as string,
+            },
+            {
+              label: "Current Value",
+              value: company.currentValue ? formatCurrency(company.currentValue) : "—",
+              color: "var(--text-primary)" as string,
+            },
+            {
+              label: "MOIC",
+              value: moic != null ? `${moic.toFixed(2)}x` : "—",
+              color: moic != null ? moicColor(moic) : "var(--text-muted)",
+            },
+            {
+              label: "Ownership",
+              value: company.ownership != null ? `${company.ownership}%` : "—",
+              color: "var(--text-primary)" as string,
+            },
+          ].map(({ label, value, color }) => (
+            <div key={label}>
+              <div style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 2 }}>
+                {label}
+              </div>
+              <div
+                style={{
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color,
+                  fontVariantNumeric: "tabular-nums",
+                }}
+              >
+                {value}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Alert level (if not normal) */}
+      {company.alertLevel !== "normal" && (
+        <div style={{ marginBottom: 20 }}>
+          <div
+            style={{
+              fontSize: 10,
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+              color: "var(--text-muted)",
+              marginBottom: 8,
+            }}
+          >
+            Alert Level
+          </div>
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              fontSize: 12,
+              fontWeight: 500,
+              color: alertColor[company.alertLevel] ?? alertColor.info,
+              background:
+                company.alertLevel === "critical" || company.alertLevel === "alert"
+                  ? "rgba(239,68,68,0.08)"
+                  : "rgba(245,158,11,0.08)",
+              border: `1px solid ${
+                company.alertLevel === "critical" || company.alertLevel === "alert"
+                  ? "rgba(239,68,68,0.2)"
+                  : "rgba(245,158,11,0.2)"
+              }`,
+              borderRadius: 6,
+              padding: "4px 10px",
+            }}
+          >
+            <AlertTriangle size={12} />
+            {company.alertLevel}
+          </div>
+        </div>
+      )}
+
+      {/* Description */}
+      {company.description && (
+        <div style={{ marginBottom: 20 }}>
+          <div
+            style={{
+              fontSize: 10,
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+              color: "var(--text-muted)",
+              marginBottom: 8,
+            }}
+          >
+            Description
+          </div>
+          <div style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.5 }}>
+            {company.description}
+          </div>
+        </div>
+      )}
+
+      {/* Alerts section */}
+      <div>
+        <div
+          style={{
+            fontSize: 10,
+            textTransform: "uppercase",
+            letterSpacing: "0.08em",
+            color: "var(--text-muted)",
+            marginBottom: 8,
+          }}
+        >
+          Alerts
+        </div>
+        {company.alerts.length === 0 ? (
+          <div style={{ fontSize: 12, color: "var(--text-muted)", textAlign: "center", padding: "12px 0" }}>
+            No alerts
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {company.alerts.map((alert) => (
+              <div
+                key={alert.id}
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: 8,
+                  padding: "8px 10px",
+                  borderRadius: 6,
+                  background: "var(--bg-elevated)",
+                  border: "1px solid var(--border)",
+                }}
+              >
+                <div
+                  style={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: "50%",
+                    background: alertColor[alert.severity] ?? alertColor.info,
+                    marginTop: 3,
+                    flexShrink: 0,
+                  }}
+                />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 12, fontWeight: 500, color: "var(--text-primary)" }}>
+                    {alert.title}
+                  </div>
+                  {alert.body && (
+                    <div
+                      style={{
+                        fontSize: 11,
+                        color: "var(--text-secondary)",
+                        marginTop: 2,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                      }}
+                    >
+                      {alert.body}
+                    </div>
+                  )}
+                </div>
+                <div
+                  style={{
+                    fontSize: 10,
+                    color: "var(--text-muted)",
+                    flexShrink: 0,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {new Date(alert.createdAt).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </ContextPanel>
+  );
+}
+
 export default function PortfolioPage() {
   const familyId = useFamilyId();
+  const { openPanel, closePanel } = usePanel();
   const [companies, setCompanies] = useState<PortfolioCompany[]>([]);
   const [isMock, setIsMock] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
 
   // Construction analytics state
   const [showConstruction, setShowConstruction] = useState(false);
@@ -251,18 +468,6 @@ export default function PortfolioPage() {
   const totalValue = companies.reduce((s, c) => s + (c.currentValue ?? 0), 0);
   const totalMOIC = totalInvested > 0 ? totalValue / totalInvested : 0;
 
-  // Flatten and sort alerts from all companies
-  const flatAlerts: FlatAlert[] = companies
-    .flatMap((c) =>
-      c.alerts.map((a) => ({
-        company: c.name,
-        title: a.title,
-        severity: a.severity,
-        createdAt: a.createdAt,
-      }))
-    )
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
   const needsAttention = companies.filter((c) => c.alertLevel !== "normal").length;
 
   // Analytics derived values
@@ -270,6 +475,16 @@ export default function PortfolioPage() {
     ? analytics.totalPortfolioValue - analytics.totalDeployed
     : 0;
   const unrealizedPositive = unrealizedGL >= 0;
+
+  function openCompanyPanel(co: PortfolioCompany) {
+    if (selectedCompanyId === co.id) {
+      setSelectedCompanyId(null);
+      closePanel();
+    } else {
+      setSelectedCompanyId(co.id);
+      openPanel(<CompanyDetailPanel company={co} />);
+    }
+  }
 
   return (
     <div className="flex flex-col h-full">
@@ -513,23 +728,35 @@ export default function PortfolioPage() {
                     ? co.currentValue / co.investedAmount
                     : null;
                 const lastAlert = co.alerts[0] ?? null;
+                const isSelected = selectedCompanyId === co.id;
 
                 return (
-                  <Link
+                  <div
                     key={co.id}
-                    href={`/portfolio/${co.id}`}
-                    className="p-5 rounded-md border group cursor-pointer transition-colors block"
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => openCompanyPanel(co)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        openCompanyPanel(co);
+                      }
+                    }}
+                    className="p-5 rounded-md border group cursor-pointer transition-colors"
                     style={{
                       background: "var(--bg-surface)",
-                      borderColor:
-                        co.alertLevel === "critical"
-                          ? "rgba(239,68,68,0.3)"
-                          : co.alertLevel === "alert"
-                          ? "rgba(239,68,68,0.2)"
-                          : co.alertLevel === "watch"
-                          ? "rgba(245,158,11,0.2)"
-                          : "var(--border)",
-                      textDecoration: "none",
+                      borderColor: isSelected
+                        ? "var(--accent)"
+                        : co.alertLevel === "critical"
+                        ? "rgba(239,68,68,0.3)"
+                        : co.alertLevel === "alert"
+                        ? "rgba(239,68,68,0.2)"
+                        : co.alertLevel === "watch"
+                        ? "rgba(245,158,11,0.2)"
+                        : "var(--border)",
+                      borderLeft: isSelected
+                        ? "2px solid var(--accent)"
+                        : undefined,
                     }}
                   >
                     <div className="flex items-start justify-between mb-3">
@@ -586,48 +813,11 @@ export default function PortfolioPage() {
                         {lastAlert.title}
                       </div>
                     )}
-                  </Link>
+                  </div>
                 );
               })}
             </div>
           )}
-        </div>
-
-        {/* Alert feed */}
-        <div
-          className="w-72 shrink-0 border-l overflow-auto"
-          style={{ borderColor: "var(--border)", background: "var(--bg-surface)" }}
-        >
-          <div className="px-4 py-3.5 border-b text-sm font-medium" style={{ borderColor: "var(--border)", color: "var(--text-primary)" }}>
-            Alert Feed
-          </div>
-          <div>
-            {flatAlerts.length === 0 && !loading && (
-              <div className="px-4 py-6 text-xs text-center" style={{ color: "var(--text-muted)" }}>
-                No alerts
-              </div>
-            )}
-            {flatAlerts.map((alert, i) => (
-              <div
-                key={i}
-                className="px-4 py-3.5 border-b"
-                style={{ borderColor: "var(--border-subtle)" }}
-              >
-                <div className="flex items-start gap-2.5">
-                  <div
-                    className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0"
-                    style={{ background: alertColor[alert.severity] ?? alertColor.info }}
-                  />
-                  <div>
-                    <div className="text-xs font-medium" style={{ color: "var(--text-primary)" }}>{alert.title}</div>
-                    <div className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
-                      {alert.company} · {new Date(alert.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
     </div>
