@@ -22,7 +22,7 @@ const MODEL_DEEP = "claude-opus-4-7";
 const MODEL_FAST = "claude-haiku-4-5-20251001";
 
 const DEEP_ANALYSIS_AGENTS = new Set<AgentType>([
-  "deal-flow", "ic-memo", "portfolio-monitor", "legal", "tax", "cfo", "deal-enrichment", "term-sheet",
+  "deal-flow", "ic-memo", "portfolio-monitor", "legal", "tax", "cfo", "deal-enrichment", "term-sheet", "diligence",
 ]);
 
 function getModel(agentType: AgentType): string {
@@ -125,6 +125,7 @@ function buildUserContent(
     "relationships": "Analyze relationship data and return JSON with insights.",
     "deal-enrichment": "Analyze this deal using the sourced data and return a JSON DealEnrichmentOutput.",
     "term-sheet": "Extract and compare term sheet data. Return a JSON TermSheetOutput.",
+    "diligence": "Review each checklist item for this deal and return your findings as a JSON DiligenceOutput.",
   };
 
   return `${content}\n\nInstruction: ${instructions[agentType]}`;
@@ -340,6 +341,21 @@ Return JSON with EXACTLY:
     "recommendation": "string"
   }
 }`,
+
+    "diligence": `${base}
+
+You are an expert investment due diligence analyst for a family office. Given a list of diligence checklist items for a specific deal, analyze each item using the provided deal context and return a JSON object with this structure:
+{
+  "items": [
+    { "id": "item-id", "answer": "concise answer or finding", "status": "complete" | "flagged" | "pending", "flag": "optional brief reason if flagged" }
+  ],
+  "summary": "2-3 sentence overall diligence summary",
+  "redFlags": ["list of critical concerns"],
+  "passItems": ["key positive findings"]
+}
+
+Use only information available in the deal context. If you cannot answer a question, set status to "pending" with answer "Insufficient data — manual review required."
+Always return valid JSON.`,
 
     "deal-enrichment": `${base}
 

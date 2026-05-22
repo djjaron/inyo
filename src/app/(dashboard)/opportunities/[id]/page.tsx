@@ -2,7 +2,7 @@
 
 import { useState, useEffect, use } from "react";
 import Link from "next/link";
-import { ChevronLeft, Bot, FileText, RefreshCw, Zap, Loader2, Building2, Tag, DollarSign, Calendar, User, Globe, Link2, TrendingUp, Pencil, X, Plus, AlertTriangle, Users, ChevronDown, ChevronUp, Scale, Layers } from "lucide-react";
+import { ChevronLeft, Bot, FileText, RefreshCw, Zap, Loader2, Building2, Tag, DollarSign, Calendar, User, Globe, Link2, TrendingUp, Pencil, X, Plus, AlertTriangle, Users, ChevronDown, ChevronUp, Scale, Layers, CheckSquare, Square, AlertOctagon } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import ScoreRing from "@/components/ui/ScoreRing";
 import DealAnalysisPanel from "@/components/ui/DealAnalysisPanel";
@@ -30,7 +30,7 @@ const spvStatusVariant: Record<string, "success" | "warning" | "accent" | "dange
   cancelled: "danger",
 };
 
-type Tab = "overview" | "analysis" | "memo" | "terms";
+type Tab = "overview" | "analysis" | "memo" | "terms" | "diligence";
 
 interface TermSheetSheet {
   label: string;
@@ -123,6 +123,98 @@ interface Deal {
   aiAnalyses?: Array<{ id: string; agentType: string; output: Record<string, unknown>; createdAt: string; _mock?: boolean }>;
 }
 
+interface DiligenceItem {
+  id: string;
+  category: string;
+  question: string;
+  status: "pending" | "in-progress" | "complete" | "flagged";
+  notes: string;
+  aiAnswer?: string;
+  aiFlag?: string;
+}
+
+const DILIGENCE_TEMPLATES: Record<string, Array<{ id: string; category: string; question: string }>> = {
+  "real-estate": [
+    { id: "re-1", category: "Financials", question: "What is the cap rate and how does it compare to market comps?" },
+    { id: "re-2", category: "Financials", question: "Net Operating Income (NOI) — verified or projected?" },
+    { id: "re-3", category: "Debt", question: "Debt Service Coverage Ratio (DSCR) and LTV within acceptable limits?" },
+    { id: "re-4", category: "Asset Quality", question: "Current occupancy rate and lease roll schedule reviewed?" },
+    { id: "re-5", category: "Asset Quality", question: "Physical inspection and environmental assessment completed?" },
+    { id: "re-6", category: "Legal", question: "Zoning, entitlements, and title review clear?" },
+    { id: "re-7", category: "Market", question: "Market comps support the underwritten rent assumptions?" },
+    { id: "re-8", category: "Capital Stack", question: "Cap stack reviewed — preferred equity, mezz, senior debt terms acceptable?" },
+  ],
+  "tech": [
+    { id: "tech-1", category: "Revenue", question: "ARR/MRR growth trajectory and NRR above 100%?" },
+    { id: "tech-2", category: "Revenue", question: "Customer concentration risk — top 3 customers as % of ARR?" },
+    { id: "tech-3", category: "Unit Economics", question: "CAC/LTV ratio sustainable? Payback period under 18 months?" },
+    { id: "tech-4", category: "Burn & Runway", question: "Current burn rate and runway at current pace?" },
+    { id: "tech-5", category: "IP", question: "Key IP, patents, or proprietary technology identified and protected?" },
+    { id: "tech-6", category: "Team", question: "Founding team background, domain expertise, and retention?" },
+    { id: "tech-7", category: "Market", question: "TAM/SAM validated and market leadership thesis credible?" },
+    { id: "tech-8", category: "Competition", question: "Competitive moat — switching costs, network effects, or defensibility?" },
+    { id: "tech-9", category: "Technical", question: "Tech stack, scalability, and security posture reviewed?" },
+  ],
+  "sports": [
+    { id: "spt-1", category: "Valuation", question: "Franchise valuation methodology — comparable recent transactions reviewed?" },
+    { id: "spt-2", category: "Revenue", question: "Media rights — local and national deal terms and duration?" },
+    { id: "spt-3", category: "Revenue", question: "Revenue diversity — tickets, sponsorships, merchandise, licensing breakdown?" },
+    { id: "spt-4", category: "Liabilities", question: "Player contract liabilities and guaranteed money reviewed?" },
+    { id: "spt-5", category: "Facility", question: "Stadium/venue ownership, lease terms, or renovation obligations?" },
+    { id: "spt-6", category: "Market", question: "Market demographics and fan base size and engagement metrics?" },
+    { id: "spt-7", category: "League", question: "League revenue sharing, salary cap rules, and ownership transfer approval?" },
+    { id: "spt-8", category: "Management", question: "Front office and coaching stability — key man risk?" },
+  ],
+  "pe": [
+    { id: "pe-1", category: "Financials", question: "Revenue quality — recurring vs. transactional, contract terms?" },
+    { id: "pe-2", category: "Financials", question: "EBITDA margins and trajectory compared to sector comps?" },
+    { id: "pe-3", category: "Debt", question: "Leverage profile — debt/EBITDA, covenant compliance, refinancing risk?" },
+    { id: "pe-4", category: "Team", question: "Management team depth, incentive alignment, and rollover equity?" },
+    { id: "pe-5", category: "Market", question: "Market position — pricing power, customer retention, competitive threats?" },
+    { id: "pe-6", category: "Exit", question: "Exit path analysis — strategic buyers, sponsor-to-sponsor, IPO feasibility?" },
+    { id: "pe-7", category: "Operations", question: "Operational improvement opportunities identified and quantified?" },
+    { id: "pe-8", category: "Legal", question: "Material contracts, litigation exposure, and regulatory compliance?" },
+  ],
+  "credit": [
+    { id: "crd-1", category: "Collateral", question: "Collateral quality, valuation, and enforceability reviewed?" },
+    { id: "crd-2", category: "Covenants", question: "Covenant structure — maintenance vs. incurrence, headroom adequate?" },
+    { id: "crd-3", category: "Coverage", question: "Interest coverage ratio and DSCR at current leverage?" },
+    { id: "crd-4", category: "Borrower", question: "Borrower credit history, management track record, and liquidity?" },
+    { id: "crd-5", category: "Documentation", question: "Loan documentation, intercreditor agreements reviewed by counsel?" },
+    { id: "crd-6", category: "Recovery", question: "Downside scenario — recovery analysis in restructuring scenario?" },
+  ],
+  "biotech": [
+    { id: "bio-1", category: "Pipeline", question: "Lead asset stage, trial readiness, and data package quality?" },
+    { id: "bio-2", category: "IP", question: "Patent landscape — composition of matter, method, and expiry dates?" },
+    { id: "bio-3", category: "Regulatory", question: "FDA pathway clarity — IND filed, Fast Track or Breakthrough status?" },
+    { id: "bio-4", category: "Financials", question: "Burn rate vs. upcoming milestones — cash runway to value inflection?" },
+    { id: "bio-5", category: "Team", question: "Management team — clinical development, regulatory, and CMC expertise?" },
+    { id: "bio-6", category: "Partnerships", question: "Partnership or licensing potential with Big Pharma identified?" },
+  ],
+  "default": [
+    { id: "gen-1", category: "Business", question: "Business model clearly understood and revenue streams validated?" },
+    { id: "gen-2", category: "Financials", question: "Financials reviewed — growth rate, margins, and unit economics?" },
+    { id: "gen-3", category: "Team", question: "Founding team background, track record, and references checked?" },
+    { id: "gen-4", category: "Market", question: "Market size (TAM/SAM) validated with credible methodology?" },
+    { id: "gen-5", category: "Competition", question: "Competitive landscape mapped and differentiation articulated?" },
+    { id: "gen-6", category: "Legal", question: "Legal structure, IP ownership, and any known litigation reviewed?" },
+    { id: "gen-7", category: "References", question: "Customer and investor references conducted?" },
+    { id: "gen-8", category: "Terms", question: "Investment terms, valuation, and governance rights acceptable?" },
+  ],
+};
+
+function getTemplate(sector?: string): typeof DILIGENCE_TEMPLATES["default"] {
+  if (!sector) return DILIGENCE_TEMPLATES.default;
+  const s = sector.toLowerCase();
+  if (s.includes("real-estate") || s.includes("real estate") || s.includes("reit")) return DILIGENCE_TEMPLATES["real-estate"];
+  if (s.includes("tech") || s.includes("ai") || s.includes("saas") || s.includes("software")) return DILIGENCE_TEMPLATES.tech;
+  if (s.includes("sport")) return DILIGENCE_TEMPLATES.sports;
+  if (s.includes("pe") || s.includes("private equity") || s.includes("buyout")) return DILIGENCE_TEMPLATES.pe;
+  if (s.includes("credit") || s.includes("debt") || s.includes("lending")) return DILIGENCE_TEMPLATES.credit;
+  if (s.includes("bio") || s.includes("health") || s.includes("pharma") || s.includes("medtech")) return DILIGENCE_TEMPLATES.biotech;
+  return DILIGENCE_TEMPLATES.default;
+}
+
 export default function DealDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
 
@@ -172,6 +264,13 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
   // Source URL editing state
   const [sourceEditing, setSourceEditing] = useState(false);
   const [sourceForm, setSourceForm] = useState({ website: "", linkedinUrl: "", crunchbaseUrl: "" });
+
+  // Diligence state
+  const [diligenceItems, setDiligenceItems] = useState<DiligenceItem[]>([]);
+  const [diligenceRunning, setDiligenceRunning] = useState(false);
+  const [diligenceAck, setDiligenceAck] = useState<string | null>(null);
+  const [diligenceLoaded, setDiligenceLoaded] = useState(false);
+  const [expandedDiligenceItems, setExpandedDiligenceItems] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetch(`/api/deals/${id}`)
@@ -244,6 +343,39 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
       })
       .catch(() => {});
   }, [deal?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Load diligence when tab is first activated
+  useEffect(() => {
+    if (tab !== "diligence" || !deal || diligenceLoaded) return;
+    setDiligenceLoaded(true);
+    fetch(`/api/deals/${id}/diligence`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.diligenceData && Array.isArray((data.diligenceData as { items?: unknown[] }).items)) {
+          setDiligenceItems((data.diligenceData as { items: DiligenceItem[] }).items);
+        } else {
+          const template = getTemplate(deal.sector);
+          setDiligenceItems(template.map(t => ({ ...t, status: "pending" as const, notes: "" })));
+        }
+      })
+      .catch(() => {
+        const template = getTemplate(deal?.sector);
+        setDiligenceItems(template.map(t => ({ ...t, status: "pending" as const, notes: "" })));
+      });
+  }, [tab, deal, id, diligenceLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Auto-save diligence (debounced 1s)
+  useEffect(() => {
+    if (!diligenceLoaded || diligenceItems.length === 0) return;
+    const t = setTimeout(() => {
+      fetch(`/api/deals/${id}/diligence`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ diligenceData: { items: diligenceItems } }),
+      }).catch(() => {});
+    }, 1000);
+    return () => clearTimeout(t);
+  }, [diligenceItems, diligenceLoaded, id]);
 
   async function runDealFlow() {
     if (!deal) return;
@@ -552,6 +684,59 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
     }
   }
 
+  async function runDiligence() {
+    if (!deal) return;
+    setDiligenceRunning(true);
+    setDiligenceAck("Analyzing deal for diligence responses…");
+    try {
+      const res = await fetch("/api/agents/diligence/stream", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          familyId: deal.familyId,
+          context: {
+            company: deal.company, sector: deal.sector, stage: deal.stage,
+            description: deal.description, capitalAsk: deal.capitalAsk, valuation: deal.valuation,
+            affinityScore: deal.affinityScore, riskScore: deal.riskScore, fundabilityScore: deal.fundabilityScore,
+          },
+          items: diligenceItems.map(i => ({ id: i.id, category: i.category, question: i.question })),
+        }),
+      });
+      const reader = res.body?.getReader();
+      const dec = new TextDecoder();
+      if (!reader) return;
+      let buf = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += dec.decode(value, { stream: true });
+        const lines = buf.split("\n\n");
+        buf = lines.pop() ?? "";
+        for (const line of lines) {
+          const raw = line.startsWith("data: ") ? line.slice(6) : null;
+          if (!raw) continue;
+          try {
+            const event = JSON.parse(raw);
+            if (event.type === "progress") setDiligenceAck(event.message);
+            if (event.type === "done" && event.result) {
+              const result = event.result as { items?: Array<{ id: string; answer?: string; status?: string; flag?: string }> };
+              if (result.items) {
+                setDiligenceItems(prev => prev.map(item => {
+                  const ai = result.items!.find(r => r.id === item.id);
+                  if (!ai) return item;
+                  return { ...item, aiAnswer: ai.answer, status: (ai.status as DiligenceItem["status"]) ?? item.status, aiFlag: ai.flag };
+                }));
+              }
+            }
+          } catch {}
+        }
+      }
+    } finally {
+      setDiligenceRunning(false);
+      setDiligenceAck(null);
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full" style={{ color: "var(--text-muted)" }}>
@@ -574,6 +759,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
     { key: "analysis", label: "Deal Analysis", icon: <Bot size={13} /> },
     { key: "memo", label: "IC Memo", icon: <FileText size={13} /> },
     { key: "terms", label: "Terms", icon: <Scale size={13} /> },
+    { key: "diligence", label: "Diligence", icon: <CheckSquare size={13} /> },
   ];
 
   const scoreCards: Array<{ label: string; value: number; color: string; inverted?: boolean }> = [
@@ -1388,6 +1574,213 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                 >
                   <FileText size={14} /> Generate IC Memo
                 </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {tab === "diligence" && (
+          <div className="p-8 max-w-4xl">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+              <div className="flex items-center gap-3">
+                <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Diligence Checklist</h2>
+                {deal.sector && (
+                  <span
+                    className="text-xs px-2 py-0.5 rounded-full font-medium"
+                    style={{ background: "var(--bg-elevated)", color: "var(--text-muted)", border: "1px solid var(--border)" }}
+                  >
+                    {deal.sector}
+                  </span>
+                )}
+              </div>
+              <button
+                onClick={runDiligence}
+                disabled={diligenceRunning || diligenceItems.length === 0}
+                className="flex items-center gap-1.5 px-3 py-2 rounded text-xs font-medium transition-opacity disabled:opacity-50"
+                style={{ background: "var(--accent)", color: "#fff" }}
+              >
+                {diligenceRunning ? <Loader2 size={12} className="animate-spin" /> : <Zap size={12} />}
+                Run AI Diligence
+              </button>
+            </div>
+
+            {/* Progress summary */}
+            {diligenceItems.length > 0 && (
+              <div className="flex items-center gap-4 mb-5 text-xs" style={{ color: "var(--text-muted)" }}>
+                <span>
+                  <span style={{ color: "#10b981", fontWeight: 500 }}>
+                    {diligenceItems.filter(i => i.status === "complete").length}
+                  </span>
+                  {" of "}
+                  <span style={{ color: "var(--text-primary)", fontWeight: 500 }}>{diligenceItems.length}</span>
+                  {" complete"}
+                </span>
+                {diligenceItems.filter(i => i.status === "flagged").length > 0 && (
+                  <span className="flex items-center gap-1" style={{ color: "#ef4444" }}>
+                    <AlertOctagon size={11} />
+                    {diligenceItems.filter(i => i.status === "flagged").length} flagged
+                  </span>
+                )}
+                {diligenceItems.filter(i => i.status === "in-progress").length > 0 && (
+                  <span style={{ color: "#f59e0b" }}>
+                    {diligenceItems.filter(i => i.status === "in-progress").length} in progress
+                  </span>
+                )}
+              </div>
+            )}
+
+            {/* AI running progress */}
+            {diligenceRunning && diligenceAck && (
+              <div className="flex items-center gap-3 mb-5 p-3 rounded-lg" style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)" }}>
+                <Loader2 size={13} className="animate-spin flex-shrink-0" style={{ color: "var(--accent)" }} />
+                <span className="text-xs" style={{ color: "var(--text-muted)" }}>{diligenceAck}</span>
+              </div>
+            )}
+
+            {/* Items grouped by category */}
+            {diligenceItems.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
+                <CheckSquare size={32} style={{ color: "var(--text-muted)" }} />
+                <p className="text-sm" style={{ color: "var(--text-muted)" }}>Loading checklist…</p>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {Object.entries(
+                  diligenceItems.reduce<Record<string, DiligenceItem[]>>((acc, item) => {
+                    if (!acc[item.category]) acc[item.category] = [];
+                    acc[item.category].push(item);
+                    return acc;
+                  }, {})
+                ).map(([category, items]) => (
+                  <div key={category}>
+                    <div className="text-xs font-semibold tracking-wide uppercase mb-2" style={{ color: "var(--text-muted)" }}>
+                      {category}
+                    </div>
+                    <div className="rounded-lg overflow-hidden" style={{ border: "1px solid var(--border)" }}>
+                      {items.map((item, idx) => {
+                        const isExpanded = expandedDiligenceItems.has(item.id);
+                        const statusDot: Record<DiligenceItem["status"], string> = {
+                          pending: "var(--text-muted)",
+                          "in-progress": "#f59e0b",
+                          complete: "#10b981",
+                          flagged: "#ef4444",
+                        };
+                        const statusLabel: Record<DiligenceItem["status"], string> = {
+                          pending: "Pending",
+                          "in-progress": "In Progress",
+                          complete: "Complete",
+                          flagged: "Flagged",
+                        };
+                        const cycleStatus = (current: DiligenceItem["status"]): DiligenceItem["status"] => {
+                          const order: DiligenceItem["status"][] = ["pending", "in-progress", "complete", "flagged"];
+                          return order[(order.indexOf(current) + 1) % order.length];
+                        };
+                        return (
+                          <div
+                            key={item.id}
+                            style={{
+                              background: idx % 2 === 0 ? "var(--bg-elevated)" : "var(--bg-surface)",
+                              borderBottom: idx < items.length - 1 ? "1px solid var(--border)" : "none",
+                            }}
+                          >
+                            <div
+                              className="flex items-start gap-3 px-4 py-3 cursor-pointer"
+                              onClick={() => setExpandedDiligenceItems(prev => {
+                                const next = new Set(prev);
+                                if (next.has(item.id)) next.delete(item.id);
+                                else next.add(item.id);
+                                return next;
+                              })}
+                            >
+                              {/* Status dot */}
+                              <span
+                                className="flex-shrink-0 mt-1 rounded-full"
+                                style={{ width: 8, height: 8, background: statusDot[item.status], display: "inline-block", marginTop: "5px" }}
+                              />
+
+                              {/* Question */}
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs" style={{ color: "var(--text-secondary)" }}>{item.question}</p>
+                                {item.aiAnswer && !isExpanded && (
+                                  <p className="text-xs mt-1 truncate" style={{ color: "var(--text-muted)" }}>{item.aiAnswer}</p>
+                                )}
+                                {item.aiFlag && (
+                                  <p className="text-xs mt-0.5" style={{ color: "#ef4444" }}>{item.aiFlag}</p>
+                                )}
+                              </div>
+
+                              {/* Status badge (click to cycle) */}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setDiligenceItems(prev => prev.map(i =>
+                                    i.id === item.id ? { ...i, status: cycleStatus(i.status) } : i
+                                  ));
+                                }}
+                                className="flex-shrink-0 text-xs px-2 py-0.5 rounded font-medium transition-opacity hover:opacity-70"
+                                style={{
+                                  background: item.status === "complete" ? "#10b98120"
+                                    : item.status === "flagged" ? "#ef444420"
+                                    : item.status === "in-progress" ? "#f59e0b20"
+                                    : "var(--bg-surface)",
+                                  color: statusDot[item.status],
+                                  border: `1px solid ${statusDot[item.status]}40`,
+                                }}
+                              >
+                                {statusLabel[item.status]}
+                              </button>
+
+                              {/* Expand toggle */}
+                              <span style={{ color: "var(--text-muted)", flexShrink: 0 }}>
+                                {isExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                              </span>
+                            </div>
+
+                            {/* Expanded: AI answer + notes */}
+                            {isExpanded && (
+                              <div className="px-4 pb-3 space-y-2">
+                                {item.aiAnswer && (
+                                  <div
+                                    className="p-3 rounded text-xs leading-relaxed"
+                                    style={{ background: "var(--bg-surface)", border: "1px solid var(--border)", color: "var(--text-secondary)" }}
+                                  >
+                                    <div className="flex items-center gap-1.5 mb-1.5">
+                                      <Bot size={10} style={{ color: "var(--accent)" }} />
+                                      <span className="font-medium text-xs" style={{ color: "var(--accent)" }}>AI Finding</span>
+                                    </div>
+                                    {item.aiAnswer}
+                                    {item.aiFlag && (
+                                      <p className="mt-1.5 text-xs font-medium" style={{ color: "#ef4444" }}>
+                                        Flag: {item.aiFlag}
+                                      </p>
+                                    )}
+                                  </div>
+                                )}
+                                <textarea
+                                  value={item.notes}
+                                  onChange={(e) => setDiligenceItems(prev => prev.map(i =>
+                                    i.id === item.id ? { ...i, notes: e.target.value } : i
+                                  ))}
+                                  onClick={(e) => e.stopPropagation()}
+                                  placeholder="Add notes…"
+                                  rows={3}
+                                  className="w-full rounded text-xs p-2.5 resize-none outline-none"
+                                  style={{
+                                    background: "var(--bg-surface)",
+                                    border: "1px solid var(--border)",
+                                    color: "var(--text-secondary)",
+                                    fontFamily: "inherit",
+                                  }}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>

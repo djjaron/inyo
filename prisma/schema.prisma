@@ -89,6 +89,7 @@ model Deal {
   enrichedAt        DateTime?
   investedAt        DateTime?
   deletedAt         DateTime?
+  diligenceData     Json?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 

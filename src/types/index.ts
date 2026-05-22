@@ -10,7 +10,8 @@ export type AgentType =
   | "philanthropy"
   | "relationships"
   | "deal-enrichment"
-  | "term-sheet";
+  | "term-sheet"
+  | "diligence";
 
 export type DealStatus =
   | "inbound"
