@@ -173,6 +173,8 @@ export interface AgentInput {
   context: Record<string, unknown>;
   documents?: { name: string; content: string }[];
   systemPromptOverride?: string;
+  modelOverride?: string;
+  maxTokensOverride?: number;
 }
 
 export interface AgentOutput {
@@ -203,7 +205,7 @@ function parseAgentText(text: string): Record<string, unknown> {
 }
 
 export async function runAgent(input: AgentInput): Promise<AgentOutput> {
-  const { agentType, familyId, context, documents, systemPromptOverride } = input;
+  const { agentType, familyId, context, documents, systemPromptOverride, modelOverride, maxTokensOverride } = input;
 
   if (!client) {
     const mock = MOCK_OUTPUTS[agentType] ?? { raw: "Mock output — set ANTHROPIC_API_KEY for real AI responses." };
@@ -212,7 +214,8 @@ export async function runAgent(input: AgentInput): Promise<AgentOutput> {
 
   const systemPrompt = systemPromptOverride ?? buildSystemPrompt(agentType, context);
   const userContent = buildUserContent(agentType, context, documents);
-  const model = getModel(agentType);
+  const model = modelOverride ?? getModel(agentType);
+  const maxTokens = maxTokensOverride ?? 4096;
 
   let runId: string | undefined;
   try {
@@ -233,7 +236,7 @@ export async function runAgent(input: AgentInput): Promise<AgentOutput> {
   try {
     const response = await client.messages.create({
       model,
-      max_tokens: 4096,
+      max_tokens: maxTokens,
       system: systemPrompt,
       messages: [{ role: "user", content: userContent }],
     });

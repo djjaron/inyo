@@ -51,7 +51,16 @@ For each deal, you:
     {
       id: "schema_deal-flow",
       relevance: agentType === "deal-flow" ? 1.0 : 0.0,
-      content: "Return JSON matching DealScoreOutput schema.",
+      content: `Return ONLY a JSON object with EXACTLY these fields — no extra keys, no nesting beyond what is shown:
+{
+  "score": <integer 0-100>,
+  "recommendation": "pass" | "review" | "pursue",
+  "summary": "<2-3 sentence opportunity summary>",
+  "risks": ["<risk 1>", "<risk 2>", "<risk 3>"],
+  "opportunities": ["<opp 1>", "<opp 2>", "<opp 3>"],
+  "founderBackground": "<one paragraph on founders>",
+  "comparables": ["<company 1>", "<company 2>", "<company 3>"]
+}`,
     },
     {
       id: "domain_ic-memo",
@@ -99,8 +108,17 @@ Monitor for:
     {
       id: "schema_portfolio-monitor",
       relevance: agentType === "portfolio-monitor" ? 1.0 : 0.0,
-      content:
-        "Return JSON with: companyName, alerts (array), overallStatus, recommendation.",
+      content: `Return ONLY a JSON object with EXACTLY these fields:
+{
+  "healthScore": <integer 0-100>,
+  "overallStatus": "healthy" | "monitor" | "watch" | "critical",
+  "recommendation": "hold" | "monitor" | "watch" | "divest",
+  "summary": "<2-3 sentence assessment>",
+  "risks": ["<risk 1>", "<risk 2>"],
+  "opportunities": ["<opp 1>", "<opp 2>"],
+  "keyMetrics": { "arr": <number or null>, "arrGrowth": "<string>", "grossMargin": "<string>", "burnRate": <number or null> },
+  "alerts": ["<alert 1 if any>"]
+}`,
     },
     {
       id: "domain_cfo",
@@ -144,8 +162,15 @@ Flag:
     {
       id: "schema_legal",
       relevance: agentType === "legal" ? 1.0 : 0.0,
-      content:
-        "Return JSON with: documentType, flags (array with: clause, issue, severity, recommendation), summary, urgency.",
+      content: `Return ONLY a JSON object with EXACTLY these fields:
+{
+  "documentType": "<type e.g. SAFE Note, NDA, LP Agreement>",
+  "riskLevel": "low" | "medium" | "high",
+  "summary": "<2-3 sentence document summary>",
+  "flags": [{ "clause": "<section reference>", "issue": "<description>", "severity": "high" | "medium" | "low" }],
+  "keyTerms": { "<term name>": "<value>" },
+  "recommendation": "<one sentence action recommendation>"
+}`,
     },
     {
       id: "domain_tax",
@@ -163,8 +188,15 @@ Handle:
     {
       id: "schema_tax",
       relevance: agentType === "tax" ? 1.0 : 0.0,
-      content:
-        "Return JSON with: taxYear, entities, k1Summary, estimatedPayments, deductions, filingDeadlines, alerts.",
+      content: `Return ONLY a JSON object with EXACTLY these fields:
+{
+  "taxYear": <integer year>,
+  "summary": "<2-3 sentence tax position summary>",
+  "estimatedLiability": { "federal": <number>, "state": <number>, "total": <number> },
+  "k1Summary": [{ "entity": "<name>", "income": <number or null>, "status": "received" | "pending" }],
+  "actionItems": ["<action 1>", "<action 2>"],
+  "deductionOpportunities": ["<opportunity 1>", "<opportunity 2>"]
+}`,
     },
     {
       id: "domain_chief-of-staff",
@@ -182,8 +214,15 @@ Responsibilities:
     {
       id: "schema_chief-of-staff",
       relevance: agentType === "chief-of-staff" ? 1.0 : 0.0,
-      content:
-        "Return JSON with: action, summary, tasks (array), relationships (array), followUps, priority.",
+      content: `Return ONLY a JSON object with EXACTLY these fields:
+{
+  "acknowledgment": "<one sentence confirming what you will do>",
+  "actionPlan": ["<step 1>", "<step 2>", "<step 3>"],
+  "timeline": "<when things will happen>",
+  "estimatedCost": "<cost range or N/A>",
+  "requiresApproval": <true | false>,
+  "followUpNeeded": ["<item 1>", "<item 2>"]
+}`,
     },
     {
       id: "domain_concierge",
@@ -219,8 +258,14 @@ Handle:
     {
       id: "schema_philanthropy",
       relevance: agentType === "philanthropy" ? 1.0 : 0.0,
-      content:
-        "Return JSON with: type, summary, organizations, amounts, deadlines, impact, nextSteps.",
+      content: `Return ONLY a JSON object with EXACTLY these fields:
+{
+  "summary": "<2-3 sentence philanthropy summary>",
+  "impactHighlights": ["<highlight 1>", "<highlight 2>"],
+  "recommendations": ["<recommendation 1>", "<recommendation 2>"],
+  "upcomingObligations": [{ "org": "<name>", "amount": <number>, "due": "<YYYY-MM-DD>", "note": "<optional note>" }],
+  "grantingCapacity": "<one sentence on giving capacity>"
+}`,
     },
     {
       id: "domain_relationships",
@@ -238,8 +283,15 @@ Answer questions about:
     {
       id: "schema_relationships",
       relevance: agentType === "relationships" ? 1.0 : 0.0,
-      content:
-        "Return JSON with: query, answer, contacts (array), connectionPaths, openItems, suggestions.",
+      content: `Return ONLY a JSON object with EXACTLY these fields:
+{
+  "answer": "<direct answer to the query>",
+  "contacts": ["<name 1>", "<name 2>"],
+  "suggestedActions": ["<action 1>", "<action 2>"],
+  "connectionPaths": [],
+  "openItems": [],
+  "suggestions": []
+}`,
     },
     {
       id: "domain_term-sheet",

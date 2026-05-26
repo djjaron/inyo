@@ -3,6 +3,8 @@ import { randomUUID } from "crypto";
 import { runAgent } from "@/lib/agents/runtime";
 import type { AgentType } from "@/types";
 
+export const maxDuration = 60;
+
 const CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -68,6 +70,9 @@ export async function POST(req: NextRequest) {
       familyId,
       context,
       documents,
+      // Use Sonnet for federation calls — Opus times out on Dividen's gateway
+      modelOverride: "claude-sonnet-4-6",
+      maxTokensOverride: 1500,
     });
 
     return NextResponse.json(
