@@ -68,9 +68,9 @@ export async function POST(req: NextRequest) {
       familyId,
       context,
       documents,
-      // Use Sonnet for federation calls — Opus times out on Dividen's gateway
-      modelOverride: "claude-sonnet-4-6",
-      maxTokensOverride: 1500,
+      // Use Haiku for federation calls — Sonnet/Opus times out on Dividen's gateway
+      modelOverride: "claude-haiku-4-5-20251001",
+      maxTokensOverride: 1200,
     });
 
     return NextResponse.json(
