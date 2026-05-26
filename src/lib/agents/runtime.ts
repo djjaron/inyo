@@ -5,7 +5,167 @@ import { prisma } from "@/lib/prisma";
 import { buildSystemPrompt } from "./prompts";
 import { parseActionTags, dispatchActions } from "./actions";
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const API_KEY = process.env.ANTHROPIC_API_KEY;
+const client = API_KEY ? new Anthropic({ apiKey: API_KEY }) : null;
+
+const MOCK_OUTPUTS: Partial<Record<AgentType, Record<string, unknown>>> = {
+  "deal-flow": {
+    score: 81, recommendation: "pursue",
+    summary: "Strong enterprise AI opportunity with 3.2x ARR growth, proven founder, and defensible compliance LLM moat. Recommend pursuing at the proposed terms.",
+    risks: ["Customer concentration — top 3 = 67% ARR", "GTM complexity in regulated industries", "Well-funded incumbents entering space"],
+    opportunities: ["Defense/FedRAMP market expansion", "Platform play across compliance verticals", "Potential strategic synergy with portfolio company ClearReg"],
+    founderBackground: "Sarah Chen (CEO): ex-Palantir, Stanford CS, prior exit to Salesforce ($180M). Marcus Webb (CTO): ex-Two Sigma, MIT EECS.",
+    comparables: ["Harvey AI", "Ironclad", "Compliance.ai"],
+  },
+  "ic-memo": {
+    executiveSummary: "Meridian AI presents a compelling Series B opportunity in the enterprise compliance automation space with 3.2x ARR growth YoY and a proven founder. We recommend pursuing with a $12M check at the proposed $85M pre-money valuation.",
+    companyOverview: "Meridian AI (founded 2022, San Francisco) builds vertical LLM infrastructure for enterprise compliance teams, automating regulatory monitoring, policy gap analysis, and audit preparation for Fortune 1000 clients.",
+    marketOpportunity: "The global GRC software market is $50B+ growing at 14% CAGR. AI-native platforms are displacing legacy vendors (MetricStream, RSA Archer) rapidly as regulatory complexity accelerates.",
+    businessModel: "SaaS: $180K–$450K ACV enterprise, $24K–$60K mid-market. NRR 138%. Gross Margin 74%.",
+    financials: "ARR: $8.4M (grew from $2.6M). Burn: $420K/month. Runway: 22 months post-raise. LTV/CAC: 18x enterprise.",
+    team: "Sarah Chen (CEO): ex-Palantir, Stanford CS, prior exit $180M. Marcus Webb (CTO): ex-Two Sigma quant, MIT EECS.",
+    risks: [
+      { category: "Concentration", description: "Top 3 customers = 67% of ARR", severity: "high" },
+      { category: "Competition", description: "Well-funded incumbents and new AI entrants", severity: "medium" },
+      { category: "GTM", description: "Enterprise sales cycles 6–12 months", severity: "medium" },
+    ],
+    opportunities: ["Defense/FedRAMP expansion", "ESG and privacy compliance adjacencies", "Portfolio synergy with ClearReg"],
+    swot: {
+      strengths: ["Deep founder domain expertise", "Strong NRR 138%", "Proprietary compliance LLM"],
+      weaknesses: ["Customer concentration risk", "Early-stage sales team"],
+      opportunities: ["Accelerating regulatory complexity", "Incumbent displacement"],
+      threats: ["Well-capitalized new entrants", "Potential AI regulation headwinds"],
+    },
+    recommendation: "Pursue. Lead the $12M Series B at $85M pre-money with standard pro-rata provision.",
+    nextSteps: ["Technical diligence call with CTO", "Customer reference calls", "Cap table and waterfall review", "Term sheet by EOW"],
+  },
+  "portfolio-monitor": {
+    healthScore: 74, overallStatus: "monitor",
+    summary: "Portfolio company is performing within expected range. Revenue growth on track at 2.1x YoY. One material risk: customer concentration remains high at 58% from top 2 accounts.",
+    recommendation: "monitor",
+    risks: ["Customer concentration: top 2 accounts = 58% ARR", "Competing product launch from Workiva announced last quarter"],
+    opportunities: ["FedRAMP authorization in progress — opens $40B government market", "EU expansion pipeline with 3 LOIs signed"],
+    keyMetrics: { arr: 12400000, arrGrowth: "2.1x YoY", grossMargin: "71%", burnRate: 420000 },
+    alerts: [],
+  },
+  "cfo": {
+    summary: "Current net liquidity across all entities stands at $43.2M, down 8% from last quarter primarily due to the Phalanx Series C capital call ($2M) and Q1 tax payment ($285K). Cash position remains healthy with 22+ months of operating runway.",
+    liquidityStatus: "healthy",
+    insights: [
+      "Hartwell Cayman LP holds 51% of total liquidity — concentration risk if capital calls accelerate",
+      "Q2 payables of $127.7K are manageable; largest item is E&Y tax prep ($85K due June 1)",
+      "Terrace REIT dividend ($340K) partially offsets the capital call outflow this quarter",
+    ],
+    recommendations: [
+      "Consider sweeping excess HW Operating Co cash ($3.95M) to higher-yield vehicle",
+      "Schedule AP review before June 1 to prioritize E&Y payment",
+      "Review Cayman LP concentration — consider rebalancing liquidity across entities",
+    ],
+    alerts: [],
+  },
+  "legal": {
+    documentType: "SAFE Note",
+    summary: "Standard Y Combinator SAFE with MFN clause and pro-rata rights. Two non-standard provisions flagged: overly broad IP assignment and unlimited liability clause in Section 7.",
+    riskLevel: "medium",
+    flags: [
+      { clause: "Section 4.2 — IP Assignment", issue: "Scope extends to work outside employment that relates to company business. May capture pre-existing IP.", severity: "high" },
+      { clause: "Section 7.1 — Indemnification", issue: "Unlimited indemnification with no cap. Standard practice caps at 2x investment.", severity: "medium" },
+    ],
+    keyTerms: { discount: "20%", valuationCap: "$50M", proRata: "Yes", mfn: "Yes", boardSeat: "No" },
+    recommendation: "Negotiate Section 4.2 IP scope and cap the Section 7.1 indemnification before signing.",
+  },
+  "tax": {
+    taxYear: 2025,
+    summary: "Projected federal tax liability for 2025 is $2.1M–$2.4M. Three K-1s received; Arcadia Energy Fund II K-1 still pending. Recommend accelerating charitable contributions before year-end.",
+    estimatedLiability: { federal: 2250000, state: 480000, total: 2730000 },
+    k1Summary: [
+      { entity: "Hartwell Cayman LP", income: 2840000, status: "received" },
+      { entity: "Meridian AI SPV", income: -120000, status: "received" },
+      { entity: "Arcadia Energy Fund II", income: null, status: "pending" },
+    ],
+    actionItems: [
+      "Accelerate $500K charitable contribution before Dec 31 to reduce AGI",
+      "Chase Arcadia Energy K-1 — 30-day late, contact GP",
+      "Q2 estimated payment of $485K due June 16",
+    ],
+    deductionOpportunities: [
+      "QOZ investment could defer ~$340K of capital gains",
+      "Cost segregation on Hampton Estate — $180K accelerated depreciation",
+    ],
+  },
+  "chief-of-staff": {
+    acknowledgment: "Understood. I'll coordinate the request and provide a full action plan with timeline and cost estimate.",
+    actionPlan: ["Confirm availability and logistics", "Arrange transportation and accommodations", "Coordinate catering and staff", "Send confirmation with itinerary"],
+    timeline: "Confirmation within 2 hours. All bookings within 24h.",
+    estimatedCost: "$8,000–$15,000 depending on selections",
+    requiresApproval: false,
+    followUpNeeded: ["Guest preferences", "Return timing"],
+  },
+  "concierge": {
+    requestType: "lifestyle",
+    summary: "Request received and queued for coordination.",
+    steps: ["Confirm availability", "Make booking or reservation", "Send confirmation"],
+    vendors: [],
+    timeline: "24–48 hours",
+    status: "in-progress",
+  },
+  "philanthropy": {
+    summary: "The Hartwell Foundation has $1M in active grants across education, environment, and social justice. Impact is strong with 4,200 students reached through MIT AI literacy program.",
+    impactHighlights: ["4,200 students reached through MIT AI literacy program", "18,000 acres of Amazon watershed protected"],
+    recommendations: ["Consider additional $50K to Nature Conservancy given 12% deforestation increase", "Stanford GSB pledge acceleration offers ~$480K tax benefit in 2026"],
+    upcomingObligations: [{ org: "Stanford GSB", amount: 500000, due: "2026-12-31" }],
+    grantingCapacity: "Foundation corpus on track. Current year charitable deduction limit: $1.8M.",
+  },
+  "relationships": {
+    answer: "You have 3 strong connections matching your query. Top connection is Jennifer Park at Sequoia Capital — last contact 4 weeks ago, introduced via LP meeting.",
+    contacts: ["Jennifer Park", "David Kwon", "Amanda Torres"],
+    suggestedActions: ["Schedule coffee with Jennifer Park — last contact was 4 weeks ago", "Ask Amanda Torres for a warm intro through her network", "Follow up on open co-investment discussion"],
+    connectionPaths: [],
+    openItems: [],
+    suggestions: [],
+  },
+  "deal-enrichment": {
+    affinityScore: 72, riskScore: 45, fundabilityScore: 68,
+    riskFactors: [
+      { factor: "Customer concentration", severity: "high", description: "Top 3 customers represent majority of ARR", source: "deal-data" },
+      { factor: "Competitive pressure", severity: "medium", description: "Well-funded incumbents with larger sales teams", source: "crunchbase" },
+    ],
+    fundabilityFactors: [
+      { factor: "Strong founder track record", impact: "positive", description: "Prior successful exit increases fundability" },
+      { factor: "High NRR", impact: "positive", description: "138% NRR signals strong product-market fit" },
+    ],
+    founderSignals: [{ name: "Sarah Chen", signals: ["Prior exit to Salesforce $180M", "ex-Palantir FedRAMP product lead"] }],
+    webSignals: { websiteQuality: "professional", techStack: ["React", "Python", "AWS"], teamPagePresence: true, pressOrMedia: ["TechCrunch", "Forbes"] },
+    summary: "Strong signals across founder background and product traction. Primary risk is customer concentration. Recommend pursuing with standard diligence.",
+  },
+  "term-sheet": {
+    sheets: [{
+      label: "Term Sheet 1",
+      valuation: "$85M pre-money",
+      investmentAmount: "$12M",
+      ownership: "12.4%",
+      liquidationPref: "1x non-participating",
+      antiDilution: "Broad-based weighted average",
+      boardSeats: "1 investor seat",
+      proRataRights: "Yes — pro-rata on next priced round",
+      dragAlong: "Standard majority drag",
+      informationRights: "Standard quarterly financials",
+      closingConditions: ["Completion of legal diligence", "Board approval"],
+      unusualTerms: [],
+      summary: "Clean, founder-friendly terms. Recommend proceeding.",
+    }],
+    comparison: { mostFavorable: "Term Sheet 1", keyDifferences: [], redFlags: [], recommendation: "Proceed with Term Sheet 1 — standard terms, no red flags." },
+  },
+  "diligence": {
+    items: [
+      { id: "1", answer: "ARR growth is 3.2x YoY — above 100% threshold.", status: "complete" },
+      { id: "2", answer: "Top 3 customers = 67% of ARR — concentration risk flagged.", status: "flagged", flag: "High customer concentration" },
+    ],
+    summary: "Strong fundamentals with one critical risk: customer concentration. 8 of 10 diligence items pass; 2 require follow-up.",
+    redFlags: ["Top 3 customers represent 67% of ARR"],
+    passItems: ["ARR growth >100%", "Founder prior exit verified", "IP assignment clean", "No known litigation"],
+  },
+};
 
 export interface AgentInput {
   agentType: AgentType;
@@ -44,6 +204,11 @@ function parseAgentText(text: string): Record<string, unknown> {
 
 export async function runAgent(input: AgentInput): Promise<AgentOutput> {
   const { agentType, familyId, context, documents, systemPromptOverride } = input;
+
+  if (!client) {
+    const mock = MOCK_OUTPUTS[agentType] ?? { raw: "Mock output — set ANTHROPIC_API_KEY for real AI responses." };
+    return { result: mock, model: "mock", tokensUsed: 0 };
+  }
 
   const systemPrompt = systemPromptOverride ?? buildSystemPrompt(agentType, context);
   const userContent = buildUserContent(agentType, context, documents);
@@ -110,6 +275,13 @@ export async function streamAgent(
   onChunk: (text: string) => void,
 ): Promise<AgentOutput> {
   const { agentType, familyId, context, documents, systemPromptOverride } = input;
+
+  if (!client) {
+    const mock = MOCK_OUTPUTS[agentType] ?? { raw: "Mock output — set ANTHROPIC_API_KEY for real AI responses." };
+    const text = JSON.stringify(mock);
+    onChunk(text);
+    return { result: mock, model: "mock", tokensUsed: 0 };
+  }
 
   const systemPrompt = systemPromptOverride ?? buildSystemPrompt(agentType, context);
   const userContent = buildUserContent(agentType, context, documents);
