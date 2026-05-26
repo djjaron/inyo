@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
       documents,
       // Use Haiku for federation calls — Sonnet/Opus times out on Dividen's gateway
       modelOverride: "claude-haiku-4-5-20251001",
-      maxTokensOverride: 1200,
+      maxTokensOverride: 2048,
     });
 
     return NextResponse.json(
