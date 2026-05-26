@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Plug, RefreshCw, Zap, Bot, CheckCircle2, AlertCircle, Clock, Activity } from "lucide-react";
+import { Plug, RefreshCw, Zap, Bot, CheckCircle2, AlertCircle, Clock, Activity, Store, Upload } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import PageHeader from "@/components/ui/PageHeader";
 import { useFamilyId } from "@/context/FamilyContext";
@@ -99,6 +99,10 @@ export default function FederationPage() {
   const [loading, setLoading] = useState(true);
   const [registering, setRegistering] = useState(false);
   const [registerResult, setRegisterResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [syncing, setSyncing] = useState(false);
+  const [syncResult, setSyncResult] = useState<{
+    success: boolean; created: number; updated: number; skipped: number; message: string; _mock: boolean;
+  } | null>(null);
 
   const loadStatus = useCallback(async () => {
     setLoading(true);
@@ -118,6 +122,20 @@ export default function FederationPage() {
   useEffect(() => {
     loadStatus();
   }, [loadStatus]);
+
+  async function handleSyncAgents() {
+    setSyncing(true);
+    setSyncResult(null);
+    try {
+      const res = await fetch("/api/network/sync-agents", { method: "POST" });
+      const json = await res.json();
+      setSyncResult(json);
+    } catch {
+      setSyncResult({ success: false, created: 0, updated: 0, skipped: 0, message: "Network error — please try again.", _mock: false });
+    } finally {
+      setSyncing(false);
+    }
+  }
 
   async function handleRegister() {
     setRegistering(true);
@@ -161,6 +179,24 @@ export default function FederationPage() {
             >
               <RefreshCw size={13} />
               Refresh
+            </button>
+            <button
+              onClick={handleSyncAgents}
+              disabled={syncing}
+              className="flex items-center gap-1.5 px-4 py-2 rounded text-sm font-semibold transition-opacity disabled:opacity-40"
+              style={{ background: "rgba(139,92,246,0.15)", color: "#a78bfa", border: "1px solid rgba(139,92,246,0.3)" }}
+            >
+              {syncing ? (
+                <>
+                  <RefreshCw size={13} className="animate-spin" />
+                  Syncing…
+                </>
+              ) : (
+                <>
+                  <Store size={13} />
+                  Sync to Marketplace
+                </>
+              )}
             </button>
             <button
               onClick={handleRegister}
@@ -268,6 +304,103 @@ export default function FederationPage() {
             {registerResult.message}
           </div>
         )}
+
+        {/* Sync result */}
+        {syncResult && (
+          <div
+            className="rounded-md border px-4 py-3"
+            style={{
+              background: syncResult.success ? "rgba(139,92,246,0.06)" : "rgba(239,68,68,0.06)",
+              borderColor: syncResult.success ? "rgba(139,92,246,0.25)" : "rgba(239,68,68,0.2)",
+            }}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div className="text-sm font-medium" style={{ color: syncResult.success ? "#a78bfa" : "#ef4444" }}>
+                  {syncResult.success ? "Agents synced to Dividen Bubble Store" : "Sync failed"}
+                </div>
+                <div className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
+                  {syncResult.message}
+                </div>
+              </div>
+              {syncResult.success && (
+                <div className="flex items-center gap-4 shrink-0">
+                  {syncResult.created > 0 && (
+                    <div className="text-center">
+                      <div className="text-lg font-semibold font-mono" style={{ color: "#10b981" }}>{syncResult.created}</div>
+                      <div className="text-xs" style={{ color: "var(--text-muted)" }}>created</div>
+                    </div>
+                  )}
+                  {syncResult.updated > 0 && (
+                    <div className="text-center">
+                      <div className="text-lg font-semibold font-mono" style={{ color: "#3b82f6" }}>{syncResult.updated}</div>
+                      <div className="text-xs" style={{ color: "var(--text-muted)" }}>updated</div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+            {syncResult._mock && (
+              <div className="mt-2 text-xs" style={{ color: "var(--text-muted)" }}>
+                Set <code className="px-1 rounded" style={{ background: "var(--bg-elevated)" }}>DIVIDEN_PLATFORM_TOKEN</code> in your environment to push to the live Bubble Store.
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Marketplace submission info */}
+        <div
+          className="rounded-lg border p-5"
+          style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <Store size={14} style={{ color: "#a78bfa" }} />
+            <span className="text-xs font-medium tracking-wider uppercase" style={{ color: "var(--text-muted)" }}>
+              Dividen Bubble Store
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-6">
+            <div className="flex flex-col gap-2">
+              <div className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                Submit agents to the marketplace
+              </div>
+              <div className="text-xs leading-relaxed" style={{ color: "var(--text-muted)" }}>
+                "Sync to Marketplace" pushes all 13 Inyo agents to the Dividen Bubble Store as a single batch.
+                Synced agents enter <span style={{ color: "#f59e0b" }}>pending_review</span> status and require admin approval before going public.
+              </div>
+              <div className="mt-2 flex flex-col gap-1.5">
+                <div className="flex items-center gap-2 text-xs" style={{ color: "var(--text-muted)" }}>
+                  <Upload size={11} />
+                  <span>Requires <code className="px-1 rounded" style={{ background: "var(--bg-elevated)" }}>DIVIDEN_PLATFORM_TOKEN</code> env var</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs" style={{ color: "var(--text-muted)" }}>
+                  <CheckCircle2 size={11} />
+                  <span>Agent card served at <code className="px-1 rounded" style={{ background: "var(--bg-elevated)" }}>/.well-known/agent-card.json</code></span>
+                </div>
+                <div className="flex items-center gap-2 text-xs" style={{ color: "var(--text-muted)" }}>
+                  <Activity size={11} />
+                  <span>Inbound endpoint: <code className="px-1 rounded" style={{ background: "var(--bg-elevated)" }}>/api/federation/tasks</code></span>
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col gap-2">
+              <div className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>13 agents ready to sync</div>
+              <div className="grid grid-cols-2 gap-1">
+                {[
+                  "Deal Flow Analyst", "IC Memo Writer", "Portfolio Monitor",
+                  "CFO Agent", "Legal Review", "Tax Intelligence",
+                  "Chief of Staff", "Concierge", "Philanthropy",
+                  "Relationship Intel", "Deal Enrichment", "Term Sheet Analyst", "Diligence Agent"
+                ].map((name) => (
+                  <div key={name} className="flex items-center gap-1.5 text-xs" style={{ color: "var(--text-secondary)" }}>
+                    <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "#a78bfa" }} />
+                    {name}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Instance details + stats */}
         {manifest && stats && (

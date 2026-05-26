@@ -1,0 +1,129 @@
+{
+  "name": "Inyo",
+  "description": "Private AI operating system for modern family offices. 13 specialized agents covering deal flow, portfolio monitoring, legal, tax, CFO, concierge, philanthropy, and relationship intelligence.",
+  "version": "1.0.0",
+  "protocol": "dividen/1.0",
+  "endpointUrl": "/api/federation/tasks",
+  "developerName": "Inyo",
+  "category": "wealth-management",
+  "tags": ["family-office", "investment", "wealth-management", "legal", "tax", "concierge"],
+  "agents": [
+    {
+      "id": "deal-flow",
+      "name": "Deal Flow Analyst",
+      "description": "Scores and triages inbound investment opportunities for family offices. Returns structured analysis with risks, opportunities, and a 0-100 deal score.",
+      "model": "claude-opus-4-7",
+      "inputFormat": "json",
+      "outputFormat": "json",
+      "samplePrompt": {"label": "Score this fintech seed deal", "agentType": "deal-flow", "context": {"company": "Meridian AI", "sector": "Enterprise AI", "stage": "series-b", "capitalAsk": 12000000, "valuation": 85000000, "description": "Vertical LLM for enterprise compliance teams. $8.4M ARR, 3.2x growth YoY."}}
+    },
+    {
+      "id": "ic-memo",
+      "name": "IC Memo Writer",
+      "description": "Generates institutional-quality investment committee memos with SWOT analysis, financials, team assessment, and recommendation.",
+      "model": "claude-opus-4-7",
+      "inputFormat": "json",
+      "outputFormat": "json",
+      "samplePrompt": {"label": "Generate IC memo for Series B deal", "agentType": "ic-memo", "context": {"company": "Meridian AI", "description": "Enterprise compliance LLM. $8.4M ARR.", "team": "Sarah Chen CEO (ex-Palantir), Marcus Webb CTO (ex-Two Sigma)"}}
+    },
+    {
+      "id": "portfolio-monitor",
+      "name": "Portfolio Monitor",
+      "description": "Watches existing investments for material changes: funding events, executive departures, burn rate changes, press coverage, and legal issues.",
+      "model": "claude-opus-4-7",
+      "inputFormat": "json",
+      "outputFormat": "json",
+      "samplePrompt": {"label": "Monitor portfolio company health", "agentType": "portfolio-monitor", "context": {"name": "Volta Energy", "sector": "Climate Tech", "investedAmount": 8000000, "currentValue": 6200000, "alertLevel": "watch"}}
+    },
+    {
+      "id": "cfo",
+      "name": "CFO Agent",
+      "description": "Analyzes entity-level cash flows, liquidity positions, payables, and capital call schedules for a family office.",
+      "model": "claude-opus-4-7",
+      "inputFormat": "json",
+      "outputFormat": "json",
+      "samplePrompt": {"label": "Summarize cash position across entities", "agentType": "cfo", "context": {"query": "What is our current liquidity position?", "entities": []}}
+    },
+    {
+      "id": "legal",
+      "name": "Legal Review Agent",
+      "description": "Reviews legal documents (SAFEs, NDAs, LP agreements, term sheets) for risk flags, unusual clauses, and compliance issues. Legal spotting only — not legal advice.",
+      "model": "claude-opus-4-7",
+      "inputFormat": "json",
+      "outputFormat": "json",
+      "samplePrompt": {"label": "Review SAFE note for risk flags", "agentType": "legal", "context": {"documentName": "Meridian AI SAFE", "documentContent": "SAFE Note — $12M at $85M pre-money cap with MFN and pro-rata rights..."}}
+    },
+    {
+      "id": "tax",
+      "name": "Tax Intelligence Agent",
+      "description": "Organizes K-1 income, tracks filing deadlines, estimates tax liabilities, and surfaces deduction opportunities for multi-entity family offices.",
+      "model": "claude-opus-4-7",
+      "inputFormat": "json",
+      "outputFormat": "json",
+      "samplePrompt": {"label": "Summarize 2025 tax position", "agentType": "tax", "context": {"query": "What is my estimated 2025 federal tax liability?", "k1s": []}}
+    },
+    {
+      "id": "chief-of-staff",
+      "name": "Chief of Staff",
+      "description": "Handles operational requests: travel coordination, meeting prep, follow-up tracking, gift reminders, and task delegation.",
+      "model": "claude-haiku-4-5-20251001",
+      "inputFormat": "json",
+      "outputFormat": "json",
+      "samplePrompt": {"label": "Coordinate Aspen trip for 6 guests", "agentType": "chief-of-staff", "context": {"request": "Arrange Aspen trip for 6 guests, weekend of June 14-16", "type": "travel"}}
+    },
+    {
+      "id": "concierge",
+      "name": "Concierge Agent",
+      "description": "Manages household and lifestyle operations: travel bookings, property maintenance, vendor coordination, and reservations.",
+      "model": "claude-haiku-4-5-20251001",
+      "inputFormat": "json",
+      "outputFormat": "json",
+      "samplePrompt": {"label": "Book restaurant for 4 this weekend", "agentType": "concierge", "context": {"request": "Book Nobu Malibu for 4 this Saturday at 8pm", "type": "dining"}}
+    },
+    {
+      "id": "philanthropy",
+      "name": "Philanthropy Agent",
+      "description": "Supports foundation and giving operations: grant tracking, impact reporting, pledge reminders, and DAF strategy.",
+      "model": "claude-haiku-4-5-20251001",
+      "inputFormat": "json",
+      "outputFormat": "json",
+      "samplePrompt": {"label": "Summarize giving impact this year", "agentType": "philanthropy", "context": {"query": "What has been our foundation impact this year?"}}
+    },
+    {
+      "id": "relationships",
+      "name": "Relationship Intelligence",
+      "description": "Maps network graph, finds warm introduction paths, tracks interaction history, and surfaces relationship insights.",
+      "model": "claude-haiku-4-5-20251001",
+      "inputFormat": "json",
+      "outputFormat": "json",
+      "samplePrompt": {"label": "Find warm path to Andreessen Horowitz", "agentType": "relationships", "context": {"query": "Who do I know at Andreessen Horowitz?", "contacts": []}}
+    },
+    {
+      "id": "deal-enrichment",
+      "name": "Deal Enrichment Analyst",
+      "description": "Scores deals using web signals, LinkedIn founder profiles, and Crunchbase funding history. Returns affinity, risk, and fundability scores.",
+      "model": "claude-opus-4-7",
+      "inputFormat": "json",
+      "outputFormat": "json",
+      "samplePrompt": {"label": "Enrich seed deal with web signals", "agentType": "deal-enrichment", "context": {"company": "Meridian AI", "website": "https://meridian.ai", "linkedinUrl": "https://linkedin.com/in/sarahchen", "description": "Enterprise compliance LLM"}}
+    },
+    {
+      "id": "term-sheet",
+      "name": "Term Sheet Analyst",
+      "description": "Extracts and compares investment term sheets. Flags non-standard terms, liquidation preferences, anti-dilution, and board composition.",
+      "model": "claude-opus-4-7",
+      "inputFormat": "json",
+      "outputFormat": "json",
+      "samplePrompt": {"label": "Extract terms from Series B term sheet", "agentType": "term-sheet", "documents": [{"name": "Meridian AI Series B Term Sheet", "content": "Pre-money valuation: $85M. Investment: $12M. Liquidation preference: 1x non-participating..."}]}
+    },
+    {
+      "id": "diligence",
+      "name": "Diligence Agent",
+      "description": "Reviews deal diligence checklists with AI analysis. Flags gaps, confirms findings, and surfaces red flags.",
+      "model": "claude-opus-4-7",
+      "inputFormat": "json",
+      "outputFormat": "json",
+      "samplePrompt": {"label": "Run diligence checklist on Series B deal", "agentType": "diligence", "context": {"company": "Meridian AI", "checklistItems": [{"id": "1", "question": "ARR growth above 100%?"}]}}
+    }
+  ]
+}

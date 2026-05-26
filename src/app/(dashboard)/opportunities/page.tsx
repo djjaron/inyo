@@ -54,6 +54,24 @@ interface FullDeal {
   crunchbaseUrl?: string | null;
 }
 
+interface DealScoreResult {
+  score: number;
+  summary: string;
+  risks: string[];
+  opportunities: string[];
+  recommendation: string;
+  founderBackground?: string;
+  comparables?: string[];
+}
+
+interface ICMemoResult {
+  executiveSummary: string;
+  risks: Array<{ category: string; description: string; severity: string }>;
+  opportunities: string[];
+  recommendation: string;
+  nextSteps: string[];
+}
+
 // Fallback mock data used when DB has no deals
 const MOCK_DEALS: Deal[] = [
   { id: "mock-1", company: "Meridian AI", sector: "Enterprise AI", stage: "series-b", capitalAsk: 12_000_000, dealScore: 84, status: "diligence", createdAt: "2026-05-14", sourceType: "lp-intro" },
@@ -67,8 +85,13 @@ function DealPreviewPanel({ deal, familyId }: { deal: Deal; familyId: string }) 
   const [fullDeal, setFullDeal] = useState<FullDeal | null>(null);
   const [fetching, setFetching] = useState(true);
 
-  // familyId is threaded through props but not used in this fetch since the API uses deal.id
-  void familyId;
+  // AI Analysis state
+  const [analysisLoading, setAnalysisLoading] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<DealScoreResult | null>(null);
+  const [memoLoading, setMemoLoading] = useState(false);
+  const [memoResult, setMemoResult] = useState<ICMemoResult | null>(null);
+  const [agentMock, setAgentMock] = useState(false);
+  const [memoExpanded, setMemoExpanded] = useState(false);
 
   useEffect(() => {
     setFetching(true);
@@ -87,6 +110,79 @@ function DealPreviewPanel({ deal, familyId }: { deal: Deal; familyId: string }) 
   }, [deal.id]);
 
   const d = fullDeal ?? deal as FullDeal;
+
+  async function runDealAnalysis() {
+    setAnalysisLoading(true);
+    setAnalysisResult(null);
+    try {
+      const res = await fetch("/api/agents/deal-flow", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          familyId,
+          dealId: deal.id,
+          context: {
+            company: d.company,
+            sector: d.sector,
+            stage: d.stage,
+            capitalAsk: d.capitalAsk,
+            valuation: d.valuation,
+            description: d.description ?? "",
+          },
+        }),
+      });
+      const data = await res.json();
+      if (data.result) {
+        setAnalysisResult(data.result as DealScoreResult);
+        setAgentMock(data.analysis?._mock === true);
+        // Write score back to deal record
+        if (typeof data.result.score === "number") {
+          fetch(`/api/deals/${deal.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ dealScore: data.result.score }),
+          }).catch(() => {});
+        }
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setAnalysisLoading(false);
+    }
+  }
+
+  async function runICMemo() {
+    setMemoLoading(true);
+    setMemoResult(null);
+    try {
+      const res = await fetch("/api/agents/ic-memo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          familyId,
+          dealId: deal.id,
+          context: {
+            company: d.company,
+            sector: d.sector,
+            stage: d.stage,
+            capitalAsk: d.capitalAsk,
+            valuation: d.valuation,
+            description: d.description ?? "",
+          },
+        }),
+      });
+      const data = await res.json();
+      if (data.result) {
+        setMemoResult(data.result as ICMemoResult);
+        if (!agentMock) setAgentMock(data.analysis?._mock === true);
+        setMemoExpanded(true);
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setMemoLoading(false);
+    }
+  }
 
   const subtitle = [d.sector, d.stage?.replace(/-/g, " ")].filter(Boolean).join(" · ") || undefined;
 
@@ -221,6 +317,150 @@ function DealPreviewPanel({ deal, familyId }: { deal: Deal; familyId: string }) 
                   </a>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* AI Agent Actions */}
+          <div style={{ display: "flex", gap: 6 }}>
+            <button
+              onClick={runDealAnalysis}
+              disabled={analysisLoading}
+              style={{
+                flex: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 4,
+                padding: "7px 10px",
+                borderRadius: 5,
+                fontSize: 11,
+                fontWeight: 500,
+                background: analysisResult ? "var(--bg-elevated)" : "var(--accent-muted)",
+                color: analysisResult ? "var(--text-secondary)" : "var(--accent)",
+                border: "1px solid",
+                borderColor: analysisResult ? "var(--border)" : "rgba(59,130,246,0.3)",
+                cursor: analysisLoading ? "wait" : "pointer",
+                opacity: analysisLoading ? 0.6 : 1,
+              }}
+            >
+              {analysisLoading ? (
+                <span style={{ display: "inline-block", width: 10, height: 10, borderRadius: "50%", border: "1.5px solid var(--border)", borderTopColor: "var(--accent)", animation: "spin 0.7s linear infinite" }} />
+              ) : (
+                <Zap size={10} />
+              )}
+              {analysisResult ? "Re-analyze" : "Analyze"}
+            </button>
+            <button
+              onClick={runICMemo}
+              disabled={memoLoading}
+              style={{
+                flex: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 4,
+                padding: "7px 10px",
+                borderRadius: 5,
+                fontSize: 11,
+                fontWeight: 500,
+                background: memoResult ? "var(--bg-elevated)" : "transparent",
+                color: "var(--text-secondary)",
+                border: "1px solid var(--border)",
+                cursor: memoLoading ? "wait" : "pointer",
+                opacity: memoLoading ? 0.6 : 1,
+              }}
+            >
+              {memoLoading ? (
+                <span style={{ display: "inline-block", width: 10, height: 10, borderRadius: "50%", border: "1.5px solid var(--border)", borderTopColor: "var(--text-muted)", animation: "spin 0.7s linear infinite" }} />
+              ) : null}
+              IC Memo
+            </button>
+          </div>
+
+          {/* Deal Score Analysis Results */}
+          {analysisResult && (
+            <div style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 6, padding: "12px 14px", display: "flex", flexDirection: "column", gap: 10 }}>
+              {/* Header: score + mock badge */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{
+                    fontSize: 22,
+                    fontWeight: 700,
+                    fontVariantNumeric: "tabular-nums",
+                    color: analysisResult.score >= 70 ? "#10b981" : analysisResult.score >= 50 ? "#f59e0b" : "#ef4444",
+                  }}>
+                    {analysisResult.score}
+                  </span>
+                  <span style={{ fontSize: 10, color: "var(--text-muted)" }}>/ 100</span>
+                  <Badge
+                    label={analysisResult.recommendation}
+                    variant={analysisResult.recommendation === "pursue" ? "success" : analysisResult.recommendation === "pass" ? "danger" : "warning"}
+                    size="xs"
+                  />
+                </div>
+                {agentMock && (
+                  <span style={{ fontSize: 10, color: "#f59e0b", opacity: 0.7 }}>demo · mock</span>
+                )}
+              </div>
+              {/* Summary */}
+              <p style={{ fontSize: 11, lineHeight: 1.6, color: "var(--text-secondary)", margin: 0 }}>{analysisResult.summary}</p>
+              {/* Risks */}
+              {analysisResult.risks.length > 0 && (
+                <div>
+                  <div style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>Risks</div>
+                  <ul style={{ margin: 0, paddingLeft: 14, display: "flex", flexDirection: "column", gap: 3 }}>
+                    {analysisResult.risks.slice(0, 3).map((r, i) => (
+                      <li key={i} style={{ fontSize: 11, color: "var(--text-secondary)" }}>{r}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {/* Opportunities */}
+              {analysisResult.opportunities.length > 0 && (
+                <div>
+                  <div style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>Upside</div>
+                  <ul style={{ margin: 0, paddingLeft: 14, display: "flex", flexDirection: "column", gap: 3 }}>
+                    {analysisResult.opportunities.slice(0, 3).map((o, i) => (
+                      <li key={i} style={{ fontSize: 11, color: "var(--text-secondary)" }}>{o}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* IC Memo Results */}
+          {memoResult && (
+            <div style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 6, overflow: "hidden" }}>
+              <button
+                onClick={() => setMemoExpanded((v) => !v)}
+                style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", background: "transparent", border: "none", cursor: "pointer" }}
+              >
+                <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text-primary)" }}>IC Memo</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  {agentMock && <span style={{ fontSize: 10, color: "#f59e0b", opacity: 0.7 }}>demo · mock</span>}
+                  <ChevronDown size={12} style={{ color: "var(--text-muted)", transform: memoExpanded ? "rotate(180deg)" : "none", transition: "transform 0.15s" }} />
+                </div>
+              </button>
+              {memoExpanded && (
+                <div style={{ padding: "0 14px 12px", display: "flex", flexDirection: "column", gap: 10, borderTop: "1px solid var(--border-subtle)" }}>
+                  <p style={{ fontSize: 11, lineHeight: 1.6, color: "var(--text-secondary)", margin: "10px 0 0" }}>{memoResult.executiveSummary}</p>
+                  <div>
+                    <div style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>Recommendation</div>
+                    <p style={{ fontSize: 11, color: "var(--text-secondary)", margin: 0 }}>{memoResult.recommendation}</p>
+                  </div>
+                  {memoResult.nextSteps.length > 0 && (
+                    <div>
+                      <div style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>Next Steps</div>
+                      <ol style={{ margin: 0, paddingLeft: 14, display: "flex", flexDirection: "column", gap: 3 }}>
+                        {memoResult.nextSteps.slice(0, 3).map((s, i) => (
+                          <li key={i} style={{ fontSize: 11, color: "var(--text-secondary)" }}>{s}</li>
+                        ))}
+                      </ol>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
 

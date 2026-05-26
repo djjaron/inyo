@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Home } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import Badge from "@/components/ui/Badge";
@@ -59,6 +59,7 @@ export default function ConciergePage() {
   const familyId = useFamilyId();
 
   const [requests, setRequests] = useState<ConciergeRequest[]>(INITIAL_REQUESTS);
+  const [agentIsMock, setAgentIsMock] = useState(false);
 
   // Form panel state
   const [showForm, setShowForm] = useState(false);
@@ -69,6 +70,25 @@ export default function ConciergePage() {
   // Agent response state
   const [agentLoading, setAgentLoading] = useState(false);
   const [agentResult, setAgentResult] = useState<ChiefOfStaffResult | null>(null);
+
+  useEffect(() => {
+    if (!familyId) return;
+    fetch(`/api/concierge/requests?familyId=${encodeURIComponent(familyId)}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.requests && data.requests.length > 0) {
+          setRequests(data.requests.map((r: { id: string; type: string; title: string; status: string; assignee: string; createdAt: string }) => ({
+            id: r.id,
+            type: r.type,
+            title: r.title,
+            status: r.status,
+            assignee: r.assignee,
+            created: r.createdAt.slice(0, 10),
+          })));
+        }
+      })
+      .catch(() => {});
+  }, [familyId]);
 
   function openForm() {
     setShowForm(true);
@@ -100,6 +120,7 @@ export default function ConciergePage() {
       });
       const data = await res.json();
       setAgentResult(data.result as ChiefOfStaffResult);
+      setAgentIsMock(data.analysis?._mock === true);
     } catch {
       // silently fail
     } finally {
@@ -107,10 +128,28 @@ export default function ConciergePage() {
     }
   }
 
-  function addToActiveRequests() {
+  async function addToActiveRequests() {
     if (!agentResult) return;
+    // Persist to DB (best-effort)
+    let persistedId = Date.now().toString();
+    try {
+      const res = await fetch("/api/concierge/requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          familyId: familyId ?? "demo",
+          type: formType.toLowerCase(),
+          title: formTitle,
+          details: formDetails || null,
+        }),
+      });
+      const data = await res.json();
+      if (data.request?.id) persistedId = data.request.id;
+    } catch {
+      // silently fail
+    }
     const newRequest: ConciergeRequest = {
-      id: Date.now().toString(),
+      id: persistedId,
       type: formType.toLowerCase(),
       title: formTitle,
       status: "pending",
@@ -230,9 +269,14 @@ export default function ConciergePage() {
                   style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)" }}
                 >
                   {/* Acknowledgment */}
-                  <p className="text-base leading-relaxed font-medium" style={{ color: "var(--text-primary)" }}>
-                    {agentResult.acknowledgment}
-                  </p>
+                  <div className="flex items-start gap-2">
+                    <p className="text-base leading-relaxed font-medium flex-1" style={{ color: "var(--text-primary)" }}>
+                      {agentResult.acknowledgment}
+                    </p>
+                    {agentIsMock && (
+                      <span style={{ fontSize: 10, color: "#f59e0b", opacity: 0.7 }}>demo · mock</span>
+                    )}
+                  </div>
 
                   {/* Action Plan */}
                   {agentResult.actionPlan?.length > 0 && (
@@ -334,6 +378,29 @@ export default function ConciergePage() {
                   <div className="flex items-center gap-2 shrink-0">
                     <Badge label={r.type} variant={typeVariant[r.type] ?? "muted"} size="xs" />
                     <Badge label={r.status} variant={r.status === "in-progress" ? "accent" : r.status === "scheduled" ? "success" : "muted"} size="xs" />
+                    <button
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        setRequests((prev) => prev.filter((req) => req.id !== r.id));
+                        try {
+                          await fetch(`/api/concierge/requests/${r.id}`, { method: "DELETE" });
+                        } catch {
+                          // silently fail
+                        }
+                      }}
+                      style={{
+                        background: "transparent",
+                        border: "none",
+                        cursor: "pointer",
+                        padding: "2px 4px",
+                        color: "var(--text-muted)",
+                        fontSize: 14,
+                        lineHeight: 1,
+                      }}
+                      title="Remove request"
+                    >
+                      ×
+                    </button>
                   </div>
                 </div>
               </div>

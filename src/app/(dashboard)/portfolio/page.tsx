@@ -75,6 +75,16 @@ interface AnalyticsData {
   _mock?: boolean;
 }
 
+interface MonitorResult {
+  healthScore: number;
+  summary: string;
+  recommendation: string;
+  risks: string[];
+  opportunities: string[];
+  keyMetrics?: Record<string, string | number>;
+  alerts?: string[];
+}
+
 // --- Color palettes ---
 const alertColor: Record<string, string> = {
   critical: "#ef4444",
@@ -209,6 +219,44 @@ function CompanyDetailPanel({ company }: { company: PortfolioCompany }) {
     company.investedAmount && company.currentValue && company.investedAmount > 0
       ? company.currentValue / company.investedAmount
       : null;
+
+  const [monitorLoading, setMonitorLoading] = useState(false);
+  const [monitorResult, setMonitorResult] = useState<MonitorResult | null>(null);
+  const [monitorMock, setMonitorMock] = useState(false);
+
+  async function runMonitor() {
+    setMonitorLoading(true);
+    setMonitorResult(null);
+    try {
+      const res = await fetch("/api/agents/portfolio-monitor", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          familyId: "demo",
+          companyId: company.id,
+          context: {
+            name: company.name,
+            sector: company.sector ?? "",
+            stage: company.stage ?? "",
+            status: company.status,
+            investedAmount: company.investedAmount ?? 0,
+            currentValue: company.currentValue ?? 0,
+            ownership: company.ownership ?? 0,
+            alertLevel: company.alertLevel,
+          },
+        }),
+      });
+      const data = await res.json();
+      if (data.result) {
+        setMonitorResult(data.result as MonitorResult);
+        setMonitorMock(data.analysis?._mock === true);
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setMonitorLoading(false);
+    }
+  }
 
   return (
     <ContextPanel
@@ -416,6 +464,96 @@ function CompanyDetailPanel({ company }: { company: PortfolioCompany }) {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+      </div>
+
+      {/* Portfolio Monitor */}
+      <div style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
+        <button
+          onClick={runMonitor}
+          disabled={monitorLoading}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 5,
+            padding: "8px 12px",
+            borderRadius: 5,
+            fontSize: 11,
+            fontWeight: 500,
+            background: monitorResult ? "var(--bg-elevated)" : "var(--accent-muted)",
+            color: monitorResult ? "var(--text-secondary)" : "var(--accent)",
+            border: "1px solid",
+            borderColor: monitorResult ? "var(--border)" : "rgba(59,130,246,0.3)",
+            cursor: monitorLoading ? "wait" : "pointer",
+            opacity: monitorLoading ? 0.7 : 1,
+            width: "100%",
+          }}
+        >
+          {monitorLoading ? (
+            <span style={{ display: "inline-block", width: 10, height: 10, borderRadius: "50%", border: "1.5px solid var(--border)", borderTopColor: "var(--accent)", animation: "spin 0.7s linear infinite" }} />
+          ) : null}
+          {monitorResult ? "Re-run Monitor" : "Run Portfolio Monitor"}
+        </button>
+
+        {monitorResult && (
+          <div style={{ background: "var(--bg-surface)", border: "1px solid var(--border)", borderRadius: 6, padding: "12px 14px", display: "flex", flexDirection: "column", gap: 10 }}>
+            {/* Score header */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{
+                  fontSize: 22,
+                  fontWeight: 700,
+                  fontVariantNumeric: "tabular-nums",
+                  color: monitorResult.healthScore >= 70 ? "#10b981" : monitorResult.healthScore >= 50 ? "#f59e0b" : "#ef4444",
+                }}>
+                  {monitorResult.healthScore}
+                </span>
+                <span style={{ fontSize: 10, color: "var(--text-muted)" }}>health</span>
+                <Badge
+                  label={monitorResult.recommendation}
+                  variant={monitorResult.recommendation === "healthy" ? "success" : monitorResult.recommendation === "monitor" ? "warning" : "danger"}
+                  size="xs"
+                />
+              </div>
+              {monitorMock && <span style={{ fontSize: 10, color: "#f59e0b", opacity: 0.7 }}>demo · mock</span>}
+            </div>
+            {/* Summary */}
+            <p style={{ fontSize: 11, lineHeight: 1.6, color: "var(--text-secondary)", margin: 0 }}>{monitorResult.summary}</p>
+            {/* Key Metrics */}
+            {monitorResult.keyMetrics && Object.keys(monitorResult.keyMetrics).length > 0 && (
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px 12px" }}>
+                {Object.entries(monitorResult.keyMetrics).slice(0, 4).map(([k, v]) => (
+                  <div key={k}>
+                    <div style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 2 }}>{k.replace(/([A-Z])/g, " $1").trim()}</div>
+                    <div style={{ fontSize: 11, color: "var(--text-secondary)", fontVariantNumeric: "tabular-nums" }}>{String(v)}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {/* Risks */}
+            {monitorResult.risks.length > 0 && (
+              <div>
+                <div style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>Risks</div>
+                <ul style={{ margin: 0, paddingLeft: 14, display: "flex", flexDirection: "column", gap: 3 }}>
+                  {monitorResult.risks.slice(0, 3).map((r, i) => (
+                    <li key={i} style={{ fontSize: 11, color: "var(--text-secondary)" }}>{r}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {/* Opportunities */}
+            {monitorResult.opportunities.length > 0 && (
+              <div>
+                <div style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>Opportunities</div>
+                <ul style={{ margin: 0, paddingLeft: 14, display: "flex", flexDirection: "column", gap: 3 }}>
+                  {monitorResult.opportunities.slice(0, 3).map((o, i) => (
+                    <li key={i} style={{ fontSize: 11, color: "var(--text-secondary)" }}>{o}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         )}
       </div>

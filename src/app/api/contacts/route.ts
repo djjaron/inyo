@@ -111,6 +111,12 @@ export async function GET(req: NextRequest) {
       orderBy: { lastContactAt: "desc" },
     });
 
+    if (contacts.length === 0) {
+      let filtered = MOCK_CONTACTS;
+      if (type) filtered = filtered.filter((c) => c.type === type);
+      return NextResponse.json({ contacts: filtered, _mock: true });
+    }
+
     return NextResponse.json({ contacts });
   } catch {
     let filtered = MOCK_CONTACTS;

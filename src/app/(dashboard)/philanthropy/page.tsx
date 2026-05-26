@@ -1,25 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Heart, Calendar, Loader2 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import Badge from "@/components/ui/Badge";
 import { formatCurrency } from "@/lib/utils";
 import { useFamilyId } from "@/context/FamilyContext";
 
-const GRANTS = [
+interface GrantRow {
+  org: string;
+  category?: string | null;
+  amount: number;
+  year: number;
+  status: string;
+  impact?: string | null;
+}
+
+interface PledgeRow {
+  org: string;
+  amount: number;
+  remaining: number;
+  deadline?: string | null;
+}
+
+const GRANTS: GrantRow[] = [
   { org: "MIT Media Lab", category: "Education", amount: 500_000, year: 2026, status: "active", impact: "AI literacy programs" },
   { org: "Nature Conservancy", category: "Environment", amount: 250_000, year: 2026, status: "active", impact: "Amazon watershed protection" },
   { org: "Robin Hood Foundation", category: "Poverty", amount: 100_000, year: 2025, status: "completed", impact: "NYC youth employment" },
   { org: "MacArthur Foundation", category: "Justice", amount: 150_000, year: 2025, status: "completed", impact: "Criminal justice reform" },
 ];
 
-const PLEDGES = [
+const PLEDGES: PledgeRow[] = [
   { org: "Stanford GSB", amount: 2_000_000, remaining: 1_500_000, deadline: "2028-12-31" },
   { org: "New York Public Library", amount: 500_000, remaining: 300_000, deadline: "2027-06-30" },
 ];
-
-const totalGiven = GRANTS.reduce((s, g) => s + g.amount, 0);
 
 interface PhilanthropyResult {
   summary: string;
@@ -31,11 +45,36 @@ interface PhilanthropyResult {
 
 export default function PhilanthropyPage() {
   const familyId = useFamilyId();
+  const [grants, setGrants] = useState<GrantRow[]>(GRANTS);
+  const [pledges, setPledges] = useState<PledgeRow[]>(PLEDGES);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<PhilanthropyResult | null>(null);
   const [isMock, setIsMock] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!familyId) return;
+    fetch(`/api/philanthropy/grants?familyId=${encodeURIComponent(familyId)}`)
+      .then((r) => r.json())
+      .then((data) => { if (data.grants?.length) setGrants(data.grants); })
+      .catch(() => {});
+    fetch(`/api/philanthropy/pledges?familyId=${encodeURIComponent(familyId)}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.pledges?.length) {
+          setPledges(data.pledges.map((p: { org: string; amount: number; remaining: number; deadline?: string | null }) => ({
+            org: p.org,
+            amount: p.amount,
+            remaining: p.remaining,
+            deadline: p.deadline ? p.deadline.slice(0, 10) : null,
+          })));
+        }
+      })
+      .catch(() => {});
+  }, [familyId]);
+
+  const totalGiven = grants.reduce((s, g) => s + g.amount, 0);
 
   async function handleAnalyze() {
     if (!familyId || !query.trim()) return;
@@ -92,14 +131,14 @@ export default function PhilanthropyPage() {
                 </tr>
               </thead>
               <tbody>
-                {GRANTS.map((g, i) => (
+                {grants.map((g, i) => (
                   <tr key={i} style={{ borderBottom: "1px solid var(--border-subtle)", background: "var(--bg-surface)" }}>
                     <td className="px-5 py-3.5 font-medium" style={{ color: "var(--text-primary)" }}>{g.org}</td>
-                    <td className="px-5 py-3.5"><Badge label={g.category} variant="muted" size="xs" /></td>
+                    <td className="px-5 py-3.5"><Badge label={g.category ?? "—"} variant="muted" size="xs" /></td>
                     <td className="px-5 py-3.5 text-xs font-mono" style={{ color: "#10b981", fontVariantNumeric: "tabular-nums" }}>{formatCurrency(g.amount)}</td>
                     <td className="px-5 py-3.5 text-xs font-mono" style={{ color: "var(--text-muted)" }}>{g.year}</td>
                     <td className="px-5 py-3.5"><Badge label={g.status} variant={g.status === "active" ? "success" : "muted"} size="xs" /></td>
-                    <td className="px-5 py-3.5 text-xs max-w-32 truncate" style={{ color: "var(--text-secondary)" }}>{g.impact}</td>
+                    <td className="px-5 py-3.5 text-xs max-w-32 truncate" style={{ color: "var(--text-secondary)" }}>{g.impact ?? "—"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -111,7 +150,7 @@ export default function PhilanthropyPage() {
         <div>
           <h2 className="text-xs font-medium tracking-wider uppercase mb-4" style={{ color: "var(--text-muted)" }}>Open Pledges</h2>
           <div className="flex flex-col gap-3">
-            {PLEDGES.map((p, i) => {
+            {pledges.map((p, i) => {
               const pct = Math.round(((p.amount - p.remaining) / p.amount) * 100);
               return (
                 <div key={i} className="p-4 rounded-md border" style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}>
@@ -123,10 +162,12 @@ export default function PhilanthropyPage() {
                   <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: "var(--border)" }}>
                     <div className="h-full rounded-full" style={{ width: `${pct}%`, background: "#10b981" }} />
                   </div>
-                  <div className="mt-2 flex items-center gap-1 text-xs" style={{ color: "var(--text-muted)" }}>
-                    <Calendar size={10} />
-                    Due {p.deadline}
-                  </div>
+                  {p.deadline && (
+                    <div className="mt-2 flex items-center gap-1 text-xs" style={{ color: "var(--text-muted)" }}>
+                      <Calendar size={10} />
+                      Due {p.deadline}
+                    </div>
+                  )}
                 </div>
               );
             })}

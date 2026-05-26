@@ -1,20 +1,35 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Receipt, AlertCircle, FileText, Calendar, TrendingUp, Loader2 } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import PageHeader from "@/components/ui/PageHeader";
 import { formatCurrency } from "@/lib/utils";
 import { useFamilyId } from "@/context/FamilyContext";
 
-const K1S = [
+interface K1Row {
+  entity: string;
+  year: number;
+  status: string;
+  amount: number | null;
+  filed: boolean;
+}
+
+interface DeadlineRow {
+  label: string;
+  date: string;
+  amount: number | null;
+  status: string;
+}
+
+const K1S: K1Row[] = [
   { entity: "Hartwell Cayman LP", year: 2025, status: "received", amount: 2_840_000, filed: false },
   { entity: "Arcadia Energy Fund II", year: 2025, status: "pending", amount: null, filed: false },
   { entity: "Meridian AI SPV", year: 2025, status: "received", amount: -120_000, filed: false },
   { entity: "Terrace REIT", year: 2025, status: "received", amount: 380_000, filed: true },
 ];
 
-const DEADLINES = [
+const DEADLINES: DeadlineRow[] = [
   { label: "Q2 Federal Estimated Payment", date: "2026-06-16", amount: 485_000, status: "upcoming" },
   { label: "State Tax Returns — CA, NY, DE", date: "2026-10-15", amount: null, status: "upcoming" },
   { label: "Foundation 990-PF Filing", date: "2026-11-15", amount: null, status: "upcoming" },
@@ -50,6 +65,9 @@ interface TaxAnalysis {
 export default function TaxPage() {
   const familyId = useFamilyId();
 
+  const [k1s, setK1s] = useState<K1Row[]>(K1S);
+  const [deadlines, setDeadlines] = useState<DeadlineRow[]>(DEADLINES);
+
   // Tax intelligence query
   const [taxQuery, setTaxQuery] = useState("");
   const [taxResult, setTaxResult] = useState<TaxResult | null>(null);
@@ -61,6 +79,33 @@ export default function TaxPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadLoading, setUploadLoading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!familyId) return;
+    fetch(`/api/tax/events?familyId=${encodeURIComponent(familyId)}&type=k1`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.events?.length) setK1s(data.events.map((e: { id: string; entityName?: string; year?: number; status: string; amount?: number; filed: boolean }) => ({
+          entity: e.entityName ?? "Unknown",
+          year: e.year ?? new Date().getFullYear() - 1,
+          status: e.status,
+          amount: e.amount ?? null,
+          filed: e.filed,
+        })));
+      })
+      .catch(() => {});
+    fetch(`/api/tax/events?familyId=${encodeURIComponent(familyId)}&type=deadline`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.events?.length) setDeadlines(data.events.map((e: { label: string; eventDate: string; amount?: number; status: string }) => ({
+          label: e.label,
+          date: e.eventDate?.slice(0, 10) ?? "",
+          amount: e.amount ?? null,
+          status: e.status,
+        })));
+      })
+      .catch(() => {});
+  }, [familyId]);
 
   async function handleAnalyze() {
     if (!taxQuery.trim()) return;
@@ -134,6 +179,9 @@ export default function TaxPage() {
 
   const isMock = taxAnalysis?._mock === true;
 
+  // suppress unused import warning
+  void Receipt;
+
   return (
     <div className="flex flex-col h-full">
       <PageHeader
@@ -159,7 +207,7 @@ export default function TaxPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {K1S.map((k, i) => (
+                  {k1s.map((k, i) => (
                     <tr key={i} style={{ borderBottom: "1px solid var(--border-subtle)", background: "var(--bg-surface)" }}>
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-2">
@@ -373,7 +421,7 @@ export default function TaxPage() {
               Filing Calendar
             </h2>
             <div className="grid grid-cols-2 gap-3">
-              {DEADLINES.map((d, i) => (
+              {deadlines.map((d, i) => (
                 <div
                   key={i}
                   className="p-4 rounded-md border"

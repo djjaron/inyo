@@ -97,6 +97,12 @@ export async function GET(req: NextRequest) {
       },
     });
 
+    if (companies.length === 0) {
+      let filtered = MOCK_PORTFOLIO;
+      if (status) filtered = filtered.filter((c) => c.status === status);
+      return NextResponse.json({ companies: filtered, _mock: true });
+    }
+
     return NextResponse.json({ companies });
   } catch {
     let filtered = MOCK_PORTFOLIO;

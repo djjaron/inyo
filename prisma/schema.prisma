@@ -401,3 +401,66 @@ model SPVInvestor {
 
   @@map("spv_investors")
 }
+
+model ConciergeRequest {
+  id        String   @id @default(cuid())
+  familyId  String
+  type      String
+  title     String
+  details   String?
+  status    String   @default("pending")
+  assignee  String   @default("Concierge Agent")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("concierge_requests")
+}
+
+model Grant {
+  id        String    @id @default(cuid())
+  familyId  String
+  org       String
+  category  String?
+  amount    Float
+  year      Int
+  status    String    @default("active")
+  impact    String?
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("grants")
+}
+
+model Pledge {
+  id        String    @id @default(cuid())
+  familyId  String
+  org       String
+  amount    Float
+  remaining Float
+  deadline  DateTime?
+  status    String    @default("active")
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("pledges")
+}
+
+model TaxEvent {
+  id         String    @id @default(cuid())
+  familyId   String
+  label      String
+  eventDate  DateTime
+  amount     Float?
+  status     String    @default("upcoming")
+  type       String    @default("deadline")
+  entityName String?
+  year       Int?
+  filed      Boolean   @default(false)
+  deletedAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@map("tax_events")
+}
