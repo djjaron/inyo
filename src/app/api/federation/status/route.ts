@@ -15,8 +15,8 @@ export async function GET() {
       prisma.agentRun.count(),
       prisma.agentRun.findMany({
         orderBy: { createdAt: "desc" },
-        take: 10,
-        select: { id: true, agentType: true, status: true, createdAt: true, completedAt: true },
+        take: 25,
+        select: { id: true, agentType: true, status: true, familyId: true, createdAt: true, completedAt: true },
       }),
     ]);
   } catch {

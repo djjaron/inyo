@@ -38,6 +38,7 @@ interface RecentRun {
   id: string;
   agentType: string;
   status: string;
+  familyId: string;
   createdAt: string;
   completedAt: string | null;
 }
@@ -97,6 +98,7 @@ export default function FederationPage() {
 
   const [data, setData] = useState<StatusResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [livePolling, setLivePolling] = useState(true);
   const [registering, setRegistering] = useState(false);
   const [registerResult, setRegisterResult] = useState<{ success: boolean; message: string } | null>(null);
   const [syncing, setSyncing] = useState(false);
@@ -122,6 +124,18 @@ export default function FederationPage() {
   useEffect(() => {
     loadStatus();
   }, [loadStatus]);
+
+  // Live-poll every 10s to show incoming Dividen calls in real time
+  useEffect(() => {
+    if (!livePolling) return;
+    const interval = setInterval(() => {
+      fetch("/api/federation/status")
+        .then((r) => r.json())
+        .then((json) => setData(json as StatusResponse))
+        .catch(() => {});
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [livePolling]);
 
   async function handleSyncAgents() {
     setSyncing(true);
@@ -172,6 +186,21 @@ export default function FederationPage() {
         subtitle="Dividen network integration"
         actions={
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => setLivePolling((p) => !p)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded text-sm border transition-colors"
+              style={{
+                background: livePolling ? "rgba(16,185,129,0.08)" : "var(--bg-surface)",
+                borderColor: livePolling ? "rgba(16,185,129,0.3)" : "var(--border)",
+                color: livePolling ? "#10b981" : "var(--text-secondary)",
+              }}
+            >
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${livePolling ? "animate-pulse" : ""}`}
+                style={{ background: livePolling ? "#10b981" : "var(--text-muted)", flexShrink: 0 }}
+              />
+              {livePolling ? "Live" : "Paused"}
+            </button>
             <button
               onClick={loadStatus}
               className="flex items-center gap-1.5 px-3 py-2 rounded text-sm border"
@@ -566,32 +595,45 @@ export default function FederationPage() {
           </div>
         )}
 
-        {/* Recent runs table */}
-        {stats && stats.recentRuns.length > 0 && (
-          <div>
-            <div className="text-xs font-medium tracking-wider uppercase mb-4" style={{ color: "var(--text-muted)" }}>
-              Recent Runs
-            </div>
-            <div
-              className="rounded-md border overflow-hidden"
-              style={{ borderColor: "var(--border)" }}
-            >
-              <table className="w-full text-xs">
-                <thead>
-                  <tr style={{ background: "var(--bg-elevated)", borderBottom: "1px solid var(--border)" }}>
-                    {["Agent Type", "Status", "Started", "Duration"].map((h) => (
-                      <th
-                        key={h}
-                        className="text-left px-4 py-2.5 font-medium"
-                        style={{ color: "var(--text-muted)" }}
-                      >
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {stats.recentRuns.slice(0, 10).map((run) => (
+        {/* Live execution log */}
+        <div>
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-xs font-medium tracking-wider uppercase" style={{ color: "var(--text-muted)" }}>
+              Execution Log
+            </span>
+            {livePolling && (
+              <span className="flex items-center gap-1.5 text-xs" style={{ color: "#10b981" }}>
+                <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#10b981" }} />
+                polling every 10s
+              </span>
+            )}
+            {stats && (
+              <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+                {stats.totalRuns.toLocaleString()} total runs
+              </span>
+            )}
+          </div>
+          <div
+            className="rounded-md border overflow-hidden"
+            style={{ borderColor: "var(--border)" }}
+          >
+            <table className="w-full text-xs">
+              <thead>
+                <tr style={{ background: "var(--bg-elevated)", borderBottom: "1px solid var(--border)" }}>
+                  {["Agent", "Source", "Status", "Duration", "When"].map((h) => (
+                    <th
+                      key={h}
+                      className="text-left px-4 py-2.5 font-medium"
+                      style={{ color: "var(--text-muted)" }}
+                    >
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {stats && stats.recentRuns.length > 0 ? (
+                  stats.recentRuns.map((run) => (
                     <tr
                       key={run.id}
                       style={{ borderBottom: "1px solid var(--border-subtle)", background: "var(--bg-surface)" }}
@@ -600,25 +642,46 @@ export default function FederationPage() {
                         {run.agentType}
                       </td>
                       <td className="px-4 py-3">
+                        <span
+                          className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-mono"
+                          style={{
+                            background: run.familyId === "dividen-external"
+                              ? "rgba(139,92,246,0.1)"
+                              : "rgba(59,130,246,0.1)",
+                            color: run.familyId === "dividen-external" ? "#a78bfa" : "var(--accent)",
+                            border: `1px solid ${run.familyId === "dividen-external" ? "rgba(139,92,246,0.25)" : "rgba(59,130,246,0.2)"}`,
+                            fontSize: "10px",
+                          }}
+                        >
+                          {run.familyId === "dividen-external" ? "dividen" : run.familyId}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
                         <Badge
                           label={run.status}
                           variant={runStatusVariant[run.status] ?? "muted"}
                           size="xs"
                         />
                       </td>
-                      <td className="px-4 py-3" style={{ color: "var(--text-muted)" }}>
-                        {runStarted(run.createdAt)}
-                      </td>
                       <td className="px-4 py-3 font-mono" style={{ color: "var(--text-muted)" }}>
                         {runDuration(run)}
                       </td>
+                      <td className="px-4 py-3" style={{ color: "var(--text-muted)" }}>
+                        {relativeTime(run.createdAt)}
+                      </td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="px-4 py-8 text-center" style={{ color: "var(--text-muted)" }}>
+                      No runs yet — executions from Dividen will appear here automatically
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
