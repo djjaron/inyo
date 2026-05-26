@@ -12,55 +12,73 @@
       "id": "deal-flow",
       "name": "Deal Flow Analyst",
       "description": "Scores and triages inbound investment opportunities for family offices. Returns structured analysis with risks, opportunities, and a 0-100 deal score.",
-      "model": "claude-opus-4-7",
+      "model": "claude-haiku-4-5-20251001",
       "inputFormat": "json",
       "outputFormat": "json",
-      "samplePrompt": {"label": "Score this fintech seed deal", "agentType": "deal-flow", "context": {"company": "Meridian AI", "sector": "Enterprise AI", "stage": "series-b", "capitalAsk": 12000000, "valuation": 85000000, "description": "Vertical LLM for enterprise compliance teams. $8.4M ARR, 3.2x growth YoY."}}
+      "samplePrompts": [
+        {"label": "Score this Series A healthcare AI deal", "agentType": "deal-flow", "context": {"company": "MedSync", "sector": "healthcare", "stage": "series-a", "capitalAsk": 8000000, "valuation": 42000000, "description": "AI-powered clinical documentation platform. $3.2M ARR, 2.8x YoY growth. 40 hospital customers."}},
+        {"label": "Triage this fintech seed deal", "agentType": "deal-flow", "context": {"company": "PayFlow", "sector": "fintech", "stage": "seed", "capitalAsk": 3000000, "valuation": 15000000, "description": "Real-time B2B payment rails for mid-market. Pre-revenue, strong founder pedigree, Stripe alum."}}
+      ]
     },
     {
       "id": "ic-memo",
       "name": "IC Memo Writer",
       "description": "Generates institutional-quality investment committee memos with SWOT analysis, financials, team assessment, and recommendation.",
-      "model": "claude-opus-4-7",
+      "model": "claude-haiku-4-5-20251001",
       "inputFormat": "json",
       "outputFormat": "json",
-      "samplePrompt": {"label": "Generate IC memo for Series B deal", "agentType": "ic-memo", "context": {"company": "Meridian AI", "description": "Enterprise compliance LLM. $8.4M ARR.", "team": "Sarah Chen CEO (ex-Palantir), Marcus Webb CTO (ex-Two Sigma)"}}
+      "samplePrompts": [
+        {"label": "Write IC memo for Meridian AI Series B", "agentType": "ic-memo", "context": {"company": "Meridian AI", "stage": "series-b", "capitalAsk": 12000000, "valuation": 85000000, "description": "Enterprise compliance LLM. $8.4M ARR, 3.2x YoY growth. 74% gross margin.", "team": "Sarah Chen CEO (ex-Palantir, Stanford CS), Marcus Webb CTO (ex-Two Sigma, MIT EECS)", "sector": "enterprise-ai"}},
+        {"label": "Write IC memo for climate tech growth deal", "agentType": "ic-memo", "context": {"company": "Volta Energy", "stage": "series-c", "capitalAsk": 25000000, "valuation": 180000000, "description": "Grid-scale battery storage. 3 GWh deployed, PPA backlog of $400M. Profitable at unit level.", "team": "Maria Santos CEO (ex-Tesla Energy), James Okafor CTO (ex-NREL)", "sector": "climate-tech"}}
+      ]
     },
     {
       "id": "portfolio-monitor",
       "name": "Portfolio Monitor",
       "description": "Watches existing investments for material changes: funding events, executive departures, burn rate changes, press coverage, and legal issues.",
-      "model": "claude-opus-4-7",
+      "model": "claude-haiku-4-5-20251001",
       "inputFormat": "json",
       "outputFormat": "json",
-      "samplePrompt": {"label": "Monitor portfolio company health", "agentType": "portfolio-monitor", "context": {"name": "Volta Energy", "sector": "Climate Tech", "investedAmount": 8000000, "currentValue": 6200000, "alertLevel": "watch"}}
+      "samplePrompts": [
+        {"label": "Check Volta Energy quarterly health", "agentType": "portfolio-monitor", "context": {"name": "Volta Energy", "sector": "climate-tech", "investedAmount": 8000000, "currentValue": 6200000, "alertLevel": "watch", "lastUpdate": "Revenue growth slowed to 1.4x, CFO departure announced last month"}},
+        {"label": "Monitor Meridian AI status", "agentType": "portfolio-monitor", "context": {"name": "Meridian AI", "sector": "enterprise-ai", "investedAmount": 12000000, "currentValue": 18500000, "alertLevel": "healthy", "lastUpdate": "Closed $22M Series C, expanded to EU market, NRR now 142%"}}
+      ]
     },
     {
       "id": "cfo",
       "name": "CFO Agent",
       "description": "Analyzes entity-level cash flows, liquidity positions, payables, and capital call schedules for a family office.",
-      "model": "claude-opus-4-7",
+      "model": "claude-haiku-4-5-20251001",
       "inputFormat": "json",
       "outputFormat": "json",
-      "samplePrompt": {"label": "Summarize cash position across entities", "agentType": "cfo", "context": {"query": "What is our current liquidity position?", "entities": []}}
+      "samplePrompts": [
+        {"label": "Summarize cash position across all entities", "agentType": "cfo", "context": {"query": "What is our current liquidity position and burn across all entities?", "entities": [{"name": "Hartwell Family LLC", "cash": 12400000}, {"name": "Hartwell Cayman LP", "cash": 28600000}, {"name": "HW Operating Co", "cash": 3950000}]}},
+        {"label": "What capital calls are due this quarter?", "agentType": "cfo", "context": {"query": "Summarize all capital calls and payables due in Q2 2025", "entities": [], "pendingCalls": [{"fund": "Phalanx Ventures III", "amount": 2000000, "due": "2025-06-15"}, {"fund": "Arcadia Energy Fund II", "amount": 750000, "due": "2025-05-30"}]}}
+      ]
     },
     {
       "id": "legal",
       "name": "Legal Review Agent",
       "description": "Reviews legal documents (SAFEs, NDAs, LP agreements, term sheets) for risk flags, unusual clauses, and compliance issues. Legal spotting only — not legal advice.",
-      "model": "claude-opus-4-7",
+      "model": "claude-haiku-4-5-20251001",
       "inputFormat": "json",
       "outputFormat": "json",
-      "samplePrompt": {"label": "Review SAFE note for risk flags", "agentType": "legal", "context": {"documentName": "Meridian AI SAFE", "documentContent": "SAFE Note — $12M at $85M pre-money cap with MFN and pro-rata rights..."}}
+      "samplePrompts": [
+        {"label": "Review this SAFE note for risk flags", "agentType": "legal", "context": {"documentName": "Meridian AI SAFE Note", "documentType": "safe", "documentContent": "SAFE Note — $12M investment at $85M pre-money valuation cap. MFN clause included. Pro-rata rights on next priced round. IP assignment clause: all work product including work outside employment scope that reasonably relates to company business is assigned to company. Indemnification: unlimited, no cap. Governing law: Delaware.", "counterparty": "Meridian AI Inc."}},
+        {"label": "Flag issues in this LP agreement", "agentType": "legal", "context": {"documentName": "Phalanx Ventures III LP Agreement", "documentType": "lpa", "documentContent": "Limited Partnership Agreement. GP carry: 25% (above market, standard is 20%). Clawback provision: none. Key-man clause: only triggered if both managing partners depart simultaneously. Management fee: 2.5% on committed capital for full 10-year term (no step-down). Advisory committee quorum: GP can override with 30-day notice.", "counterparty": "Phalanx GP LLC"}}
+      ]
     },
     {
       "id": "tax",
       "name": "Tax Intelligence Agent",
       "description": "Organizes K-1 income, tracks filing deadlines, estimates tax liabilities, and surfaces deduction opportunities for multi-entity family offices.",
-      "model": "claude-opus-4-7",
+      "model": "claude-haiku-4-5-20251001",
       "inputFormat": "json",
       "outputFormat": "json",
-      "samplePrompt": {"label": "Summarize 2025 tax position", "agentType": "tax", "context": {"query": "What is my estimated 2025 federal tax liability?", "k1s": []}}
+      "samplePrompts": [
+        {"label": "Summarize my 2025 federal tax position", "agentType": "tax", "context": {"query": "What is my estimated 2025 federal and state tax liability?", "taxYear": 2025, "k1s": [{"fund": "Phalanx Ventures III", "ordinaryIncome": 180000, "capitalGains": 420000, "received": true}, {"fund": "Arcadia Energy Fund II", "ordinaryIncome": 95000, "capitalGains": 0, "received": false}], "otherIncome": 850000}},
+        {"label": "What K-1s are pending for 2025?", "agentType": "tax", "context": {"query": "Which K-1s haven't arrived yet and what are the filing implications?", "taxYear": 2025, "expectedK1s": ["Phalanx Ventures III", "Arcadia Energy Fund II", "Terrace REIT", "Blue Horizon Opportunity Fund"]}}
+      ]
     },
     {
       "id": "chief-of-staff",
@@ -69,7 +87,10 @@
       "model": "claude-haiku-4-5-20251001",
       "inputFormat": "json",
       "outputFormat": "json",
-      "samplePrompt": {"label": "Coordinate Aspen trip for 6 guests", "agentType": "chief-of-staff", "context": {"request": "Arrange Aspen trip for 6 guests, weekend of June 14-16", "type": "travel"}}
+      "samplePrompts": [
+        {"label": "Plan Aspen trip for 6 guests this June", "agentType": "chief-of-staff", "context": {"request": "Arrange Aspen trip for the family and 3 guests, weekend of June 14-16. Private jet preferred. Need ski-in/ski-out accommodations, dinner reservations, and spa bookings.", "type": "travel", "guests": 6, "budget": "unconstrained"}},
+        {"label": "Prep board meeting agenda for Thursday", "agentType": "chief-of-staff", "context": {"request": "Prepare agenda and briefing materials for Thursday's board meeting. Topics: Q1 portfolio review, two new investment proposals, LP advisory committee update.", "type": "meeting-prep", "date": "2025-06-12", "attendees": ["Jon Hartwell", "Sarah Chen", "Board members x4"]}}
+      ]
     },
     {
       "id": "concierge",
@@ -78,7 +99,10 @@
       "model": "claude-haiku-4-5-20251001",
       "inputFormat": "json",
       "outputFormat": "json",
-      "samplePrompt": {"label": "Book restaurant for 4 this weekend", "agentType": "concierge", "context": {"request": "Book Nobu Malibu for 4 this Saturday at 8pm", "type": "dining"}}
+      "samplePrompts": [
+        {"label": "Book Nobu Malibu for 4 this Saturday", "agentType": "concierge", "context": {"request": "Book Nobu Malibu for 4 people this Saturday at 8pm. If not available, try Nobu Downtown or Matsuhisa Beverly Hills. Preference for private or semi-private seating.", "type": "dining", "date": "2025-05-31", "guests": 4}},
+        {"label": "Schedule maintenance at Aspen property", "agentType": "concierge", "context": {"request": "The Aspen house needs pre-summer maintenance: HVAC service, pool opening, exterior pressure wash, and fireplace inspection. Schedule all vendors for the week of June 2.", "type": "property", "property": "Aspen Mountain Residence", "urgency": "normal"}}
+      ]
     },
     {
       "id": "philanthropy",
@@ -87,7 +111,10 @@
       "model": "claude-haiku-4-5-20251001",
       "inputFormat": "json",
       "outputFormat": "json",
-      "samplePrompt": {"label": "Summarize giving impact this year", "agentType": "philanthropy", "context": {"query": "What has been our foundation impact this year?"}}
+      "samplePrompts": [
+        {"label": "Summarize foundation giving impact this year", "agentType": "philanthropy", "context": {"query": "What has been our foundation's total giving and impact in 2025 so far?", "grants": [{"grantee": "Khan Academy", "amount": 250000, "focus": "education"}, {"grantee": "Nature Conservancy", "amount": 500000, "focus": "environment"}, {"grantee": "Girls Who Code", "amount": 150000, "focus": "stem-education"}]}},
+        {"label": "What grant obligations are due in Q3?", "agentType": "philanthropy", "context": {"query": "List all grant commitments and pledge payments due in Q3 2025 with amounts and grantee details.", "pledges": [{"grantee": "Stanford d.school", "totalPledge": 1000000, "paid": 500000, "nextPayment": "2025-09-01", "nextAmount": 250000}]}}
+      ]
     },
     {
       "id": "relationships",
@@ -96,34 +123,46 @@
       "model": "claude-haiku-4-5-20251001",
       "inputFormat": "json",
       "outputFormat": "json",
-      "samplePrompt": {"label": "Find warm path to Andreessen Horowitz", "agentType": "relationships", "context": {"query": "Who do I know at Andreessen Horowitz?", "contacts": []}}
+      "samplePrompts": [
+        {"label": "Who do I know at Sequoia Capital?", "agentType": "relationships", "context": {"query": "Find all direct and second-degree connections to Sequoia Capital partners and staff", "target": "Sequoia Capital", "contacts": [{"name": "Sarah Chen", "company": "Meridian AI", "relationship": "portfolio-ceo"}, {"name": "Mike Moritz", "company": "Sequoia", "relationship": "LP-contact"}]}},
+        {"label": "Find warm path to Stripe leadership", "agentType": "relationships", "context": {"query": "Who in my network has the strongest connection to Patrick Collison or Stripe's executive team?", "target": "Stripe / Patrick Collison", "contacts": []}}
+      ]
     },
     {
       "id": "deal-enrichment",
       "name": "Deal Enrichment Analyst",
       "description": "Scores deals using web signals, LinkedIn founder profiles, and Crunchbase funding history. Returns affinity, risk, and fundability scores.",
-      "model": "claude-opus-4-7",
+      "model": "claude-haiku-4-5-20251001",
       "inputFormat": "json",
       "outputFormat": "json",
-      "samplePrompt": {"label": "Enrich seed deal with web signals", "agentType": "deal-enrichment", "context": {"company": "Meridian AI", "website": "https://meridian.ai", "linkedinUrl": "https://linkedin.com/in/sarahchen", "description": "Enterprise compliance LLM"}}
+      "samplePrompts": [
+        {"label": "Enrich MedSync with web signals", "agentType": "deal-enrichment", "context": {"company": "MedSync", "website": "https://medsync.ai", "description": "AI clinical documentation for hospitals", "founderLinkedIn": "https://linkedin.com/in/dr-james-park", "sector": "healthtech", "stage": "series-a"}},
+        {"label": "Research PayFlow founder background", "agentType": "deal-enrichment", "context": {"company": "PayFlow", "website": "https://payflow.com", "description": "Real-time B2B payment rails", "founderLinkedIn": "https://linkedin.com/in/alex-rodriguez-payments", "sector": "fintech", "stage": "seed"}}
+      ]
     },
     {
       "id": "term-sheet",
       "name": "Term Sheet Analyst",
       "description": "Extracts and compares investment term sheets. Flags non-standard terms, liquidation preferences, anti-dilution, and board composition.",
-      "model": "claude-opus-4-7",
+      "model": "claude-haiku-4-5-20251001",
       "inputFormat": "json",
       "outputFormat": "json",
-      "samplePrompt": {"label": "Extract terms from Series B term sheet", "agentType": "term-sheet", "documents": [{"name": "Meridian AI Series B Term Sheet", "content": "Pre-money valuation: $85M. Investment: $12M. Liquidation preference: 1x non-participating..."}]}
+      "samplePrompts": [
+        {"label": "Extract terms from Meridian AI Series B sheet", "agentType": "term-sheet", "documents": [{"name": "Meridian AI Series B Term Sheet", "content": "Pre-money valuation: $85M. Investment: $12M Series B Preferred. Liquidation preference: 1x non-participating. Anti-dilution: broad-based weighted average. Board: 2 investor seats, 2 founder seats, 1 independent. Pro-rata rights: yes on next round. Drag-along: majority of Series B can trigger. Closing conditions: completion of legal diligence, board approval. No-shop: 45 days."}]},
+        {"label": "Compare two competing term sheets", "agentType": "term-sheet", "documents": [{"name": "Term Sheet A — Sequoia", "content": "Pre-money: $90M. Check: $15M. 1x non-participating liquidation. Board: 1 seat. Pro-rata: yes. No-shop: 30 days."}, {"name": "Term Sheet B — a16z", "content": "Pre-money: $85M. Check: $20M. 1.5x participating liquidation preference. Board: 2 seats plus observer. Pro-rata: yes. No-shop: 45 days. Information rights: monthly."}]}
+      ]
     },
     {
       "id": "diligence",
       "name": "Diligence Agent",
       "description": "Reviews deal diligence checklists with AI analysis. Flags gaps, confirms findings, and surfaces red flags.",
-      "model": "claude-opus-4-7",
+      "model": "claude-haiku-4-5-20251001",
       "inputFormat": "json",
       "outputFormat": "json",
-      "samplePrompt": {"label": "Run diligence checklist on Series B deal", "agentType": "diligence", "context": {"company": "Meridian AI", "checklistItems": [{"id": "1", "question": "ARR growth above 100%?"}]}}
+      "samplePrompts": [
+        {"label": "Run diligence checklist on Meridian AI Series B", "agentType": "diligence", "context": {"company": "Meridian AI", "stage": "series-b", "checklistItems": [{"id": "1", "question": "ARR growth above 100% YoY?", "answer": "$8.4M ARR, grew from $2.6M — 3.2x growth"}, {"id": "2", "question": "Customer concentration under 30%?", "answer": "Top 3 customers = 67% of ARR — CONCENTRATION RISK"}, {"id": "3", "question": "Founder prior exit or domain expertise?", "answer": "CEO prior exit $180M, CTO ex-Two Sigma quant"}, {"id": "4", "question": "IP assignment clean?", "answer": "All IP cleanly assigned, no moonlighting issues found"}, {"id": "5", "question": "Any pending litigation?", "answer": "None identified in public records"}]}},
+        {"label": "Flag red flags in seed deal diligence", "agentType": "diligence", "context": {"company": "PayFlow", "stage": "seed", "checklistItems": [{"id": "1", "question": "Cap table clean?", "answer": "3 departed co-founders holding 18% combined with no vesting cliff — RISK"}, {"id": "2", "question": "Product demo reviewed?", "answer": "Demo reviewed — MVP stage, no production customers yet"}, {"id": "3", "question": "Reference calls completed?", "answer": "2 of 3 references checked — one reference did not respond"}]}}
+      ]
     }
   ]
 }
