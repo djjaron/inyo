@@ -53,6 +53,7 @@ For each deal, you:
       relevance: agentType === "deal-flow" ? 1.0 : 0.0,
       content: `Return ONLY a JSON object with EXACTLY these fields — no extra keys, no nesting beyond what is shown:
 {
+  "_preview": "Score <score>/100 · <RECOMMENDATION> — <company>: <one sentence summary>",
   "score": <integer 0-100>,
   "recommendation": "pass" | "review" | "pursue",
   "summary": "<2-3 sentence opportunity summary>",
@@ -73,6 +74,7 @@ For each deal, you:
       relevance: agentType === "ic-memo" ? 1.0 : 0.0,
       content: `Return a JSON object with EXACTLY these camelCase field names:
 {
+  "_preview": "IC Memo: <company> (<stage>) — <one-sentence recommendation>",
   "executiveSummary": "2-3 sentence summary",
   "companyOverview": "company background, founding, location, product",
   "marketOpportunity": "market size, growth, dynamics",
@@ -110,6 +112,7 @@ Monitor for:
       relevance: agentType === "portfolio-monitor" ? 1.0 : 0.0,
       content: `Return ONLY a JSON object with EXACTLY these fields:
 {
+  "_preview": "Health <healthScore>/100 · <OVERALLSTATUS> — <company>: <one sentence summary>",
   "healthScore": <integer 0-100>,
   "overallStatus": "healthy" | "monitor" | "watch" | "critical",
   "recommendation": "hold" | "monitor" | "watch" | "divest",
@@ -141,7 +144,7 @@ Provide:
     {
       id: "schema_cfo",
       relevance: agentType === "cfo" ? 1.0 : 0.0,
-      content: `Return JSON: { summary: string, liquidityStatus: "healthy"|"watch"|"critical", insights: string[], recommendations: string[], alerts?: string[] }`,
+      content: `Return JSON: { "_preview": "CFO: <LIQUIDITYSTATUS> — <one-line cash summary>", summary: string, liquidityStatus: "healthy"|"watch"|"critical", insights: string[], recommendations: string[], alerts?: string[] }`,
     },
     {
       id: "domain_legal",
@@ -164,6 +167,7 @@ Flag:
       relevance: agentType === "legal" ? 1.0 : 0.0,
       content: `Return ONLY a JSON object with EXACTLY these fields:
 {
+  "_preview": "Legal: <documentType> · <RISKLEVEL> risk — <one-sentence finding>",
   "documentType": "<type e.g. SAFE Note, NDA, LP Agreement>",
   "riskLevel": "low" | "medium" | "high",
   "summary": "<2-3 sentence document summary>",
@@ -190,6 +194,7 @@ Handle:
       relevance: agentType === "tax" ? 1.0 : 0.0,
       content: `Return ONLY a JSON object with EXACTLY these fields:
 {
+  "_preview": "Tax <taxYear>: Est. $<total liability> liability — <one-line summary>",
   "taxYear": <integer year>,
   "summary": "<2-3 sentence tax position summary>",
   "estimatedLiability": { "federal": <number>, "state": <number>, "total": <number> },
@@ -216,6 +221,7 @@ Responsibilities:
       relevance: agentType === "chief-of-staff" ? 1.0 : 0.0,
       content: `Return ONLY a JSON object with EXACTLY these fields:
 {
+  "_preview": "CoS: <one-sentence acknowledgment of request>",
   "acknowledgment": "<one sentence confirming what you will do>",
   "actionPlan": ["<step 1>", "<step 2>", "<step 3>"],
   "timeline": "<when things will happen>",
@@ -240,7 +246,7 @@ Handle:
       id: "schema_concierge",
       relevance: agentType === "concierge" ? 1.0 : 0.0,
       content:
-        "Return JSON with: requestType, summary, steps, vendors, timeline, status.",
+        'Return JSON with: { "_preview": "Concierge: <requestType> — <status>: <one-line summary>", requestType, summary, steps, vendors, timeline, status }.',
     },
     {
       id: "domain_philanthropy",
@@ -260,6 +266,7 @@ Handle:
       relevance: agentType === "philanthropy" ? 1.0 : 0.0,
       content: `Return ONLY a JSON object with EXACTLY these fields:
 {
+  "_preview": "Philanthropy: <one-line impact or obligation summary>",
   "summary": "<2-3 sentence philanthropy summary>",
   "impactHighlights": ["<highlight 1>", "<highlight 2>"],
   "recommendations": ["<recommendation 1>", "<recommendation 2>"],
@@ -285,6 +292,7 @@ Answer questions about:
       relevance: agentType === "relationships" ? 1.0 : 0.0,
       content: `Return ONLY a JSON object with EXACTLY these fields:
 {
+  "_preview": "Network: <direct one-sentence answer to the query>",
   "answer": "<direct answer to the query>",
   "contacts": ["<name 1>", "<name 2>"],
   "suggestedActions": ["<action 1>", "<action 2>"],
@@ -319,6 +327,7 @@ For EACH term sheet, extract:
       relevance: agentType === "term-sheet" ? 1.0 : 0.0,
       content: `Return JSON with EXACTLY:
 {
+  "_preview": "Term Sheet: <mostFavorable> preferred — <one-sentence recommendation>",
   "sheets": [
     {
       "label": "Term Sheet 1",
@@ -355,6 +364,7 @@ For EACH term sheet, extract:
       relevance: agentType === "diligence" ? 1.0 : 0.0,
       content: `Return a JSON object with this structure:
 {
+  "_preview": "Diligence: <company> — <one-line summary>, <N> red flags",
   "items": [
     { "id": "item-id", "answer": "concise answer or finding", "status": "complete" | "flagged" | "pending", "flag": "optional brief reason if flagged" }
   ],
@@ -382,6 +392,7 @@ Risk factor sources you consider: company website credibility, LinkedIn founder 
       relevance: agentType === "deal-enrichment" ? 1.0 : 0.0,
       content: `Return a JSON object with EXACTLY these fields:
 {
+  "_preview": "Enrichment: <company> — Affinity <affinityScore>/100 · Risk <riskScore>/100 · Fundability <fundabilityScore>/100",
   "affinityScore": number (0-100),
   "riskScore": number (0-100),
   "fundabilityScore": number (0-100),
