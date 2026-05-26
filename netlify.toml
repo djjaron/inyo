@@ -10,6 +10,8 @@
 
 [functions]
   included_files = ["prisma/**"]
+  node_bundler = "nft"
+  timeout = 30
 
 [[headers]]
   for = "/api/federation/*"
