@@ -609,6 +609,7 @@ For each loan, analyze:
   "netRunwayExtensionMonths": <number>,
   "tranches": [{ "label": "<string>", "amount": <number>, "drawDate": "<string>", "repaymentSchedule": "<string>", "monthlyPayment": <number> }],
   "monthlyScheduleSummary": [{ "month": <number>, "principal": <number>, "interest": <number>, "fees": <number>, "totalPayment": <number>, "balance": <number> }],
+  // IMPORTANT: Include only months 1, 6, 12, 18, 24, 30, 36 (or all months if term ≤ 12). Max 8 entries.
   "warrantCoverage": { "pct": <number or null>, "shares": <number or null>, "dilutiveImpact": "<string or null>" },
   "covenants": [{ "name": "<string>", "threshold": "<string>", "riskLevel": "low" | "medium" | "high" }],
   "flags": ["<flag>"],
