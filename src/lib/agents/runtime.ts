@@ -191,8 +191,15 @@ const DEEP_ANALYSIS_AGENTS = new Set<AgentType>([
   "deal-flow", "ic-memo", "portfolio-monitor", "legal", "tax", "cfo", "deal-enrichment", "term-sheet", "diligence",
 ]);
 
+const HIGH_TOKEN_AGENTS = new Set<AgentType>(["term-loan", "cap-table", "saas-model"]);
+
 function getModel(agentType: AgentType): string {
   return DEEP_ANALYSIS_AGENTS.has(agentType) ? MODEL_DEEP : MODEL_FAST;
+}
+
+function getMaxTokens(agentType: AgentType, override?: number): number {
+  if (override) return override;
+  return HIGH_TOKEN_AGENTS.has(agentType) ? 8192 : 4096;
 }
 
 function parseAgentText(text: string): Record<string, unknown> {
@@ -224,7 +231,7 @@ export async function runAgent(input: AgentInput): Promise<AgentOutput> {
   const systemPrompt = systemPromptOverride ?? buildSystemPrompt(agentType, context);
   const userContent = buildUserContent(agentType, context, documents);
   const model = modelOverride ?? getModel(agentType);
-  const maxTokens = maxTokensOverride ?? 4096;
+  const maxTokens = getMaxTokens(agentType, maxTokensOverride);
 
   let runId: string | undefined;
   try {
