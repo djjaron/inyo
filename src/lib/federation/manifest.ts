@@ -159,7 +159,7 @@ const CAPABILITIES: AgentCapability[] = [
   {
     type: "startup-kit" satisfies AgentType,
     name: "Texas Startup Navigator",
-    description: "Guides Texas founders through S3 Ventures' startup ecosystem: communities, events, media, accelerators",
+    description: "Guides Texas founders through the startup ecosystem: communities, events, media, accelerators",
     model: "fast",
   },
 ];

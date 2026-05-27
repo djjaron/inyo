@@ -219,7 +219,8 @@ export async function registerInstance(manifest: InstanceManifest): Promise<Regi
       body: JSON.stringify({
         name: manifest.name,
         description: manifest.description,
-        url: INSTANCE_URL,
+        baseUrl: INSTANCE_URL,
+        apiKey: PLATFORM_TOKEN,
         version: manifest.version,
         tags: manifest.tags,
         endpoints: manifest.endpoints,

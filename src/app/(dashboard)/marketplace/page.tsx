@@ -71,7 +71,7 @@ const ALL_AGENTS: AgentDef[] = [
   { id: "relationships",   name: "Relationship Intelligence", description: "Network graph, warm path finder, and interaction history",            icon: "Users",        category: "Operations",  href: "/relationships" },
   { id: "philanthropy",    name: "Philanthropy Advisor",   description: "Impact analysis, grant recommendations, and giving optimization",        icon: "Heart",        category: "Operations",  href: "/philanthropy" },
 
-  // ── Venture Tools (S3) ─────────────────────────────────────────────────────
+  // ── Venture Tools ──────────────────────────────────────────────────────────
   { id: "unit-economics",  name: "Unit Economics",         description: "Cohort analysis — logo churn, NDR, and renewal rates by vintage",       icon: "TrendingUp",   category: "Venture Tools", href: "/tools/unit-economics" },
   { id: "saas-model",      name: "SaaS Financial Model",   description: "3-statement IS/BS/CF model for fundraising readiness",                  icon: "BarChart3",    category: "Venture Tools", href: "/tools/saas-model" },
   { id: "cap-table",       name: "Cap Table Analyzer",     description: "SAFEs, convertible notes, shadow securities, and pro-rata",             icon: "PieChart",     category: "Venture Tools", href: "/tools/cap-table" },
@@ -169,7 +169,7 @@ export default function MarketplacePage() {
         <span className="mx-1">·</span>
         <span>0 premium packs installed</span>
         <span className="mx-1">·</span>
-        <span style={{ color: "var(--accent)" }}>Venture Tools by S3</span>
+        <span style={{ color: "var(--accent)" }}>Venture Tools</span>
       </div>
 
       <div className="flex-1 overflow-auto p-8">

@@ -167,7 +167,7 @@
     {
       "id": "unit-economics",
       "name": "Unit Economics Analyst",
-      "description": "Applies S3 Ventures' cohort-analysis methodology to evaluate unit economics. Groups customers by acquisition timing to calculate logo churn, gross dollar churn, NDR, CAC, LTV, payback period, and LTV:CAC ratio.",
+      "description": "Cohort analysis of unit economics — groups customers by acquisition timing to calculate logo churn, gross dollar churn, NDR, CAC, LTV, payback period, and LTV:CAC ratio.",
       "model": "claude-haiku-4-5-20251001",
       "inputFormat": "json",
       "outputFormat": "json",
@@ -179,7 +179,7 @@
     {
       "id": "saas-model",
       "name": "SaaS Operating Model Analyst",
-      "description": "Builds S3 Ventures' 3-statement financial model (Income Statement, Balance Sheet, Cash Flow) from minimal inputs. Answers: 'How much money do you need, and how far will it get you?' for investor due diligence.",
+      "description": "Builds a 3-statement financial model (Income Statement, Balance Sheet, Cash Flow) from minimal inputs. Answers: 'How much money do you need, and how far will it get you?' for investor due diligence.",
       "model": "claude-haiku-4-5-20251001",
       "inputFormat": "json",
       "outputFormat": "json",
@@ -191,7 +191,7 @@
     {
       "id": "cap-table",
       "name": "Cap Table Analyst",
-      "description": "Analyzes capitalization tables across all S3 Ventures-supported security types: common, preferred, convertible notes, SAFEs (pre/post-money), options, warrants, and shadow securities. Models dilution, waterfall, and funding method impact.",
+      "description": "Analyzes capitalization tables across all security types: common, preferred, convertible notes, SAFEs (pre/post-money), options, warrants, and shadow securities. Models dilution, waterfall, and funding method impact.",
       "model": "claude-haiku-4-5-20251001",
       "inputFormat": "json",
       "outputFormat": "json",
@@ -203,7 +203,7 @@
     {
       "id": "term-loan",
       "name": "Term Loan Analyst",
-      "description": "Evaluates venture debt using S3 Ventures' term loan calculator. Produces complete monthly principal/interest/fee schedule, handles multi-tranche facilities and warrant coverage (equity fees), computes total cash cost and net runway extension.",
+      "description": "Evaluates venture debt financing. Produces a complete monthly principal/interest/fee schedule, handles multi-tranche facilities and warrant coverage (equity fees), computes total cash cost and net runway extension.",
       "model": "claude-haiku-4-5-20251001",
       "inputFormat": "json",
       "outputFormat": "json",
@@ -215,7 +215,7 @@
     {
       "id": "sales-forecast",
       "name": "Sales Forecast Analyst",
-      "description": "Applies S3 Ventures' three-element board communication framework: Closed deals, End-of-quarter scenario ranges (Commit / Most Likely / Best Case), and Pipeline changes (slipped and lost deals with reasons). Built for early-stage SaaS board presentations.",
+      "description": "Three-element board communication framework: Closed deals, End-of-quarter scenario ranges (Commit / Most Likely / Best Case), and Pipeline changes (slipped and lost deals with reasons). Built for early-stage SaaS board presentations.",
       "model": "claude-haiku-4-5-20251001",
       "inputFormat": "json",
       "outputFormat": "json",
@@ -227,7 +227,7 @@
     {
       "id": "sales-quota",
       "name": "Sales Quota Analyst",
-      "description": "Applies S3 Ventures' quota capacity planning methodology. Analyzes whether the company has enough quota-carrying reps hired, trained, and productive to hit plan. Covers ramp-adjusted capacity, attrition modeling, hiring gap, and per-rep attainment distribution for board review.",
+      "description": "Quota capacity planning analysis. Evaluates whether the company has enough quota-carrying reps hired, trained, and productive to hit plan. Covers ramp-adjusted capacity, attrition modeling, hiring gap, and per-rep attainment distribution for board review.",
       "model": "claude-haiku-4-5-20251001",
       "inputFormat": "json",
       "outputFormat": "json",
@@ -239,7 +239,7 @@
     {
       "id": "cash-management",
       "name": "Cash Management Advisor",
-      "description": "Applies S3 Ventures' treasury best practices: FDIC exposure via IntraFi ICS, 2+ banking relationships, board-approved investment policy, tiered cash allocation, sweep accounts, credit lines. Priority order: preserve → ensure availability → generate income.",
+      "description": "Treasury and banking best practices: FDIC exposure via IntraFi ICS, 2+ banking relationships, board-approved investment policy, tiered cash allocation, sweep accounts, credit lines. Priority order: preserve → ensure availability → generate income.",
       "model": "claude-haiku-4-5-20251001",
       "inputFormat": "json",
       "outputFormat": "json",
@@ -251,7 +251,7 @@
     {
       "id": "venture-stagger",
       "name": "Venture Stagger Analyst",
-      "description": "Applies S3 Ventures' stagger chart methodology — tracks monthly snapshots of rolling forecasts vs. Annual Operating Plan (AOP) over time. Produces the agility/accountability/manageability analysis and board-ready tables for executive presentations. NOT a fundraising dilution tool.",
+      "description": "Stagger chart methodology — tracks monthly snapshots of rolling forecasts vs. Annual Operating Plan (AOP) over time. Produces the agility/accountability/manageability analysis and board-ready tables for executive presentations. NOT a fundraising dilution tool.",
       "model": "claude-haiku-4-5-20251001",
       "inputFormat": "json",
       "outputFormat": "json",
@@ -263,7 +263,7 @@
     {
       "id": "option-grants",
       "name": "Option Grants Advisor",
-      "description": "Applies S3 Ventures' three-template option grants framework: Option Policy Matrix (grant sizes by role), Option Budget (pool utilization tracking), and Board Option Grant Approvals. Identifies pool top-up needs and 409A compliance. Not a vesting ledger.",
+      "description": "Three-template option grants framework: Option Policy Matrix (grant sizes by role), Option Budget (pool utilization tracking), and Board Option Grant Approvals. Identifies pool top-up needs and 409A compliance. Not a vesting ledger.",
       "model": "claude-haiku-4-5-20251001",
       "inputFormat": "json",
       "outputFormat": "json",
@@ -275,7 +275,7 @@
     {
       "id": "startup-kit",
       "name": "Texas Startup Navigator",
-      "description": "S3 Ventures' Texas entrepreneur guide. Matches founders to communities (Capital Factory, Rice Alliance, Houston Exponential), events (SXSW, Texas Venture Fest, Venture Dallas), local media, and funding sources (Antler, Techstars, MassChallenge, Health Wildcatters) across Austin, Dallas, Houston, and San Antonio.",
+      "description": "Texas startup ecosystem guide. Matches founders to communities (Capital Factory, Rice Alliance, Houston Exponential), events (SXSW, Texas Venture Fest, Venture Dallas), local media, and funding sources (Antler, Techstars, MassChallenge, Health Wildcatters) across Austin, Dallas, Houston, and San Antonio.",
       "model": "claude-haiku-4-5-20251001",
       "inputFormat": "json",
       "outputFormat": "json",

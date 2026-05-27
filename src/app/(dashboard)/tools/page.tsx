@@ -156,7 +156,7 @@ export default function ToolsPage() {
     <div className="flex flex-col h-full" style={{ background: "var(--bg-base)" }}>
       <PageHeader
         title="Venture Agents"
-        subtitle="S3-powered. 10 specialized agents delivering financial models, equity analysis, and startup intelligence."
+        subtitle="10 specialized financial analysis and intelligence agents"
       />
 
       {/* Banner */}
@@ -173,8 +173,7 @@ export default function ToolsPage() {
         }}
       >
         <span style={{ color: "var(--accent)", fontWeight: 600 }}>Venture Agents</span>
-        {" — "}Powered by S3 methodology. 10 specialized agents delivering financial models,
-        equity analysis, and startup intelligence. Each agent is a professional service
+        {" — "}Financial models, equity analysis, and startup intelligence — built for founders and investors. Each agent is a professional service
         workspace, not a calculator form.
       </div>
 
