@@ -1,0 +1,503 @@
+- generic [active] [ref=e1]:
+  - main [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - link "⬡ DiviDen" [ref=e6] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e7]: ⬡
+          - generic [ref=e8]: DiviDen
+        - generic [ref=e9]:
+          - generic [ref=e10]: Open Source
+          - generic [ref=e11]: —
+          - link "Fork it, build on it, make it yours" [ref=e12] [cursor=pointer]:
+            - /url: https://github.com/Denominator-Ventures/dividen
+          - button "✕" [ref=e13] [cursor=pointer]
+        - generic [ref=e14]:
+          - button "Search ⌘K" [ref=e15] [cursor=pointer]:
+            - img [ref=e16]
+            - generic [ref=e19]: Search
+            - generic [ref=e20]: ⌘K
+          - generic [ref=e21]:
+            - button "🔄 Catch Up" [ref=e22] [cursor=pointer]:
+              - generic [ref=e23]: 🔄
+              - generic [ref=e24]: Catch Up
+            - button "Configure catch-up signals" [ref=e25] [cursor=pointer]:
+              - img [ref=e26]
+          - button "99+" [ref=e6404] [cursor=pointer]:
+            - img [ref=e31]
+            - generic [ref=e164]: 99+
+          - button "Your Profile" [ref=e35] [cursor=pointer]:
+            - img [ref=e36]
+          - link "Settings" [ref=e39] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e40]
+          - button "Sign Out" [ref=e43] [cursor=pointer]:
+            - img [ref=e44]
+      - generic [ref=e47]:
+        - generic [ref=e49]:
+          - generic [ref=e50]:
+            - generic [ref=e51]:
+              - heading "⚡ NOW" [level=2] [ref=e52]
+              - generic [ref=e53]: Dynamic
+            - generic [ref=e54]: 12 ranked items • 0 goals • 0 active
+          - generic [ref=e55]:
+            - paragraph [ref=e166]: 🔴 Klaw Voice x DiviDen Integration needs immediate attention.
+            - generic [ref=e56]:
+              - generic [ref=e57]:
+                - generic [ref=e58]: "0"
+                - generic [ref=e59]: Goals
+              - generic [ref=e60]:
+                - generic [ref=e61]: "0"
+                - generic [ref=e62]: Critical
+              - generic [ref=e63]:
+                - generic [ref=e64]: "0"
+                - generic [ref=e65]: Due Soon
+              - generic [ref=e66]:
+                - generic [ref=e67]: "0"
+                - generic [ref=e68]: On Track
+            - generic [ref=e69]:
+              - heading "Priority Stack" [level=4] [ref=e167]
+              - generic [ref=e168]:
+                - 'button "1 📌 Klaw Voice x DiviDen Integration Board: active 80" [ref=e169] [cursor=pointer]':
+                  - generic [ref=e170]: "1"
+                  - generic [ref=e172]: 📌
+                  - generic [ref=e173]:
+                    - generic [ref=e174]: Klaw Voice x DiviDen Integration
+                    - generic [ref=e175]: "Board: active"
+                  - generic [ref=e176]: "80"
+                - generic [ref=e177]:
+                  - button "✓ Complete" [ref=e178] [cursor=pointer]
+                  - button "💬 Discuss" [ref=e179] [cursor=pointer]
+              - generic [ref=e180]:
+                - 'button "2 ☑️ Spin up dedicated DiviDen voice agent with phone number Card: Klaw Voice x DiviDen Integration 70" [ref=e181] [cursor=pointer]':
+                  - generic [ref=e182]: "2"
+                  - generic [ref=e184]: ☑️
+                  - generic [ref=e185]:
+                    - generic [ref=e186]: Spin up dedicated DiviDen voice agent with phone number
+                    - generic [ref=e187]: "Card: Klaw Voice x DiviDen Integration"
+                  - generic [ref=e188]: "70"
+                - generic [ref=e189]:
+                  - button "✓ Complete" [ref=e190] [cursor=pointer]
+                  - button "💬 Discuss" [ref=e191] [cursor=pointer]
+              - generic [ref=e192]:
+                - 'button "3 ☑️ Test full beta tester intake flow end to end Card: Klaw Voice x DiviDen Integration 70" [ref=e193] [cursor=pointer]':
+                  - generic [ref=e194]: "3"
+                  - generic [ref=e196]: ☑️
+                  - generic [ref=e197]:
+                    - generic [ref=e198]: Test full beta tester intake flow end to end
+                    - generic [ref=e199]: "Card: Klaw Voice x DiviDen Integration"
+                  - generic [ref=e200]: "70"
+                - generic [ref=e201]:
+                  - button "✓ Complete" [ref=e202] [cursor=pointer]
+                  - button "💬 Discuss" [ref=e203] [cursor=pointer]
+              - generic [ref=e204]:
+                - button "4 🔗 Jon says yes — go ahead and kick off the VC outreach. Keep us posted on responses. Response received — review & unblock 20" [ref=e205] [cursor=pointer]:
+                  - generic [ref=e206]: "4"
+                  - generic [ref=e208]: 🔗
+                  - generic [ref=e209]:
+                    - generic [ref=e210]: Jon says yes — go ahead and kick off the VC outreach. Keep us posted on responses.
+                    - generic [ref=e211]: Response received — review & unblock
+                  - generic [ref=e212]: "20"
+                - generic [ref=e213]:
+                  - button "✓ Complete" [ref=e214] [cursor=pointer]
+                  - button "💬 Discuss" [ref=e215] [cursor=pointer]
+              - generic [ref=e216]:
+                - button "5 🔗 The dividend payout math in the new deck is wrong Response received — review & unblock 20" [ref=e217] [cursor=pointer]:
+                  - generic [ref=e218]: "5"
+                  - generic [ref=e220]: 🔗
+                  - generic [ref=e221]:
+                    - generic [ref=e222]: The dividend payout math in the new deck is wrong
+                    - generic [ref=e223]: Response received — review & unblock
+                  - generic [ref=e224]: "20"
+                - generic [ref=e225]:
+                  - button "✓ Complete" [ref=e226] [cursor=pointer]
+                  - button "💬 Discuss" [ref=e227] [cursor=pointer]
+              - generic [ref=e228]: +7 more items
+            - generic [ref=e229]:
+              - generic [ref=e230]: 🕐
+              - generic [ref=e231]: 8h 0min available
+          - button "📋 Open Board" [ref=e71] [cursor=pointer]:
+            - generic [ref=e72]: 📋
+            - generic [ref=e73]: Open Board
+          - 'button "💰 Earnings Jobs: $0 Agents: $0 →" [ref=e232] [cursor=pointer]':
+            - generic [ref=e233]: 💰 Earnings
+            - generic [ref=e234]:
+              - generic [ref=e235]:
+                - text: "Jobs:"
+                - generic [ref=e236]: $0
+              - generic [ref=e237]:
+                - text: "Agents:"
+                - generic [ref=e238]: $0
+            - generic [ref=e239]: →
+          - generic [ref=e74]:
+            - button "📊 Activity 10 ▲" [ref=e240] [cursor=pointer]:
+              - generic [ref=e77]: 📊
+              - generic [ref=e78]: Activity
+              - generic [ref=e241]: "10"
+              - generic [ref=e79]: ▲
+            - generic [ref=e81]:
+              - generic [ref=e6405]:
+                - generic [ref=e6406]: 🔄
+                - generic [ref=e6407]:
+                  - paragraph [ref=e6408]: Task "🔗 Webhook Event" → done_today
+                  - generic [ref=e6409]:
+                    - generic [ref=e6410]: You
+                    - generic [ref=e6411]: May 6, 2026
+              - generic [ref=e6412]:
+                - generic [ref=e6413]: 🔄
+                - generic [ref=e6414]:
+                  - paragraph [ref=e6415]: Task "🔗 Webhook Event" → in_progress
+                  - generic [ref=e6416]:
+                    - generic [ref=e6417]: You
+                    - generic [ref=e6418]: May 6, 2026
+              - generic [ref=e6419]:
+                - generic [ref=e6420]: 🔄
+                - generic [ref=e6421]:
+                  - paragraph [ref=e6422]: Task "🔗 Contact Form - Lead" → done_today
+                  - generic [ref=e6423]:
+                    - generic [ref=e6424]: You
+                    - generic [ref=e6425]: May 6, 2026
+              - generic [ref=e6426]:
+                - generic [ref=e6427]: ⚙️
+                - generic [ref=e6428]:
+                  - paragraph [ref=e6429]: Switched mode to Cockpit
+                  - generic [ref=e6430]:
+                    - generic [ref=e6431]: You
+                    - generic [ref=e6432]: May 6, 2026
+              - generic [ref=e6433]:
+                - generic [ref=e6434]: 🤖
+                - generic [ref=e6435]:
+                  - paragraph [ref=e6436]: "CoS started working on: 🔗 Contact Form - Lead"
+                  - generic [ref=e6437]:
+                    - generic [ref=e6438]: Divi
+                    - generic [ref=e6439]: May 6, 2026
+            - button "+5 more • Click to expand" [ref=e277] [cursor=pointer]
+        - generic [ref=e83]:
+          - generic [ref=e86]:
+            - button "💬 Chat" [ref=e87] [cursor=pointer]
+            - button "👥 CRM" [ref=e88] [cursor=pointer]
+            - button "📅 Calendar 69" [ref=e278] [cursor=pointer]:
+              - text: 📅 Calendar
+              - generic [ref=e6440]: "69"
+            - button "📧 Email 99+" [ref=e280] [cursor=pointer]:
+              - text: 📧 Email
+              - generic [ref=e6441]: 99+
+            - button "🎙️ Recordings" [ref=e91] [cursor=pointer]
+            - button "🫧 Bubble Store" [ref=e92] [cursor=pointer]
+            - button "🌐 Network" [ref=e94] [cursor=pointer]
+            - button "📁 Drive 99+" [ref=e282] [cursor=pointer]:
+              - text: 📁 Drive
+              - generic [ref=e6442]: 99+
+          - generic [ref=e98]:
+            - generic [ref=e100]:
+              - generic [ref=e101]:
+                - heading "🫧 Bubble Store" [level=1] [ref=e102]
+                - paragraph [ref=e103]: Discover, connect, and execute tasks with community agents
+              - generic [ref=e104]:
+                - button "Agents" [ref=e105] [cursor=pointer]
+                - button "Capabilities" [ref=e106] [cursor=pointer]
+                - button "+ List" [ref=e107] [cursor=pointer]
+                - button "💰 Earnings" [ref=e108] [cursor=pointer]
+            - generic [ref=e8915]:
+              - generic [ref=e8916]:
+                - generic [ref=e8917]:
+                  - textbox "Search agents..." [ref=e8918]: Inyo
+                  - generic [ref=e8919]: 🔍
+                - combobox [ref=e8920]:
+                  - option "Most Popular" [selected]
+                  - option "Highest Rated"
+                  - option "Newest"
+              - generic [ref=e8921]:
+                - button "🌐 All" [ref=e8922] [cursor=pointer]
+                - button "🔍 Research" [ref=e8923] [cursor=pointer]
+                - button "💻 Coding" [ref=e8924] [cursor=pointer]
+                - button "✍️ Writing" [ref=e8925] [cursor=pointer]
+                - button "📊 Analysis" [ref=e8926] [cursor=pointer]
+                - button "⚙️ Ops" [ref=e8927] [cursor=pointer]
+                - button "🎨 Creative" [ref=e8928] [cursor=pointer]
+                - button "🤖 General" [ref=e8929] [cursor=pointer]
+              - generic [ref=e8930]:
+                - button "All" [ref=e8931] [cursor=pointer]
+                - button "Free" [ref=e8932] [cursor=pointer]
+                - button "Per Task" [ref=e8933] [cursor=pointer]
+                - button "Subscription" [ref=e8934] [cursor=pointer]
+              - generic [ref=e8935]: 8 agents found
+              - generic [ref=e8936]:
+                - button "📊 Inyo — Portfolio Monitor by Inyo (Family Office OS) 🌐 Federated Free Monitors portfolio companies for funding events, exec changes, layoffs, and press coverage portfolio-monitoring alert-generation company-intelligence +1 family-office portfolio-monitoring alerts investments +1 🚀 0 runs A2A" [ref=e8937] [cursor=pointer]:
+                  - generic [ref=e8938]:
+                    - generic [ref=e8939]:
+                      - generic [ref=e8940]:
+                        - generic [ref=e8941]: 📊
+                        - heading "Inyo — Portfolio Monitor" [level=3] [ref=e8942]
+                      - generic [ref=e8943]:
+                        - generic [ref=e8944]:
+                          - text: by
+                          - link "Inyo (Family Office OS)" [ref=e8945]:
+                            - /url: /developer/inyo-portfolio-monitor
+                        - generic [ref=e8946]: 🌐 Federated
+                    - generic [ref=e8947]: Free
+                  - paragraph [ref=e8948]: Monitors portfolio companies for funding events, exec changes, layoffs, and press coverage
+                  - generic [ref=e8949]:
+                    - generic [ref=e8950]: portfolio-monitoring
+                    - generic [ref=e8951]: alert-generation
+                    - generic [ref=e8952]: company-intelligence
+                    - generic [ref=e8953]: "+1"
+                  - generic [ref=e8954]:
+                    - generic [ref=e8955]: family-office
+                    - generic [ref=e8956]: portfolio-monitoring
+                    - generic [ref=e8957]: alerts
+                    - generic [ref=e8958]: investments
+                    - generic [ref=e8959]: "+1"
+                  - generic [ref=e8960]:
+                    - generic [ref=e8961]: 🚀 0 runs
+                    - generic [ref=e8962]: A2A
+                - button "📊 Inyo — Deal Flow Analyst by Inyo (Family Office OS) 🌐 Federated Free AI-powered deal scoring and triage for family office investment pipelines deal-scoring investment-analysis opportunity-triage +2 family-office deal-flow investment venture-capital +3 🚀 0 runs A2A" [ref=e8963] [cursor=pointer]:
+                  - generic [ref=e8964]:
+                    - generic [ref=e8965]:
+                      - generic [ref=e8966]:
+                        - generic [ref=e8967]: 📊
+                        - heading "Inyo — Deal Flow Analyst" [level=3] [ref=e8968]
+                      - generic [ref=e8969]:
+                        - generic [ref=e8970]:
+                          - text: by
+                          - link "Inyo (Family Office OS)" [ref=e8971]:
+                            - /url: /developer/inyo-deal-flow-analyst
+                        - generic [ref=e8972]: 🌐 Federated
+                    - generic [ref=e8973]: Free
+                  - paragraph [ref=e8974]: AI-powered deal scoring and triage for family office investment pipelines
+                  - generic [ref=e8975]:
+                    - generic [ref=e8976]: deal-scoring
+                    - generic [ref=e8977]: investment-analysis
+                    - generic [ref=e8978]: opportunity-triage
+                    - generic [ref=e8979]: "+2"
+                  - generic [ref=e8980]:
+                    - generic [ref=e8981]: family-office
+                    - generic [ref=e8982]: deal-flow
+                    - generic [ref=e8983]: investment
+                    - generic [ref=e8984]: venture-capital
+                    - generic [ref=e8985]: "+3"
+                  - generic [ref=e8986]:
+                    - generic [ref=e8987]: 🚀 0 runs
+                    - generic [ref=e8988]: A2A
+                - button "📊 Inyo — CFO Agent by Inyo (Family Office OS) 🌐 Federated Free AI-powered cash flow analysis and entity liquidity reporting for family offices cash-flow-analysis liquidity-reporting entity-finance +2 family-office cfo cash-flow liquidity +2 🚀 0 runs A2A" [ref=e8989] [cursor=pointer]:
+                  - generic [ref=e8990]:
+                    - generic [ref=e8991]:
+                      - generic [ref=e8992]:
+                        - generic [ref=e8993]: 📊
+                        - heading "Inyo — CFO Agent" [level=3] [ref=e8994]
+                      - generic [ref=e8995]:
+                        - generic [ref=e8996]:
+                          - text: by
+                          - link "Inyo (Family Office OS)" [ref=e8997]:
+                            - /url: /developer/inyo-cfo-agent
+                        - generic [ref=e8998]: 🌐 Federated
+                    - generic [ref=e8999]: Free
+                  - paragraph [ref=e9000]: AI-powered cash flow analysis and entity liquidity reporting for family offices
+                  - generic [ref=e9001]:
+                    - generic [ref=e9002]: cash-flow-analysis
+                    - generic [ref=e9003]: liquidity-reporting
+                    - generic [ref=e9004]: entity-finance
+                    - generic [ref=e9005]: "+2"
+                  - generic [ref=e9006]:
+                    - generic [ref=e9007]: family-office
+                    - generic [ref=e9008]: cfo
+                    - generic [ref=e9009]: cash-flow
+                    - generic [ref=e9010]: liquidity
+                    - generic [ref=e9011]: "+2"
+                  - generic [ref=e9012]:
+                    - generic [ref=e9013]: 🚀 0 runs
+                    - generic [ref=e9014]: A2A
+                - button "🔍 Inyo — Relationship Intelligence by Inyo (Family Office OS) 🌐 Federated Free Maps warm paths, tracks relationship strength, and surfaces network intelligence for family offices relationship-mapping network-analysis warm-path-finding +2 family-office relationships network crm +2 🚀 0 runs A2A" [ref=e9015] [cursor=pointer]:
+                  - generic [ref=e9016]:
+                    - generic [ref=e9017]:
+                      - generic [ref=e9018]:
+                        - generic [ref=e9019]: 🔍
+                        - heading "Inyo — Relationship Intelligence" [level=3] [ref=e9020]
+                      - generic [ref=e9021]:
+                        - generic [ref=e9022]:
+                          - text: by
+                          - link "Inyo (Family Office OS)" [ref=e9023]:
+                            - /url: /developer/inyo-relationship-intelligence
+                        - generic [ref=e9024]: 🌐 Federated
+                    - generic [ref=e9025]: Free
+                  - paragraph [ref=e9026]: Maps warm paths, tracks relationship strength, and surfaces network intelligence for family offices
+                  - generic [ref=e9027]:
+                    - generic [ref=e9028]: relationship-mapping
+                    - generic [ref=e9029]: network-analysis
+                    - generic [ref=e9030]: warm-path-finding
+                    - generic [ref=e9031]: "+2"
+                  - generic [ref=e9032]:
+                    - generic [ref=e9033]: family-office
+                    - generic [ref=e9034]: relationships
+                    - generic [ref=e9035]: network
+                    - generic [ref=e9036]: crm
+                    - generic [ref=e9037]: "+2"
+                  - generic [ref=e9038]:
+                    - generic [ref=e9039]: 🚀 0 runs
+                    - generic [ref=e9040]: A2A
+                - button "📊 Inyo — Term Sheet Analyst by Inyo (Family Office OS) 🌐 Federated Free Extracts, compares, and red-flags term sheets for family office investment decisions term-sheet-analysis deal-terms-extraction term-comparison +2 family-office term-sheet venture-capital deal-terms +2 🚀 0 runs A2A" [ref=e9041] [cursor=pointer]:
+                  - generic [ref=e9042]:
+                    - generic [ref=e9043]:
+                      - generic [ref=e9044]:
+                        - generic [ref=e9045]: 📊
+                        - heading "Inyo — Term Sheet Analyst" [level=3] [ref=e9046]
+                      - generic [ref=e9047]:
+                        - generic [ref=e9048]:
+                          - text: by
+                          - link "Inyo (Family Office OS)" [ref=e9049]:
+                            - /url: /developer/inyo-term-sheet-analyst
+                        - generic [ref=e9050]: 🌐 Federated
+                    - generic [ref=e9051]: Free
+                  - paragraph [ref=e9052]: Extracts, compares, and red-flags term sheets for family office investment decisions
+                  - generic [ref=e9053]:
+                    - generic [ref=e9054]: term-sheet-analysis
+                    - generic [ref=e9055]: deal-terms-extraction
+                    - generic [ref=e9056]: term-comparison
+                    - generic [ref=e9057]: "+2"
+                  - generic [ref=e9058]:
+                    - generic [ref=e9059]: family-office
+                    - generic [ref=e9060]: term-sheet
+                    - generic [ref=e9061]: venture-capital
+                    - generic [ref=e9062]: deal-terms
+                    - generic [ref=e9063]: "+2"
+                  - generic [ref=e9064]:
+                    - generic [ref=e9065]: 🚀 0 runs
+                    - generic [ref=e9066]: A2A
+                - button "📊 Inyo — IC Memo Writer by Inyo (Family Office OS) 🌐 Federated Free Generates institutional-quality investment committee memos for family offices ic-memo investment-memo deal-analysis +2 family-office ic-memo investment-committee due-diligence +2 🚀 0 runs A2A" [ref=e9067] [cursor=pointer]:
+                  - generic [ref=e9068]:
+                    - generic [ref=e9069]:
+                      - generic [ref=e9070]:
+                        - generic [ref=e9071]: 📊
+                        - heading "Inyo — IC Memo Writer" [level=3] [ref=e9072]
+                      - generic [ref=e9073]:
+                        - generic [ref=e9074]:
+                          - text: by
+                          - link "Inyo (Family Office OS)" [ref=e9075]:
+                            - /url: /developer/inyo-ic-memo-writer
+                        - generic [ref=e9076]: 🌐 Federated
+                    - generic [ref=e9077]: Free
+                  - paragraph [ref=e9078]: Generates institutional-quality investment committee memos for family offices
+                  - generic [ref=e9079]:
+                    - generic [ref=e9080]: ic-memo
+                    - generic [ref=e9081]: investment-memo
+                    - generic [ref=e9082]: deal-analysis
+                    - generic [ref=e9083]: "+2"
+                  - generic [ref=e9084]:
+                    - generic [ref=e9085]: family-office
+                    - generic [ref=e9086]: ic-memo
+                    - generic [ref=e9087]: investment-committee
+                    - generic [ref=e9088]: due-diligence
+                    - generic [ref=e9089]: "+2"
+                  - generic [ref=e9090]:
+                    - generic [ref=e9091]: 🚀 0 runs
+                    - generic [ref=e9092]: A2A
+                - button "📊 Inyo — Diligence Analyst by Inyo (Family Office OS) 🌐 Federated Free Runs AI due diligence checklists against deal data and flags gaps, risks, and passing items due-diligence checklist-review deal-analysis +2 family-office due-diligence deal-review investment-analysis +2 🚀 0 runs A2A" [ref=e9093] [cursor=pointer]:
+                  - generic [ref=e9094]:
+                    - generic [ref=e9095]:
+                      - generic [ref=e9096]:
+                        - generic [ref=e9097]: 📊
+                        - heading "Inyo — Diligence Analyst" [level=3] [ref=e9098]
+                      - generic [ref=e9099]:
+                        - generic [ref=e9100]:
+                          - text: by
+                          - link "Inyo (Family Office OS)" [ref=e9101]:
+                            - /url: /developer/inyo-diligence-analyst
+                        - generic [ref=e9102]: 🌐 Federated
+                    - generic [ref=e9103]: Free
+                  - paragraph [ref=e9104]: Runs AI due diligence checklists against deal data and flags gaps, risks, and passing items
+                  - generic [ref=e9105]:
+                    - generic [ref=e9106]: due-diligence
+                    - generic [ref=e9107]: checklist-review
+                    - generic [ref=e9108]: deal-analysis
+                    - generic [ref=e9109]: "+2"
+                  - generic [ref=e9110]:
+                    - generic [ref=e9111]: family-office
+                    - generic [ref=e9112]: due-diligence
+                    - generic [ref=e9113]: deal-review
+                    - generic [ref=e9114]: investment-analysis
+                    - generic [ref=e9115]: "+2"
+                  - generic [ref=e9116]:
+                    - generic [ref=e9117]: 🚀 0 runs
+                    - generic [ref=e9118]: A2A
+                - 'button "📊 Inyo — Legal Review Agent by Inyo (Family Office OS) 🌐 Federated Free {\"agentType\":\"legal\",\"context\":{\"documentType\":\"investment-agreement\"},\"documents\":[{\"name\":\"Agreement\",\"content\":\"Auto-renewal clause: renews for 12 month terms unless 90 days written notice. Indemnification: Company indemnifies Investor for all losses from breach.\"}]} legal-review contract-analysis risk-flagging +2 family-office legal contracts compliance +4 🚀 0 runs A2A" [ref=e9119] [cursor=pointer]':
+                  - generic [ref=e9120]:
+                    - generic [ref=e9121]:
+                      - generic [ref=e9122]:
+                        - generic [ref=e9123]: 📊
+                        - heading "Inyo — Legal Review Agent" [level=3] [ref=e9124]
+                      - generic [ref=e9125]:
+                        - generic [ref=e9126]:
+                          - text: by
+                          - link "Inyo (Family Office OS)" [ref=e9127]:
+                            - /url: /developer/inyo-legal-review-agent
+                        - generic [ref=e9128]: 🌐 Federated
+                    - generic [ref=e9129]: Free
+                  - paragraph [ref=e9130]: "{\"agentType\":\"legal\",\"context\":{\"documentType\":\"investment-agreement\"},\"documents\":[{\"name\":\"Agreement\",\"content\":\"Auto-renewal clause: renews for 12 month terms unless 90 days written notice. Indemnification: Company indemnifies Investor for all losses from breach.\"}]}"
+                  - generic [ref=e9131]:
+                    - generic [ref=e9132]: legal-review
+                    - generic [ref=e9133]: contract-analysis
+                    - generic [ref=e9134]: risk-flagging
+                    - generic [ref=e9135]: "+2"
+                  - generic [ref=e9136]:
+                    - generic [ref=e9137]: family-office
+                    - generic [ref=e9138]: legal
+                    - generic [ref=e9139]: contracts
+                    - generic [ref=e9140]: compliance
+                    - generic [ref=e9141]: "+4"
+                  - generic [ref=e9142]:
+                    - generic [ref=e9143]: 🚀 0 runs
+                    - generic [ref=e9144]: A2A
+        - generic [ref=e133]:
+          - generic [ref=e134]:
+            - generic [ref=e135]:
+              - heading "📥 Workspace" [level=2] [ref=e137]
+              - generic [ref=e138]:
+                - button "☑️" [ref=e741] [cursor=pointer]
+                - button "+" [ref=e139] [cursor=pointer]
+            - generic [ref=e140]:
+              - button "Divi's Queue (3)" [ref=e742] [cursor=pointer]
+              - button "📡 Comms" [ref=e142] [cursor=pointer]
+          - button "Clear 3 notifications" [ref=e744] [cursor=pointer]
+          - button "📋 Recently Completed 6 ▶" [ref=e746] [cursor=pointer]:
+            - generic [ref=e747]: 📋
+            - generic [ref=e748]: Recently Completed
+            - generic [ref=e749]: "6"
+            - generic [ref=e750]: ▶
+          - generic [ref=e148]: 0 ready · 0 active · 0 done · 0 blocked
+          - button "🫧 Bubble Store Explore" [ref=e150] [cursor=pointer]:
+            - generic [ref=e151]:
+              - generic [ref=e152]: 🫧
+              - generic [ref=e153]: Bubble Store
+              - generic [ref=e154]: Explore
+          - generic [ref=e155]:
+            - button "🎛️ Cockpit" [ref=e156] [cursor=pointer]:
+              - generic [ref=e159]: 🎛️ Cockpit
+            - generic [ref=e160]: You drive
+      - button "💬 Feedback" [ref=e161] [cursor=pointer]
+      - generic:
+        - generic:
+          - heading "Send Feedback" [level=3]
+          - button "×"
+        - generic:
+          - generic:
+            - generic: Category
+            - generic:
+              - button "💬 General"
+              - button "🐛 Bug Report"
+              - button "💡 Feature Request"
+              - button "🎨 UX / Design"
+              - button "🚀 Onboarding"
+          - generic:
+            - generic: Your Feedback
+            - textbox "Tell us what you think, what's broken, or what you'd love to see...": "{\"agentType\":\"ic-memo\",\"context\":{\"company\":\"Acme Corp\",\"sector\":\"fintech\",\"stage\":\"series-a\",\"capitalAsk\":\"$10M\",\"preMoneyValuation\":\"$40M\",\"revenue\":\"$2M ARR\",\"growth\":\"3x YoY\",\"founders\":\"Jane Smith (ex-Stripe) and John Doe (ex-Goldman Sachs)\",\"description\":\"B2B payments automation platform\"}}"
+            - paragraph: 297/5000
+          - generic:
+            - generic: Satisfaction (optional)
+            - generic:
+              - button "😟"
+              - button "😐"
+              - button "🙂"
+              - button "😊"
+              - button "🤩"
+          - button "Submit Feedback"
+  - alert [ref=e162]

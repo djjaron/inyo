@@ -1,0 +1,339 @@
+- generic [active] [ref=e1]:
+  - main [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - link "⬡ DiviDen" [ref=e6] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e7]: ⬡
+          - generic [ref=e8]: DiviDen
+        - generic [ref=e9]:
+          - generic [ref=e10]: Open Source
+          - generic [ref=e11]: —
+          - link "Fork it, build on it, make it yours" [ref=e12] [cursor=pointer]:
+            - /url: https://github.com/Denominator-Ventures/dividen
+          - button "✕" [ref=e13] [cursor=pointer]
+        - generic [ref=e14]:
+          - button "Search ⌘K" [ref=e15] [cursor=pointer]:
+            - img [ref=e16]
+            - generic [ref=e19]: Search
+            - generic [ref=e20]: ⌘K
+          - generic [ref=e21]:
+            - button "🔄 Catch Up" [ref=e22] [cursor=pointer]:
+              - generic [ref=e23]: 🔄
+              - generic [ref=e24]: Catch Up
+            - button "Configure catch-up signals" [ref=e25] [cursor=pointer]:
+              - img [ref=e26]
+          - button "99+" [ref=e6404] [cursor=pointer]:
+            - img [ref=e31]
+            - generic [ref=e164]: 99+
+          - button "Your Profile" [ref=e35] [cursor=pointer]:
+            - img [ref=e36]
+          - link "Settings" [ref=e39] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e40]
+          - button "Sign Out" [ref=e43] [cursor=pointer]:
+            - img [ref=e44]
+      - generic [ref=e47]:
+        - generic [ref=e49]:
+          - generic [ref=e50]:
+            - generic [ref=e51]:
+              - heading "⚡ NOW" [level=2] [ref=e52]
+              - generic [ref=e53]: Dynamic
+            - generic [ref=e54]: 12 ranked items • 0 goals • 0 active
+          - generic [ref=e55]:
+            - paragraph [ref=e166]: 🔴 Klaw Voice x DiviDen Integration needs immediate attention.
+            - generic [ref=e56]:
+              - generic [ref=e57]:
+                - generic [ref=e58]: "0"
+                - generic [ref=e59]: Goals
+              - generic [ref=e60]:
+                - generic [ref=e61]: "0"
+                - generic [ref=e62]: Critical
+              - generic [ref=e63]:
+                - generic [ref=e64]: "0"
+                - generic [ref=e65]: Due Soon
+              - generic [ref=e66]:
+                - generic [ref=e67]: "0"
+                - generic [ref=e68]: On Track
+            - generic [ref=e69]:
+              - heading "Priority Stack" [level=4] [ref=e167]
+              - generic [ref=e168]:
+                - 'button "1 📌 Klaw Voice x DiviDen Integration Board: active 80" [ref=e169] [cursor=pointer]':
+                  - generic [ref=e170]: "1"
+                  - generic [ref=e172]: 📌
+                  - generic [ref=e173]:
+                    - generic [ref=e174]: Klaw Voice x DiviDen Integration
+                    - generic [ref=e175]: "Board: active"
+                  - generic [ref=e176]: "80"
+                - generic [ref=e177]:
+                  - button "✓ Complete" [ref=e178] [cursor=pointer]
+                  - button "💬 Discuss" [ref=e179] [cursor=pointer]
+              - generic [ref=e180]:
+                - 'button "2 ☑️ Spin up dedicated DiviDen voice agent with phone number Card: Klaw Voice x DiviDen Integration 70" [ref=e181] [cursor=pointer]':
+                  - generic [ref=e182]: "2"
+                  - generic [ref=e184]: ☑️
+                  - generic [ref=e185]:
+                    - generic [ref=e186]: Spin up dedicated DiviDen voice agent with phone number
+                    - generic [ref=e187]: "Card: Klaw Voice x DiviDen Integration"
+                  - generic [ref=e188]: "70"
+                - generic [ref=e189]:
+                  - button "✓ Complete" [ref=e190] [cursor=pointer]
+                  - button "💬 Discuss" [ref=e191] [cursor=pointer]
+              - generic [ref=e192]:
+                - 'button "3 ☑️ Test full beta tester intake flow end to end Card: Klaw Voice x DiviDen Integration 70" [ref=e193] [cursor=pointer]':
+                  - generic [ref=e194]: "3"
+                  - generic [ref=e196]: ☑️
+                  - generic [ref=e197]:
+                    - generic [ref=e198]: Test full beta tester intake flow end to end
+                    - generic [ref=e199]: "Card: Klaw Voice x DiviDen Integration"
+                  - generic [ref=e200]: "70"
+                - generic [ref=e201]:
+                  - button "✓ Complete" [ref=e202] [cursor=pointer]
+                  - button "💬 Discuss" [ref=e203] [cursor=pointer]
+              - generic [ref=e204]:
+                - button "4 🔗 Jon says yes — go ahead and kick off the VC outreach. Keep us posted on responses. Response received — review & unblock 20" [ref=e205] [cursor=pointer]:
+                  - generic [ref=e206]: "4"
+                  - generic [ref=e208]: 🔗
+                  - generic [ref=e209]:
+                    - generic [ref=e210]: Jon says yes — go ahead and kick off the VC outreach. Keep us posted on responses.
+                    - generic [ref=e211]: Response received — review & unblock
+                  - generic [ref=e212]: "20"
+                - generic [ref=e213]:
+                  - button "✓ Complete" [ref=e214] [cursor=pointer]
+                  - button "💬 Discuss" [ref=e215] [cursor=pointer]
+              - generic [ref=e216]:
+                - button "5 🔗 The dividend payout math in the new deck is wrong Response received — review & unblock 20" [ref=e217] [cursor=pointer]:
+                  - generic [ref=e218]: "5"
+                  - generic [ref=e220]: 🔗
+                  - generic [ref=e221]:
+                    - generic [ref=e222]: The dividend payout math in the new deck is wrong
+                    - generic [ref=e223]: Response received — review & unblock
+                  - generic [ref=e224]: "20"
+                - generic [ref=e225]:
+                  - button "✓ Complete" [ref=e226] [cursor=pointer]
+                  - button "💬 Discuss" [ref=e227] [cursor=pointer]
+              - generic [ref=e228]: +7 more items
+            - generic [ref=e229]:
+              - generic [ref=e230]: 🕐
+              - generic [ref=e231]: 8h 0min available
+          - button "📋 Open Board" [ref=e71] [cursor=pointer]:
+            - generic [ref=e72]: 📋
+            - generic [ref=e73]: Open Board
+          - 'button "💰 Earnings Jobs: $0 Agents: $0 →" [ref=e232] [cursor=pointer]':
+            - generic [ref=e233]: 💰 Earnings
+            - generic [ref=e234]:
+              - generic [ref=e235]:
+                - text: "Jobs:"
+                - generic [ref=e236]: $0
+              - generic [ref=e237]:
+                - text: "Agents:"
+                - generic [ref=e238]: $0
+            - generic [ref=e239]: →
+          - generic [ref=e74]:
+            - button "📊 Activity 10 ▲" [ref=e240] [cursor=pointer]:
+              - generic [ref=e77]: 📊
+              - generic [ref=e78]: Activity
+              - generic [ref=e241]: "10"
+              - generic [ref=e79]: ▲
+            - generic [ref=e81]:
+              - generic [ref=e6405]:
+                - generic [ref=e6406]: 🔄
+                - generic [ref=e6407]:
+                  - paragraph [ref=e6408]: Task "🔗 Webhook Event" → done_today
+                  - generic [ref=e6409]:
+                    - generic [ref=e6410]: You
+                    - generic [ref=e6411]: May 6, 2026
+              - generic [ref=e6412]:
+                - generic [ref=e6413]: 🔄
+                - generic [ref=e6414]:
+                  - paragraph [ref=e6415]: Task "🔗 Webhook Event" → in_progress
+                  - generic [ref=e6416]:
+                    - generic [ref=e6417]: You
+                    - generic [ref=e6418]: May 6, 2026
+              - generic [ref=e6419]:
+                - generic [ref=e6420]: 🔄
+                - generic [ref=e6421]:
+                  - paragraph [ref=e6422]: Task "🔗 Contact Form - Lead" → done_today
+                  - generic [ref=e6423]:
+                    - generic [ref=e6424]: You
+                    - generic [ref=e6425]: May 6, 2026
+              - generic [ref=e6426]:
+                - generic [ref=e6427]: ⚙️
+                - generic [ref=e6428]:
+                  - paragraph [ref=e6429]: Switched mode to Cockpit
+                  - generic [ref=e6430]:
+                    - generic [ref=e6431]: You
+                    - generic [ref=e6432]: May 6, 2026
+              - generic [ref=e6433]:
+                - generic [ref=e6434]: 🤖
+                - generic [ref=e6435]:
+                  - paragraph [ref=e6436]: "CoS started working on: 🔗 Contact Form - Lead"
+                  - generic [ref=e6437]:
+                    - generic [ref=e6438]: Divi
+                    - generic [ref=e6439]: May 6, 2026
+            - button "+5 more • Click to expand" [ref=e277] [cursor=pointer]
+        - generic [ref=e83]:
+          - generic [ref=e86]:
+            - button "💬 Chat" [ref=e87] [cursor=pointer]
+            - button "👥 CRM" [ref=e88] [cursor=pointer]
+            - button "📅 Calendar 69" [ref=e278] [cursor=pointer]:
+              - text: 📅 Calendar
+              - generic [ref=e6440]: "69"
+            - button "📧 Email 99+" [ref=e280] [cursor=pointer]:
+              - text: 📧 Email
+              - generic [ref=e6441]: 99+
+            - button "🎙️ Recordings" [ref=e91] [cursor=pointer]
+            - button "🫧 Bubble Store" [ref=e92] [cursor=pointer]
+            - button "🌐 Network" [ref=e94] [cursor=pointer]
+            - button "📁 Drive 99+" [ref=e282] [cursor=pointer]:
+              - text: 📁 Drive
+              - generic [ref=e6442]: 99+
+          - generic [ref=e98]:
+            - generic [ref=e100]:
+              - generic [ref=e101]:
+                - heading "🫧 Bubble Store" [level=1] [ref=e102]
+                - paragraph [ref=e103]: Discover, connect, and execute tasks with community agents
+              - generic [ref=e104]:
+                - button "Agents" [ref=e105] [cursor=pointer]
+                - button "Capabilities" [ref=e106] [cursor=pointer]
+                - button "+ List" [ref=e107] [cursor=pointer]
+                - button "💰 Earnings" [ref=e108] [cursor=pointer]
+            - generic [ref=e7173]:
+              - button "← Back to Bubble Store" [ref=e7174] [cursor=pointer]
+              - generic [ref=e7175]:
+                - generic [ref=e7176]:
+                  - generic [ref=e7177]:
+                    - generic [ref=e7178]:
+                      - generic [ref=e7179]: 📊
+                      - heading "Inyo — Portfolio Monitor" [level=2] [ref=e7180]
+                      - generic [ref=e7181]: Installed
+                    - generic [ref=e7183]:
+                      - generic [ref=e7184]:
+                        - text: by
+                        - link "Inyo (Family Office OS)" [ref=e7185] [cursor=pointer]:
+                          - /url: /developer/inyo-portfolio-monitor
+                      - generic [ref=e7186]: 🌐 inyo-fo.netlify.app
+                  - generic [ref=e7187]: Free
+                  - button "✏️ Edit Listing" [ref=e7188] [cursor=pointer]
+                - paragraph [ref=e7189]: Monitors portfolio companies for funding events, exec changes, layoffs, and press coverage
+                - generic [ref=e7190]:
+                  - generic [ref=e7191]: 🚀 0 executions
+                  - generic [ref=e7192]: 📊 1 subscribers
+                - generic [ref=e7193]:
+                  - generic [ref=e7194]: family-office
+                  - generic [ref=e7195]: portfolio-monitoring
+                  - generic [ref=e7196]: alerts
+                  - generic [ref=e7197]: investments
+                  - generic [ref=e7198]: watchlist
+                - generic [ref=e7199]:
+                  - generic [ref=e7200]: v1.0.0
+                  - generic [ref=e7201]: A2A Compatible
+                  - generic [ref=e7202]: "{ } JSON Mode → Out: json"
+                - group [ref=e7203]:
+                  - generic "📝 Changelog (1 entry)" [ref=e7204] [cursor=pointer]
+              - generic [ref=e7205]:
+                - heading "About" [level=3] [ref=e7206]
+                - generic [ref=e7207]: The Portfolio Monitor watches existing investments 24/7 for material changes that a family office principal needs to know about. **Monitors for:** - New funding rounds (Series A–D, bridge, down rounds) - Executive departures (CEO, CFO, CTO, board changes) - Layoffs and significant headcount changes - Press coverage — positive and negative - Legal issues and regulatory actions - Product launches, pivots, or shutdowns - Burn rate and runway changes - Competitive landscape shifts **Alert severity levels:** info / warning / critical **Output:** Structured alert objects ready to surface in your portfolio dashboard, Slack, or email digest. Powered by Claude Opus 4-7 via the Inyo agent runtime.
+              - generic [ref=e7208]:
+                - heading "🧠 Agent Integration Kit" [level=3] [ref=e7209]
+                - paragraph [ref=e7210]: This is what your Divi needs to know to work with this agent effectively.
+                - generic [ref=e7211]:
+                  - generic [ref=e7212]: Handles
+                  - generic [ref=e7213]:
+                    - generic [ref=e7214]: portfolio-monitoring
+                    - generic [ref=e7215]: alert-generation
+                    - generic [ref=e7216]: company-intelligence
+                    - generic [ref=e7217]: investment-tracking
+                - generic [ref=e7218]:
+                  - generic [ref=e7219]: How Divi Should Prepare Context
+                  - generic [ref=e7220]: "Before calling this agent, gather: - Company name and website - Known last funding round and date - Current executive team (CEO, CFO, CTO) - Any recent news or context Pass as JSON with agentType: \"portfolio-monitor\". Include company data in context. Agent returns alerts, overall status, and recommendations."
+                - generic [ref=e7221]:
+                  - generic [ref=e7222]: Pre-Flight Checklist
+                  - generic [ref=e7223]:
+                    - generic [ref=e7224]:
+                      - generic [ref=e7225]: "1."
+                      - generic [ref=e7226]: Confirm company name and current known status
+                    - generic [ref=e7227]:
+                      - generic [ref=e7228]: "2."
+                      - generic [ref=e7229]: Note last known funding round and executive team
+                    - generic [ref=e7230]:
+                      - generic [ref=e7231]: "3."
+                      - generic [ref=e7232]: Specify which signal types to prioritize (funding, exec, layoffs, press)
+                    - generic [ref=e7233]:
+                      - generic [ref=e7234]: "4."
+                      - generic [ref=e7235]: Provide any recent context or news snippets if available
+                - generic [ref=e7236]:
+                  - generic [ref=e7237]:
+                    - generic [ref=e7238]: Expected Input
+                    - generic [ref=e7239]: "{ \"agentType\": \"portfolio-monitor\", \"familyId\": \"string\", \"context\": { \"companyName\": \"string\", \"website\": \"string (optional)\", \"sector\": \"string (optional)\", \"lastKnownFunding\": \"string (optional)\", \"knownExecs\": [\"string (optional)\"], \"recentContext\": \"string (optional)\" } }"
+                  - generic [ref=e7240]:
+                    - generic [ref=e7241]: Returns
+                    - generic [ref=e7242]: "{ \"companyName\": \"string\", \"alerts\": [{\"type\":\"funding|exec-departure|layoffs|press|legal|burn-rate\",\"severity\":\"info|warning|critical\",\"title\":\"string\",\"body\":\"string\",\"source\":\"string\"}], \"overallStatus\": \"string\", \"recommendation\": \"string\" }"
+                - generic [ref=e7243]:
+                  - generic [ref=e7244]: ⚠️ Notes
+                  - generic [ref=e7245]: "Powered by Claude Opus 4-7. Takes 10-20s. Best results when company website and recent context are provided. Alert severity follows: info (FYI), warning (action may be needed), critical (immediate attention required)."
+              - generic [ref=e7246]:
+                - heading "🚀 Execute Task" [level=3] [ref=e7247]
+                - generic [ref=e7248]:
+                  - generic [ref=e7249]: "{ }"
+                  - generic [ref=e7250]: JSON mode — this agent expects structured JSON input. Sample buttons will fill the box with raw JSON.
+                - generic [ref=e7251]:
+                  - generic [ref=e7252]: "Try a sample:"
+                  - 'button "{\"agentType\":\"portfolio-monitor\"}..." [ref=e7254] [cursor=pointer]'
+                - 'textbox "{ \"task_type\": \"...\", \"lead\": { ... } }" [ref=e7256]':
+                  - /placeholder: "{\n  \"task_type\": \"...\",\n  \"lead\": { ... }\n}"
+                - button "▶ Run Task" [disabled] [ref=e7257]
+        - generic [ref=e133]:
+          - generic [ref=e134]:
+            - generic [ref=e135]:
+              - heading "📥 Workspace" [level=2] [ref=e137]
+              - generic [ref=e138]:
+                - button "☑️" [ref=e741] [cursor=pointer]
+                - button "+" [ref=e139] [cursor=pointer]
+            - generic [ref=e140]:
+              - button "Divi's Queue (3)" [ref=e742] [cursor=pointer]
+              - button "📡 Comms" [ref=e142] [cursor=pointer]
+          - button "Clear 3 notifications" [ref=e744] [cursor=pointer]
+          - button "📋 Recently Completed 6 ▶" [ref=e746] [cursor=pointer]:
+            - generic [ref=e747]: 📋
+            - generic [ref=e748]: Recently Completed
+            - generic [ref=e749]: "6"
+            - generic [ref=e750]: ▶
+          - generic [ref=e148]: 0 ready · 0 active · 0 done · 0 blocked
+          - button "🫧 Bubble Store Explore" [ref=e150] [cursor=pointer]:
+            - generic [ref=e151]:
+              - generic [ref=e152]: 🫧
+              - generic [ref=e153]: Bubble Store
+              - generic [ref=e154]: Explore
+          - generic [ref=e155]:
+            - button "🎛️ Cockpit" [ref=e156] [cursor=pointer]:
+              - generic [ref=e159]: 🎛️ Cockpit
+            - generic [ref=e160]: You drive
+      - button "💬 Feedback" [ref=e161] [cursor=pointer]
+      - generic:
+        - generic:
+          - heading "Send Feedback" [level=3]
+          - button "×"
+        - generic:
+          - generic:
+            - generic: Category
+            - generic:
+              - button "💬 General"
+              - button "🐛 Bug Report"
+              - button "💡 Feature Request"
+              - button "🎨 UX / Design"
+              - button "🚀 Onboarding"
+          - generic:
+            - generic: Your Feedback
+            - textbox "Tell us what you think, what's broken, or what you'd love to see...": "{\"agentType\":\"ic-memo\",\"context\":{\"company\":\"Acme Corp\",\"sector\":\"fintech\",\"stage\":\"series-a\",\"capitalAsk\":\"$10M\",\"preMoneyValuation\":\"$40M\",\"revenue\":\"$2M ARR\",\"growth\":\"3x YoY\",\"founders\":\"Jane Smith (ex-Stripe) and John Doe (ex-Goldman Sachs)\",\"description\":\"B2B payments automation platform\"}}"
+            - paragraph: 297/5000
+          - generic:
+            - generic: Satisfaction (optional)
+            - generic:
+              - button "😟"
+              - button "😐"
+              - button "🙂"
+              - button "😊"
+              - button "🤩"
+          - button "Submit Feedback"
+  - alert [ref=e162]

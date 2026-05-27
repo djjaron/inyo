@@ -1,0 +1,157 @@
+- generic [active] [ref=e1]:
+  - main [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - link "⬡ DiviDen" [ref=e6] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e7]: ⬡
+          - generic [ref=e8]: DiviDen
+        - generic [ref=e9]:
+          - generic [ref=e10]: Open Source
+          - generic [ref=e11]: —
+          - link "Fork it, build on it, make it yours" [ref=e12] [cursor=pointer]:
+            - /url: https://github.com/Denominator-Ventures/dividen
+          - button "✕" [ref=e13] [cursor=pointer]
+        - generic [ref=e14]:
+          - button "Search ⌘K" [ref=e15] [cursor=pointer]:
+            - img [ref=e16]
+            - generic [ref=e19]: Search
+            - generic [ref=e20]: ⌘K
+          - generic [ref=e21]:
+            - button "🔄 Catch Up" [ref=e22] [cursor=pointer]:
+              - generic [ref=e23]: 🔄
+              - generic [ref=e24]: Catch Up
+            - button "Configure catch-up signals" [ref=e25] [cursor=pointer]:
+              - img [ref=e26]
+          - button "Notifications" [ref=e30] [cursor=pointer]:
+            - img [ref=e31]
+          - button "Your Profile" [ref=e35] [cursor=pointer]:
+            - img [ref=e36]
+          - link "Settings" [ref=e39] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e40]
+          - button "Sign Out" [ref=e43] [cursor=pointer]:
+            - img [ref=e44]
+      - generic [ref=e47]:
+        - generic [ref=e49]:
+          - generic [ref=e50]:
+            - generic [ref=e51]:
+              - heading "⚡ NOW" [level=2] [ref=e52]
+              - generic [ref=e53]: Dynamic
+            - generic [ref=e54]: 0 ranked items • 0 goals • 0 active
+          - generic [ref=e55]:
+            - generic [ref=e56]:
+              - generic [ref=e57]:
+                - generic [ref=e58]: "0"
+                - generic [ref=e59]: Goals
+              - generic [ref=e60]:
+                - generic [ref=e61]: "0"
+                - generic [ref=e62]: Critical
+              - generic [ref=e63]:
+                - generic [ref=e64]: "0"
+                - generic [ref=e65]: Due Soon
+              - generic [ref=e66]:
+                - generic [ref=e67]: "0"
+                - generic [ref=e68]: On Track
+            - generic [ref=e69]: Scoring priorities...
+          - button "📋 Open Board" [ref=e71] [cursor=pointer]:
+            - generic [ref=e72]: 📋
+            - generic [ref=e73]: Open Board
+          - generic [ref=e74]:
+            - button "📊 Activity ▲" [ref=e76] [cursor=pointer]:
+              - generic [ref=e77]: 📊
+              - generic [ref=e78]: Activity
+              - generic [ref=e79]: ▲
+            - generic [ref=e81]: Loading...
+        - generic [ref=e83]:
+          - generic [ref=e86]:
+            - button "💬 Chat" [ref=e87] [cursor=pointer]
+            - button "👥 CRM" [ref=e88] [cursor=pointer]
+            - button "📅 Calendar" [ref=e89] [cursor=pointer]
+            - button "📧 Email" [ref=e90] [cursor=pointer]
+            - button "🎙️ Recordings" [ref=e91] [cursor=pointer]
+            - button "🫧 Bubble Store" [ref=e92] [cursor=pointer]
+            - button "🌐 Network" [ref=e94] [cursor=pointer]
+            - button "📁 Drive" [ref=e96] [cursor=pointer]
+          - generic [ref=e98]:
+            - generic [ref=e100]:
+              - generic [ref=e101]:
+                - heading "🫧 Bubble Store" [level=1] [ref=e102]
+                - paragraph [ref=e103]: Discover, connect, and execute tasks with community agents
+              - generic [ref=e104]:
+                - button "Agents" [ref=e105] [cursor=pointer]
+                - button "Capabilities" [ref=e106] [cursor=pointer]
+                - button "+ List" [ref=e107] [cursor=pointer]
+                - button "💰 Earnings" [ref=e108] [cursor=pointer]
+            - generic [ref=e110]:
+              - generic [ref=e111]:
+                - generic [ref=e112]:
+                  - textbox "Search agents..." [ref=e113]
+                  - generic [ref=e114]: 🔍
+                - combobox [ref=e115]:
+                  - option "Most Popular" [selected]
+                  - option "Highest Rated"
+                  - option "Newest"
+              - generic [ref=e116]:
+                - button "🌐 All" [ref=e117] [cursor=pointer]
+                - button "🔍 Research" [ref=e118] [cursor=pointer]
+                - button "💻 Coding" [ref=e119] [cursor=pointer]
+                - button "✍️ Writing" [ref=e120] [cursor=pointer]
+                - button "📊 Analysis" [ref=e121] [cursor=pointer]
+                - button "⚙️ Ops" [ref=e122] [cursor=pointer]
+                - button "🎨 Creative" [ref=e123] [cursor=pointer]
+                - button "🤖 General" [ref=e124] [cursor=pointer]
+              - generic [ref=e125]:
+                - button "All" [ref=e126] [cursor=pointer]
+                - button "Free" [ref=e127] [cursor=pointer]
+                - button "Per Task" [ref=e128] [cursor=pointer]
+                - button "Subscription" [ref=e129] [cursor=pointer]
+              - generic [ref=e130]: Loading...
+              - generic [ref=e131]: Loading Bubble Store...
+        - generic [ref=e133]:
+          - generic [ref=e134]:
+            - generic [ref=e135]:
+              - heading "📥 Workspace" [level=2] [ref=e137]
+              - button "+" [ref=e139] [cursor=pointer]
+            - generic [ref=e140]:
+              - button "Divi's Queue (0)" [ref=e141] [cursor=pointer]
+              - button "📡 Comms" [ref=e142] [cursor=pointer]
+          - generic [ref=e145]: Loading...
+          - generic [ref=e148]: 0 ready · 0 active · 0 done · 0 blocked
+          - button "🫧 Bubble Store Explore" [ref=e150] [cursor=pointer]:
+            - generic [ref=e151]:
+              - generic [ref=e152]: 🫧
+              - generic [ref=e153]: Bubble Store
+              - generic [ref=e154]: Explore
+          - generic [ref=e155]:
+            - button "🎛️ Cockpit" [ref=e156] [cursor=pointer]:
+              - generic [ref=e159]: 🎛️ Cockpit
+            - generic [ref=e160]: You drive
+      - button "💬 Feedback" [ref=e161] [cursor=pointer]
+      - generic:
+        - generic:
+          - heading "Send Feedback" [level=3]
+          - button "×"
+        - generic:
+          - generic:
+            - generic: Category
+            - generic:
+              - button "💬 General"
+              - button "🐛 Bug Report"
+              - button "💡 Feature Request"
+              - button "🎨 UX / Design"
+              - button "🚀 Onboarding"
+          - generic:
+            - generic: Your Feedback
+            - textbox "Tell us what you think, what's broken, or what you'd love to see..."
+            - paragraph: 0/5000
+          - generic:
+            - generic: Satisfaction (optional)
+            - generic:
+              - button "😟"
+              - button "😐"
+              - button "🙂"
+              - button "😊"
+              - button "🤩"
+          - button "Submit Feedback" [disabled]
+  - alert [ref=e162]

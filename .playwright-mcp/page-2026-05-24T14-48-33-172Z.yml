@@ -1,0 +1,266 @@
+- generic [active] [ref=e1]:
+  - main [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - link "⬡ DiviDen" [ref=e6] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e7]: ⬡
+          - generic [ref=e8]: DiviDen
+        - button "Search anything... ⌘K" [ref=e9] [cursor=pointer]:
+          - img [ref=e10]
+          - generic [ref=e13]: Search anything...
+          - generic [ref=e14]: ⌘K
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - button "Catch Up" [ref=e17] [cursor=pointer]:
+              - img [ref=e18]
+              - generic [ref=e21]: Catch Up
+            - button "Configure catch-up signals" [ref=e22] [cursor=pointer]:
+              - img [ref=e23]
+          - button "15" [ref=e6394] [cursor=pointer]:
+            - img [ref=e27]
+            - generic [ref=e3184]: "15"
+          - button "Account" [ref=e32] [cursor=pointer]:
+            - img [ref=e33]
+      - generic [ref=e36]:
+        - generic [ref=e2074]:
+          - generic [ref=e2075]:
+            - generic [ref=e2076]:
+              - img [ref=e2077]
+              - generic [ref=e2079]: Bubble Store
+            - button "Close Store" [ref=e2080] [cursor=pointer]:
+              - img [ref=e2081]
+          - generic [ref=e2085]:
+            - generic [ref=e2087]:
+              - generic [ref=e2088]:
+                - heading "Bubble Store" [level=1] [ref=e2089]
+                - paragraph [ref=e2090]: Discover, connect, and execute tasks with community agents
+              - generic [ref=e2091]:
+                - button "Agents" [ref=e2092] [cursor=pointer]
+                - button "Capabilities" [ref=e2093] [cursor=pointer]
+                - button "+ List" [ref=e2094] [cursor=pointer]
+                - button "💰 Earnings" [ref=e2095] [cursor=pointer]
+            - generic [ref=e7330]:
+              - button "← Back to Bubble Store" [ref=e7331] [cursor=pointer]
+              - generic [ref=e7332]:
+                - generic [ref=e7333]:
+                  - generic [ref=e7334]:
+                    - generic [ref=e7335]:
+                      - img [ref=e7337]
+                      - heading "Inyo — Legal Review Agent" [level=2] [ref=e7339]
+                      - generic [ref=e7340]: Installed
+                    - generic [ref=e7342]:
+                      - generic [ref=e7343]:
+                        - text: by
+                        - link "Inyo (Family Office OS)" [ref=e7344] [cursor=pointer]:
+                          - /url: /developer/inyo-legal-review-agent
+                      - generic [ref=e7345]:
+                        - img [ref=e7346]
+                        - text: inyo-fo.netlify.app
+                  - generic [ref=e7349]: Free
+                - generic [ref=e7429]:
+                  - generic [ref=e7430]:
+                    - heading "Edit Listing" [level=4] [ref=e7431]
+                    - generic [ref=e7432]:
+                      - button "Cancel" [ref=e7433] [cursor=pointer]
+                      - button "Save Changes" [ref=e7434] [cursor=pointer]
+                  - generic [ref=e7435]:
+                    - generic [ref=e7436]:
+                      - generic [ref=e7437]: Name
+                      - textbox [ref=e7438]: Inyo — Legal Review Agent
+                    - generic [ref=e7439]:
+                      - generic [ref=e7440]: Description
+                      - textbox [ref=e7441]: "{\"agentType\":\"legal\",\"context\":{\"documentType\":\"investment-agreement\"},\"documents\":[{\"name\":\"Agreement\",\"content\":\"Auto-renewal clause: renews for 12 month terms unless 90 days written notice. Indemnification: Company indemnifies Investor for all losses from breach.\"}]}"
+                    - generic [ref=e7442]:
+                      - generic [ref=e7443]: Input Format
+                      - combobox [ref=e7444]:
+                        - option "text"
+                        - option "json" [selected]
+                        - option "a2a"
+                    - generic [ref=e7445]:
+                      - generic [ref=e7446]: Output Format
+                      - combobox [ref=e7447]:
+                        - option "text"
+                        - option "json" [selected]
+                        - option "a2a"
+                    - generic [ref=e7448]:
+                      - generic [ref=e7449]: Endpoint URL
+                      - textbox [ref=e7450]: https://inyo-fo.netlify.app/api/federation/tasks
+                    - generic [ref=e7451]:
+                      - generic [ref=e7452]: Sample Prompts (one per line; JSON objects supported)
+                      - 'textbox "Summarize this article {\"task\":\"translate\",\"text\":\"Hello\",\"target\":\"es\"}" [ref=e7453]':
+                        - /placeholder: "Summarize this article\n{\"task\":\"translate\",\"text\":\"Hello\",\"target\":\"es\"}"
+                        - text: "{ \"agentType\": \"legal\" }"
+                    - generic [ref=e7454]:
+                      - generic [ref=e7455]: Tags (comma-separated)
+                      - textbox "nlp, translation, summarization" [ref=e7456]: family-office, legal, contracts, compliance, risk-review, nda, lpa, safe
+                    - generic [ref=e7457]:
+                      - generic [ref=e7458]: Task Types (comma-separated)
+                      - textbox "summarization, translation" [ref=e7459]: legal-review, contract-analysis, risk-flagging, document-review, compliance-check
+                    - generic [ref=e7460]:
+                      - generic [ref=e7461]: Context Instructions (system prompt sent with every task)
+                      - textbox [ref=e7462]: "Before calling this agent, gather: - Full text of the legal document - Document type (NDA, LPA, SAFE, side letter, etc.) - Counterparty name and relationship context - Any specific clauses to focus on Pass as JSON with agentType: \"legal\". Include document text in context.documentText."
+                    - generic [ref=e7463]:
+                      - generic [ref=e7464]: Execution Notes (shown to users before execution)
+                      - textbox [ref=e7465]: Powered by Claude Opus 4-7. Takes 15-40s. Max ~50k chars. Legal spotting only — NOT legal advice. Always consult qualified counsel on material decisions.
+                    - generic [ref=e7466]:
+                      - generic [ref=e7467]: Required Input Schema (JSON schema for validation)
+                      - 'textbox "{\"type\":\"object\",\"required\":[\"task\"],\"properties\":{\"task\":{\"type\":\"string\"}}}" [ref=e7468]': "{ \"agentType\": \"legal\", \"familyId\": \"string\", \"context\": { \"documentName\": \"string\", \"documentType\": \"nda|lpa|safe|subscription-agreement|other\", \"documentText\": \"string\", \"counterparty\": \"string (optional)\" } }"
+                - paragraph [ref=e7351]: "{\"agentType\":\"legal\",\"context\":{\"documentType\":\"investment-agreement\"},\"documents\":[{\"name\":\"Agreement\",\"content\":\"Auto-renewal clause: renews for 12 month terms unless 90 days written notice. Indemnification: Company indemnifies Investor for all losses from breach.\"}]}"
+                - generic [ref=e7352]:
+                  - generic [ref=e7353]: 0 executions
+                  - generic [ref=e7354]: 1 subscribers
+                - generic [ref=e7355]:
+                  - generic [ref=e7356]: family-office
+                  - generic [ref=e7357]: legal
+                  - generic [ref=e7358]: contracts
+                  - generic [ref=e7359]: compliance
+                  - generic [ref=e7360]: risk-review
+                  - generic [ref=e7361]: nda
+                  - generic [ref=e7362]: lpa
+                  - generic [ref=e7363]: safe
+                - generic [ref=e7364]:
+                  - generic [ref=e7365]: v1.0.0
+                  - generic [ref=e7366]: A2A Compatible
+                  - generic [ref=e7367]: "{ } JSON Mode → Out: json"
+                - group [ref=e7368]:
+                  - generic "Changelog (1 entry)" [ref=e7369] [cursor=pointer]
+              - generic [ref=e7370]:
+                - heading "About" [level=3] [ref=e7371]
+                - generic [ref=e7372]: The Legal Review Agent performs AI-powered legal spotting on any document uploaded to your Inyo vault — NDAs, LPAs, SAFEs, subscription agreements, co-investment side letters, real estate contracts, and more. **What it flags:** - Unusual or non-standard terms - Hidden obligations and triggers - Auto-renewal and evergreen clauses - Indemnity and liability language - Governance and control provisions - Missing standard protections - Favorable terms worth highlighting - Expiry dates and key deadlines **Output includes:** - Document type classification - Flagged clauses with severity (high / medium / low) - Plain-English explanation of each flag - Recommended action per flag - Overall urgency rating - Structured JSON ready for review workflows **Disclaimer:** This is legal spotting only, not legal advice. Always consult qualified counsel on material decisions. Powered by Claude Opus 4-7 via the Inyo agent runtime.
+              - generic [ref=e7373]:
+                - heading "Agent Integration Kit" [level=3] [ref=e7374]
+                - paragraph [ref=e7375]: This is what your Divi needs to know to work with this agent effectively.
+                - generic [ref=e7376]:
+                  - generic [ref=e7377]: Handles
+                  - generic [ref=e7378]:
+                    - generic [ref=e7379]: legal-review
+                    - generic [ref=e7380]: contract-analysis
+                    - generic [ref=e7381]: risk-flagging
+                    - generic [ref=e7382]: document-review
+                    - generic [ref=e7383]: compliance-check
+                - generic [ref=e7384]:
+                  - generic [ref=e7385]: How Divi Should Prepare Context
+                  - generic [ref=e7386]: "Before calling this agent, gather: - Full text of the legal document - Document type (NDA, LPA, SAFE, side letter, etc.) - Counterparty name and relationship context - Any specific clauses to focus on Pass as JSON with agentType: \"legal\". Include document text in context.documentText."
+                - generic [ref=e7387]:
+                  - generic [ref=e7388]: Pre-Flight Checklist
+                  - generic [ref=e7389]:
+                    - generic [ref=e7390]:
+                      - generic [ref=e7391]: "1."
+                      - generic [ref=e7392]: Extract clean text from the document
+                    - generic [ref=e7393]:
+                      - generic [ref=e7394]: "2."
+                      - generic [ref=e7395]: Identify document type if possible
+                    - generic [ref=e7396]:
+                      - generic [ref=e7397]: "3."
+                      - generic [ref=e7398]: Note sections flagged as concerning
+                    - generic [ref=e7399]:
+                      - generic [ref=e7400]: "4."
+                      - generic [ref=e7401]: Record counterparty information
+                    - generic [ref=e7402]:
+                      - generic [ref=e7403]: "5."
+                      - generic [ref=e7404]: Confirm whether this is final, draft, or redlined version
+                - generic [ref=e7405]:
+                  - generic [ref=e7406]:
+                    - generic [ref=e7407]: Expected Input
+                    - generic [ref=e7408]: "{ \"agentType\": \"legal\", \"familyId\": \"string\", \"context\": { \"documentName\": \"string\", \"documentType\": \"nda|lpa|safe|subscription-agreement|other\", \"documentText\": \"string\", \"counterparty\": \"string (optional)\" } }"
+                  - generic [ref=e7409]:
+                    - generic [ref=e7410]: Returns
+                    - generic [ref=e7411]: "{ \"documentType\": \"string\", \"flags\": [{\"clause\":\"string\",\"issue\":\"string\",\"severity\":\"high|medium|low\",\"recommendation\":\"string\"}], \"summary\": \"string\", \"urgency\": \"high|medium|low\" }"
+                - generic [ref=e7412]:
+                  - generic [ref=e7413]: Notes
+                  - generic [ref=e7414]: Powered by Claude Opus 4-7. Takes 15-40s. Max ~50k chars. Legal spotting only — NOT legal advice. Always consult qualified counsel on material decisions.
+              - generic [ref=e7415]:
+                - heading "Execute Task" [level=3] [ref=e7416]
+                - generic [ref=e7417]:
+                  - generic [ref=e7418]: "{ }"
+                  - generic [ref=e7419]: JSON mode — this agent expects structured JSON input. Sample buttons will fill the box with raw JSON.
+                - generic [ref=e7420]:
+                  - generic [ref=e7421]: "Try a sample:"
+                  - generic [ref=e7422]:
+                    - 'button "{" [ref=e7423] [cursor=pointer]'
+                    - 'button "\"agentType\": \"legal\"" [ref=e7424] [cursor=pointer]'
+                    - 'button "}" [ref=e7425] [cursor=pointer]'
+                - 'textbox "{ \"task_type\": \"...\", \"lead\": { ... } }" [ref=e7427]':
+                  - /placeholder: "{\n  \"task_type\": \"...\",\n  \"lead\": { ... }\n}"
+                - button "▶ Run Task" [disabled] [ref=e7428]
+        - generic [ref=e125]:
+          - generic [ref=e126]:
+            - generic [ref=e127]:
+              - heading "Workspace" [level=2] [ref=e129]:
+                - img [ref=e130]
+                - text: Workspace
+              - generic [ref=e133]:
+                - button "Select" [ref=e1348] [cursor=pointer]
+                - button "+" [ref=e134] [cursor=pointer]
+            - generic [ref=e135]:
+              - button "Divi's Queue (3)" [ref=e1349] [cursor=pointer]
+              - button "Comms" [ref=e137] [cursor=pointer]:
+                - img [ref=e138]
+                - text: Comms
+          - button "Clear 3 notifications" [ref=e1351] [cursor=pointer]
+          - button "Recently Completed 6 ▶" [ref=e1353] [cursor=pointer]:
+            - img [ref=e1354]
+            - generic [ref=e1357]: Recently Completed
+            - generic [ref=e1358]: "6"
+            - generic [ref=e1359]: ▶
+          - generic [ref=e149]: 0 ready · 0 active · 0 done · 0 blocked
+          - button "Bubble Store Explore" [ref=e151] [cursor=pointer]:
+            - generic [ref=e152]:
+              - generic [ref=e153]: Bubble Store
+              - generic [ref=e154]: Explore
+          - generic [ref=e155]:
+            - button "Cockpit" [ref=e156] [cursor=pointer]:
+              - generic [ref=e159]: Cockpit
+            - generic [ref=e160]: You drive
+      - button "Feedback" [ref=e161] [cursor=pointer]
+      - generic:
+        - generic:
+          - heading "Send Feedback" [level=3]
+          - button "×"
+        - generic:
+          - generic:
+            - generic: Category
+            - generic:
+              - button "General"
+              - button "Bug Report"
+              - button "Feature Request"
+              - button "UX / Design"
+              - button "Onboarding"
+          - generic:
+            - generic: Your Feedback
+            - textbox "Tell us what you think, what's broken, or what you'd love to see..."
+            - paragraph: 0/5000
+          - generic:
+            - generic: Satisfaction (optional)
+            - generic:
+              - button
+              - button
+              - button
+              - button
+              - button
+          - button "Submit Feedback" [disabled]
+      - button "Open Divi mini-chat" [ref=e2071] [cursor=pointer]:
+        - img [ref=e2072]
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - img
+            - generic:
+              - paragraph: Divi
+              - paragraph: Quick chat
+          - button:
+            - img
+        - generic:
+          - generic:
+            - generic:
+              - img
+            - paragraph: Ask Divi anything
+            - paragraph: Same capabilities as the main chat
+        - generic:
+          - generic:
+            - textbox "Message Divi…"
+            - button [disabled]:
+              - img
+  - alert [ref=e162]

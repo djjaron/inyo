@@ -1,0 +1,307 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]: FO
+        - generic [ref=e6]:
+          - generic [ref=e7]: Inyo
+          - generic [ref=e8]: Family Office OS
+      - navigation [ref=e9]:
+        - link "Dashboard" [ref=e10] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e11]
+          - text: Dashboard
+        - link "Approvals" [ref=e16] [cursor=pointer]:
+          - /url: /approvals
+          - img [ref=e17]
+          - text: Approvals
+        - link "Opportunities" [ref=e20] [cursor=pointer]:
+          - /url: /opportunities
+          - img [ref=e21]
+          - text: Opportunities
+        - link "Portfolio" [ref=e24] [cursor=pointer]:
+          - /url: /portfolio
+          - img [ref=e25]
+          - text: Portfolio
+        - link "Finance" [ref=e27] [cursor=pointer]:
+          - /url: /finance
+          - img [ref=e28]
+          - text: Finance
+        - link "Calendar" [ref=e30] [cursor=pointer]:
+          - /url: /calendar
+          - img [ref=e31]
+          - text: Calendar
+        - link "Legal" [ref=e33] [cursor=pointer]:
+          - /url: /legal
+          - img [ref=e34]
+          - text: Legal
+        - link "Tax" [ref=e38] [cursor=pointer]:
+          - /url: /tax
+          - img [ref=e39]
+          - text: Tax
+        - link "Concierge" [ref=e42] [cursor=pointer]:
+          - /url: /concierge
+          - img [ref=e43]
+          - text: Concierge
+        - link "Philanthropy" [ref=e46] [cursor=pointer]:
+          - /url: /philanthropy
+          - img [ref=e47]
+          - text: Philanthropy
+        - link "Relationships" [ref=e49] [cursor=pointer]:
+          - /url: /relationships
+          - img [ref=e50]
+          - text: Relationships
+        - link "SPV" [ref=e55] [cursor=pointer]:
+          - /url: /spv
+          - img [ref=e56]
+          - text: SPV
+        - link "Marketplace" [ref=e60] [cursor=pointer]:
+          - /url: /marketplace
+          - img [ref=e61]
+          - text: Marketplace
+        - link "Federation" [ref=e65] [cursor=pointer]:
+          - /url: /federation
+          - img [ref=e66]
+          - text: Federation
+        - generic [ref=e68]:
+          - generic [ref=e69]: Import
+          - link "Import Deals" [ref=e70] [cursor=pointer]:
+            - /url: /import/deals
+            - img [ref=e71]
+            - text: Import Deals
+          - link "Import Contacts" [ref=e74] [cursor=pointer]:
+            - /url: /import/contacts
+            - img [ref=e75]
+            - text: Import Contacts
+      - generic [ref=e78]:
+        - link "Agents →" [ref=e79] [cursor=pointer]:
+          - /url: /marketplace
+          - img [ref=e80]
+          - generic [ref=e82]: Agents
+          - generic [ref=e83]: →
+        - link "Integrations" [ref=e84] [cursor=pointer]:
+          - /url: /integrations
+          - img [ref=e85]
+          - text: Integrations
+        - link "API Docs" [ref=e87] [cursor=pointer]:
+          - /url: /api-docs
+          - img [ref=e88]
+          - text: API Docs
+        - link "Settings" [ref=e92] [cursor=pointer]:
+          - /url: /settings
+          - img [ref=e93]
+          - text: Settings
+        - button "Open user menu" [ref=e198] [cursor=pointer]:
+          - img "Jaron Ray Hinds's logo" [ref=e201]
+    - generic [ref=e99]:
+      - generic [ref=e100]:
+        - generic [ref=e101]:
+          - heading "Federation" [level=1] [ref=e102]
+          - paragraph [ref=e103]: Dividen network integration
+        - generic [ref=e105]:
+          - button "Refresh" [ref=e106]:
+            - img [ref=e107]
+            - text: Refresh
+          - button "Sync to Marketplace" [ref=e112]:
+            - img [ref=e368]
+            - text: Sync to Marketplace
+          - button "Register" [ref=e117]:
+            - img [ref=e118]
+            - text: Register
+      - generic [ref=e120]:
+        - generic [ref=e122]:
+          - generic [ref=e123]:
+            - img [ref=e124]
+            - generic [ref=e126]:
+              - generic [ref=e127]: Not connected to Dividen network
+              - generic [ref=e128]: Register this instance to join the federation
+          - generic [ref=e204]: Demo mode — set DIVIDEN_API_KEY to connect
+        - generic [ref=e372]:
+          - generic [ref=e373]:
+            - generic [ref=e374]:
+              - generic [ref=e375]: Agents synced to Dividen Bubble Store
+              - generic [ref=e376]: Mock sync — 13 agents queued. Set DIVIDEN_PLATFORM_TOKEN to push to the live Bubble Store.
+            - generic [ref=e378]:
+              - generic [ref=e379]: "13"
+              - generic [ref=e380]: created
+          - generic [ref=e381]:
+            - text: Set
+            - code [ref=e382]: DIVIDEN_PLATFORM_TOKEN
+            - text: in your environment to push to the live Bubble Store.
+        - generic [ref=e129]:
+          - generic [ref=e130]:
+            - img [ref=e131]
+            - generic [ref=e135]: Dividen Bubble Store
+          - generic [ref=e136]:
+            - generic [ref=e137]:
+              - generic [ref=e138]: Submit agents to the marketplace
+              - generic [ref=e139]: "\"Sync to Marketplace\" pushes all 13 Inyo agents to the Dividen Bubble Store as a single batch. Synced agents enter pending_review status and require admin approval before going public."
+              - generic [ref=e140]:
+                - generic [ref=e141]:
+                  - img [ref=e142]
+                  - generic [ref=e145]:
+                    - text: Requires
+                    - code [ref=e146]: DIVIDEN_PLATFORM_TOKEN
+                    - text: env var
+                - generic [ref=e147]:
+                  - img [ref=e148]
+                  - generic [ref=e151]:
+                    - text: Agent card served at
+                    - code [ref=e152]: /.well-known/agent-card.json
+                - generic [ref=e153]:
+                  - img [ref=e154]
+                  - generic [ref=e156]:
+                    - text: "Inbound endpoint:"
+                    - code [ref=e157]: /api/federation/tasks
+            - generic [ref=e158]:
+              - generic [ref=e159]: 13 agents ready to sync
+              - generic [ref=e160]:
+                - generic [ref=e161]: Deal Flow Analyst
+                - generic [ref=e163]: IC Memo Writer
+                - generic [ref=e165]: Portfolio Monitor
+                - generic [ref=e167]: CFO Agent
+                - generic [ref=e169]: Legal Review
+                - generic [ref=e171]: Tax Intelligence
+                - generic [ref=e173]: Chief of Staff
+                - generic [ref=e175]: Concierge
+                - generic [ref=e177]: Philanthropy
+                - generic [ref=e179]: Relationship Intel
+                - generic [ref=e181]: Deal Enrichment
+                - generic [ref=e183]: Term Sheet Analyst
+                - generic [ref=e185]: Diligence Agent
+        - generic [ref=e205]:
+          - generic [ref=e206]:
+            - generic [ref=e207]: Instance
+            - generic [ref=e208]:
+              - generic [ref=e209]:
+                - generic [ref=e210]: Instance ID
+                - generic [ref=e211]: inyo
+              - generic [ref=e212]:
+                - generic [ref=e213]: Version
+                - generic [ref=e214]: 1.0.0
+              - generic [ref=e215]:
+                - generic [ref=e216]: Protocol
+                - generic [ref=e217]: dividen/1.0
+              - generic [ref=e218]:
+                - generic [ref=e219]: Tags
+                - generic [ref=e220]:
+                  - generic [ref=e221]: family-office
+                  - generic [ref=e222]: investment
+                  - generic [ref=e223]: wealth-management
+                  - generic [ref=e224]: legal
+                  - generic [ref=e225]: tax
+            - generic [ref=e226]:
+              - generic [ref=e227]: Endpoints
+              - generic [ref=e228]:
+                - generic [ref=e229]: manifest
+                - generic [ref=e230]: http://localhost:3000/api/federation/manifest
+              - generic [ref=e231]:
+                - generic [ref=e232]: inbound
+                - generic [ref=e233]: http://localhost:3000/api/federation/tasks
+              - generic [ref=e234]:
+                - generic [ref=e235]: health
+                - generic [ref=e236]: http://localhost:3000/api/federation/status
+          - generic [ref=e237]:
+            - generic [ref=e238]: Stats
+            - generic [ref=e239]:
+              - generic [ref=e240]: "0"
+              - generic [ref=e241]: Agent Runs
+        - generic [ref=e242]:
+          - generic [ref=e243]:
+            - generic [ref=e244]: Agent Capabilities
+            - generic [ref=e245]: "13"
+          - generic [ref=e246]:
+            - generic [ref=e247]:
+              - generic [ref=e248]:
+                - img [ref=e250]
+                - generic [ref=e252]: Opus
+              - generic [ref=e253]:
+                - generic [ref=e254]: Deal Flow Analyst
+                - generic [ref=e255]: Scores and triages inbound investment opportunities
+            - generic [ref=e256]:
+              - generic [ref=e257]:
+                - img [ref=e259]
+                - generic [ref=e261]: Opus
+              - generic [ref=e262]:
+                - generic [ref=e263]: IC Memo Writer
+                - generic [ref=e264]: Generates institutional investment committee memos
+            - generic [ref=e265]:
+              - generic [ref=e266]:
+                - img [ref=e268]
+                - generic [ref=e270]: Opus
+              - generic [ref=e271]:
+                - generic [ref=e272]: Portfolio Monitor
+                - generic [ref=e273]: Watches investments for material changes and alerts
+            - generic [ref=e274]:
+              - generic [ref=e275]:
+                - img [ref=e277]
+                - generic [ref=e279]: Opus
+              - generic [ref=e280]:
+                - generic [ref=e281]: CFO Agent
+                - generic [ref=e282]: Analyzes cash flow, entity liquidity, and expense reporting
+            - generic [ref=e283]:
+              - generic [ref=e284]:
+                - img [ref=e286]
+                - generic [ref=e288]: Opus
+              - generic [ref=e289]:
+                - generic [ref=e290]: Legal Review Agent
+                - generic [ref=e291]: Reviews documents for risk flags and compliance issues
+            - generic [ref=e292]:
+              - generic [ref=e293]:
+                - img [ref=e295]
+                - generic [ref=e297]: Opus
+              - generic [ref=e298]:
+                - generic [ref=e299]: Tax Intelligence Agent
+                - generic [ref=e300]: Organizes K-1s, deadlines, and tax obligations
+            - generic [ref=e301]:
+              - generic [ref=e302]:
+                - img [ref=e304]
+                - generic [ref=e307]: Haiku
+              - generic [ref=e308]:
+                - generic [ref=e309]: Chief of Staff
+                - generic [ref=e310]: Handles inbox triage, follow-ups, and operational tasks
+            - generic [ref=e311]:
+              - generic [ref=e312]:
+                - img [ref=e314]
+                - generic [ref=e317]: Haiku
+              - generic [ref=e318]:
+                - generic [ref=e319]: Concierge Agent
+                - generic [ref=e320]: Manages travel, household, and lifestyle operations
+            - generic [ref=e321]:
+              - generic [ref=e322]:
+                - img [ref=e324]
+                - generic [ref=e327]: Haiku
+              - generic [ref=e328]:
+                - generic [ref=e329]: Philanthropy Agent
+                - generic [ref=e330]: Supports foundation giving and grant tracking
+            - generic [ref=e331]:
+              - generic [ref=e332]:
+                - img [ref=e334]
+                - generic [ref=e337]: Haiku
+              - generic [ref=e338]:
+                - generic [ref=e339]: Relationship Intelligence
+                - generic [ref=e340]: Maps network, warm paths, and interaction history
+            - generic [ref=e341]:
+              - generic [ref=e342]:
+                - img [ref=e344]
+                - generic [ref=e346]: Opus
+              - generic [ref=e347]:
+                - generic [ref=e348]: Deal Enrichment Analyst
+                - generic [ref=e349]: Scores deals using web, LinkedIn, and Crunchbase signals
+            - generic [ref=e350]:
+              - generic [ref=e351]:
+                - img [ref=e353]
+                - generic [ref=e355]: Opus
+              - generic [ref=e356]:
+                - generic [ref=e357]: Term Sheet Analyst
+                - generic [ref=e358]: Extracts and compares investment term sheets
+            - generic [ref=e359]:
+              - generic [ref=e360]:
+                - img [ref=e362]
+                - generic [ref=e364]: Opus
+              - generic [ref=e365]:
+                - generic [ref=e366]: Diligence Agent
+                - generic [ref=e367]: Reviews deal diligence checklists with AI analysis
+  - button "Open Next.js Dev Tools" [ref=e192] [cursor=pointer]:
+    - img [ref=e193]
+  - alert [ref=e196]

@@ -1,0 +1,233 @@
+- generic [active] [ref=e1]:
+  - main [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - link "⬡ DiviDen" [ref=e6] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e7]: ⬡
+          - generic [ref=e8]: DiviDen
+        - button "Search anything... ⌘K" [ref=e9] [cursor=pointer]:
+          - img [ref=e10]
+          - generic [ref=e13]: Search anything...
+          - generic [ref=e14]: ⌘K
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - button "Catch Up" [ref=e17] [cursor=pointer]:
+              - img [ref=e18]
+              - generic [ref=e21]: Catch Up
+            - button "Configure catch-up signals" [ref=e22] [cursor=pointer]:
+              - img [ref=e23]
+          - button "15" [ref=e6394] [cursor=pointer]:
+            - img [ref=e27]
+            - generic [ref=e3184]: "15"
+          - button "Account" [ref=e32] [cursor=pointer]:
+            - img [ref=e33]
+      - generic [ref=e36]:
+        - generic [ref=e2074]:
+          - generic [ref=e2075]:
+            - generic [ref=e2076]:
+              - img [ref=e2077]
+              - generic [ref=e2079]: Bubble Store
+            - button "Close Store" [ref=e2080] [cursor=pointer]:
+              - img [ref=e2081]
+          - generic [ref=e2085]:
+            - generic [ref=e2087]:
+              - generic [ref=e2088]:
+                - heading "Bubble Store" [level=1] [ref=e2089]
+                - paragraph [ref=e2090]: Discover, connect, and execute tasks with community agents
+              - generic [ref=e2091]:
+                - button "Agents" [ref=e2092] [cursor=pointer]
+                - button "Capabilities" [ref=e2093] [cursor=pointer]
+                - button "+ List" [ref=e2094] [cursor=pointer]
+                - button "💰 Earnings" [ref=e2095] [cursor=pointer]
+            - generic [ref=e6395]:
+              - button "← Back to Bubble Store" [ref=e6396] [cursor=pointer]
+              - generic [ref=e6397]:
+                - generic [ref=e6398]:
+                  - generic [ref=e6399]:
+                    - generic [ref=e6400]:
+                      - img [ref=e6402]
+                      - heading "Inyo — Relationship Intelligence" [level=2] [ref=e6405]
+                      - generic [ref=e6406]: Installed
+                    - generic [ref=e6408]:
+                      - generic [ref=e6409]:
+                        - text: by
+                        - link "Inyo (Family Office OS)" [ref=e6410] [cursor=pointer]:
+                          - /url: /developer/inyo-relationship-intelligence
+                      - generic [ref=e6411]:
+                        - img [ref=e6412]
+                        - text: inyo-fo.netlify.app
+                  - generic [ref=e6415]: Free
+                  - button "Edit Listing" [ref=e6548] [cursor=pointer]
+                - paragraph [ref=e6417]: Maps warm paths, tracks relationship strength, and surfaces network intelligence for family offices
+                - generic [ref=e6418]:
+                  - generic [ref=e6419]: 0 executions
+                  - generic [ref=e6420]: 1 subscribers
+                - generic [ref=e6421]:
+                  - generic [ref=e6422]: family-office
+                  - generic [ref=e6423]: relationships
+                  - generic [ref=e6424]: network
+                  - generic [ref=e6425]: crm
+                  - generic [ref=e6426]: warm-intro
+                  - generic [ref=e6427]: contact-intelligence
+                - generic [ref=e6428]:
+                  - generic [ref=e6429]: v1.0.0
+                  - generic [ref=e6430]: A2A Compatible
+                  - generic [ref=e6431]: "{ } JSON Mode → Out: json"
+                - group [ref=e6432]:
+                  - generic "Changelog (1 entry)" [ref=e6433] [cursor=pointer]
+              - generic [ref=e6434]:
+                - heading "About" [level=3] [ref=e6435]
+                - generic [ref=e6436]: The Relationship Intelligence agent turns a family office's contact network into a searchable, queryable asset. **What it answers:** - "Who introduced us to this founder?" — traces introduction chains - "When did we last speak with [contact]?" — surfaces last contact date and interaction history - "Who is our warmest path to [target]?" — finds multi-hop connection paths - "Which LPs or co-investors focus on climate?" — filters by investment thesis - "What open commitments do we have with [contact]?" — tracks follow-ups **Output includes:** - Answered query with supporting evidence - Relevant contact profiles with interaction history - Connection path maps (A → B → C) - Open items and follow-up suggestions - Relationship strength signals Powered by Claude Opus 4-7 via the Inyo agent runtime.
+              - generic [ref=e6437]:
+                - heading "Agent Integration Kit" [level=3] [ref=e6438]
+                - paragraph [ref=e6439]: This is what your Divi needs to know to work with this agent effectively.
+                - generic [ref=e6440]:
+                  - generic [ref=e6441]: Handles
+                  - generic [ref=e6442]:
+                    - generic [ref=e6443]: relationship-mapping
+                    - generic [ref=e6444]: network-analysis
+                    - generic [ref=e6445]: warm-path-finding
+                    - generic [ref=e6446]: contact-intelligence
+                    - generic [ref=e6447]: crm-query
+                - generic [ref=e6448]:
+                  - generic [ref=e6449]: How Divi Should Prepare Context
+                  - generic [ref=e6450]: "Before calling this agent, gather: - The specific relationship query - Names of relevant contacts or target individuals - Any known connection context Pass as JSON with agentType: \"relationships\". Include contact list and interaction history in context. Agent answers the query with supporting contact data and connection paths."
+                - generic [ref=e6451]:
+                  - generic [ref=e6452]: Pre-Flight Checklist
+                  - generic [ref=e6453]:
+                    - generic [ref=e6454]:
+                      - generic [ref=e6455]: "1."
+                      - generic [ref=e6456]: Clarify the exact relationship query
+                    - generic [ref=e6457]:
+                      - generic [ref=e6458]: "2."
+                      - generic [ref=e6459]: Identify names of target contacts or companies
+                    - generic [ref=e6460]:
+                      - generic [ref=e6461]: "3."
+                      - generic [ref=e6462]: Gather relevant contacts from the Inyo CRM
+                    - generic [ref=e6463]:
+                      - generic [ref=e6464]: "4."
+                      - generic [ref=e6465]: Include recent interaction notes if available
+                    - generic [ref=e6466]:
+                      - generic [ref=e6467]: "5."
+                      - generic [ref=e6468]: Note any known partial connections
+                - generic [ref=e6469]:
+                  - generic [ref=e6470]:
+                    - generic [ref=e6471]: Expected Input
+                    - generic [ref=e6472]: "{ \"agentType\": \"relationships\", \"familyId\": \"string\", \"context\": { \"query\": \"string (the relationship question)\", \"contacts\": [{\"id\":\"string\",\"name\":\"string\",\"company\":\"string\",\"type\":\"string\",\"lastContactAt\":\"date\",\"introducedBy\":\"string\"}], \"targetName\": \"string (optional)\" } }"
+                  - generic [ref=e6473]:
+                    - generic [ref=e6474]: Returns
+                    - generic [ref=e6475]: "{ \"query\": \"string\", \"answer\": \"string\", \"contacts\": [{\"id\":\"string\",\"name\":\"string\",\"relevance\":\"string\"}], \"connectionPaths\": [[\"string\"]], \"openItems\": [\"string\"], \"suggestions\": [\"string\"] }"
+                - generic [ref=e6476]:
+                  - generic [ref=e6477]: Notes
+                  - generic [ref=e6478]: Powered by Claude Opus 4-7. Takes 10-20s. Quality of answers depends heavily on richness of contact data provided. Multi-hop path finding works best with 50+ contacts in context.
+              - generic [ref=e6479]:
+                - heading "Execute Task" [level=3] [ref=e6480]
+                - generic [ref=e6481]:
+                  - generic [ref=e6482]: "{ }"
+                  - generic [ref=e6483]: JSON mode — this agent expects structured JSON input. Sample buttons will fill the box with raw JSON.
+                - generic [ref=e6484]:
+                  - generic [ref=e6485]: "Try a sample:"
+                  - generic [ref=e6486]:
+                    - button "Find a warm path to the CEO of Stripe" [ref=e6549] [cursor=pointer]
+                    - button "Map my connections to Sequoia Capital" [ref=e6550] [cursor=pointer]
+                - 'textbox "{ \"task_type\": \"...\", \"lead\": { ... } }" [ref=e6489]':
+                  - /placeholder: "{\n  \"task_type\": \"...\",\n  \"lead\": { ... }\n}"
+                - button "▶ Run Task" [disabled] [ref=e6490]
+              - generic [ref=e6491]:
+                - heading "Your Recent Executions" [level=3] [ref=e6492]
+                - generic [ref=e6493]:
+                  - generic [ref=e6494]:
+                    - generic [ref=e6495]:
+                      - generic [ref=e6496]: "{ \"agentType\": \"relationships\" }"
+                      - generic [ref=e6497]: failed
+                    - generic [ref=e6498]:
+                      - generic [ref=e6499]: 6649ms
+                      - generic [ref=e6500]: 5/22/2026
+                  - generic [ref=e6501]:
+                    - generic [ref=e6502]:
+                      - generic [ref=e6503]: "{ \"agentType\": \"relationships\" }"
+                      - generic [ref=e6504]: failed
+                    - generic [ref=e6505]:
+                      - generic [ref=e6506]: 1194ms
+                      - generic [ref=e6507]: 5/22/2026
+        - generic [ref=e125]:
+          - generic [ref=e126]:
+            - generic [ref=e127]:
+              - heading "Workspace" [level=2] [ref=e129]:
+                - img [ref=e130]
+                - text: Workspace
+              - generic [ref=e133]:
+                - button "Select" [ref=e1348] [cursor=pointer]
+                - button "+" [ref=e134] [cursor=pointer]
+            - generic [ref=e135]:
+              - button "Divi's Queue (3)" [ref=e1349] [cursor=pointer]
+              - button "Comms" [ref=e137] [cursor=pointer]:
+                - img [ref=e138]
+                - text: Comms
+          - button "Clear 3 notifications" [ref=e1351] [cursor=pointer]
+          - button "Recently Completed 6 ▶" [ref=e1353] [cursor=pointer]:
+            - img [ref=e1354]
+            - generic [ref=e1357]: Recently Completed
+            - generic [ref=e1358]: "6"
+            - generic [ref=e1359]: ▶
+          - generic [ref=e149]: 0 ready · 0 active · 0 done · 0 blocked
+          - button "Bubble Store Explore" [ref=e151] [cursor=pointer]:
+            - generic [ref=e152]:
+              - generic [ref=e153]: Bubble Store
+              - generic [ref=e154]: Explore
+          - generic [ref=e155]:
+            - button "Cockpit" [ref=e156] [cursor=pointer]:
+              - generic [ref=e159]: Cockpit
+            - generic [ref=e160]: You drive
+      - button "Feedback" [ref=e161] [cursor=pointer]
+      - generic:
+        - generic:
+          - heading "Send Feedback" [level=3]
+          - button "×"
+        - generic:
+          - generic:
+            - generic: Category
+            - generic:
+              - button "General"
+              - button "Bug Report"
+              - button "Feature Request"
+              - button "UX / Design"
+              - button "Onboarding"
+          - generic:
+            - generic: Your Feedback
+            - textbox "Tell us what you think, what's broken, or what you'd love to see..."
+            - paragraph: 0/5000
+          - generic:
+            - generic: Satisfaction (optional)
+            - generic:
+              - button
+              - button
+              - button
+              - button
+              - button
+          - button "Submit Feedback" [disabled]
+      - button "Open Divi mini-chat" [ref=e2071] [cursor=pointer]:
+        - img [ref=e2072]
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - img
+            - generic:
+              - paragraph: Divi
+              - paragraph: Quick chat
+          - button:
+            - img
+        - generic:
+          - generic:
+            - generic:
+              - img
+            - paragraph: Ask Divi anything
+            - paragraph: Same capabilities as the main chat
+        - generic:
+          - generic:
+            - textbox "Message Divi…"
+            - button [disabled]:
+              - img
+  - alert [ref=e162]

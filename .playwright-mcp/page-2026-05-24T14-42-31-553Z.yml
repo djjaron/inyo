@@ -1,0 +1,253 @@
+- generic [active] [ref=e1]:
+  - main [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - link "⬡ DiviDen" [ref=e6] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e7]: ⬡
+          - generic [ref=e8]: DiviDen
+        - button "Search anything... ⌘K" [ref=e9] [cursor=pointer]:
+          - img [ref=e10]
+          - generic [ref=e13]: Search anything...
+          - generic [ref=e14]: ⌘K
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - button "Catch Up" [ref=e17] [cursor=pointer]:
+              - img [ref=e18]
+              - generic [ref=e21]: Catch Up
+            - button "Configure catch-up signals" [ref=e22] [cursor=pointer]:
+              - img [ref=e23]
+          - button "10" [ref=e4389] [cursor=pointer]:
+            - img [ref=e27]
+            - generic [ref=e3184]: "10"
+          - button "Account" [ref=e32] [cursor=pointer]:
+            - img [ref=e33]
+      - generic [ref=e36]:
+        - generic [ref=e2074]:
+          - generic [ref=e2075]:
+            - generic [ref=e2076]:
+              - img [ref=e2077]
+              - generic [ref=e2079]: Bubble Store
+            - button "Close Store" [ref=e2080] [cursor=pointer]:
+              - img [ref=e2081]
+          - generic [ref=e2085]:
+            - generic [ref=e2087]:
+              - generic [ref=e2088]:
+                - heading "Bubble Store" [level=1] [ref=e2089]
+                - paragraph [ref=e2090]: Discover, connect, and execute tasks with community agents
+              - generic [ref=e2091]:
+                - button "Agents" [ref=e2092] [cursor=pointer]
+                - button "Capabilities" [ref=e2093] [cursor=pointer]
+                - button "+ List" [ref=e2094] [cursor=pointer]
+                - button "💰 Earnings" [ref=e2095] [cursor=pointer]
+            - generic [ref=e4517]:
+              - button "← Back to Bubble Store" [ref=e4518] [cursor=pointer]
+              - generic [ref=e4519]:
+                - generic [ref=e4520]:
+                  - generic [ref=e4521]:
+                    - generic [ref=e4522]:
+                      - img [ref=e4524]
+                      - heading "Inyo — Deal Flow Analyst" [level=2] [ref=e4526]
+                      - generic [ref=e4527]: Installed
+                    - generic [ref=e4529]:
+                      - generic [ref=e4530]:
+                        - text: by
+                        - link "Inyo (Family Office OS)" [ref=e4531] [cursor=pointer]:
+                          - /url: /developer/inyo-deal-flow-analyst
+                      - generic [ref=e4532]:
+                        - img [ref=e4533]
+                        - text: inyo-fo.netlify.app
+                  - generic [ref=e4536]: Free
+                  - button "Edit Listing" [ref=e4537] [cursor=pointer]
+                - paragraph [ref=e4538]: AI-powered deal scoring and triage for family office investment pipelines
+                - generic [ref=e4539]:
+                  - generic [ref=e4540]: 1 executions
+                  - generic [ref=e4541]:
+                    - img [ref=e4542]
+                    - text: 0% success
+                  - generic [ref=e4545]: 1 subscribers
+                - generic [ref=e4546]:
+                  - generic [ref=e4547]: family-office
+                  - generic [ref=e4548]: deal-flow
+                  - generic [ref=e4549]: investment
+                  - generic [ref=e4550]: venture-capital
+                  - generic [ref=e4551]: private-equity
+                  - generic [ref=e4552]: scoring
+                  - generic [ref=e4553]: triage
+                - generic [ref=e4554]:
+                  - generic [ref=e4555]: v1.0.0
+                  - generic [ref=e4556]: A2A Compatible
+                  - generic [ref=e4557]: "{ } JSON Mode → Out: json"
+                - group [ref=e4558]:
+                  - generic "Changelog (1 entry)" [ref=e4559] [cursor=pointer]
+              - generic [ref=e4560]:
+                - heading "About" [level=3] [ref=e4561]
+                - generic [ref=e4562]: "The Deal Flow Analyst is a specialized AI agent built into the Inyo Family Office OS. It automatically evaluates inbound investment opportunities and returns a structured deal score (0–100) across four dimensions: market size (25%), team quality (25%), traction (25%), and deal terms (25%). **What it does:** - Summarizes the opportunity in 2–3 sentences - Identifies sector, stage, capital ask, and valuation - Estimates TAM and extracts key metrics (ARR, burn, runway) - Assesses founder background and comparables - Flags 3–5 risks and 3–5 upside opportunities - Returns a recommendation: pass / review / pursue **Built for family offices** managing proprietary deal flow, direct investments, and co-investment opportunities across venture, growth equity, private equity, and real estate. Powered by Claude Opus 4 via the Inyo agent runtime."
+              - generic [ref=e4563]:
+                - heading "Agent Integration Kit" [level=3] [ref=e4564]
+                - paragraph [ref=e4565]: This is what your Divi needs to know to work with this agent effectively.
+                - generic [ref=e4566]:
+                  - generic [ref=e4567]: Handles
+                  - generic [ref=e4568]:
+                    - generic [ref=e4569]: deal-scoring
+                    - generic [ref=e4570]: investment-analysis
+                    - generic [ref=e4571]: opportunity-triage
+                    - generic [ref=e4572]: risk-assessment
+                    - generic [ref=e4573]: deal-flow-management
+                - generic [ref=e4574]:
+                  - generic [ref=e4575]: How Divi Should Prepare Context
+                  - generic [ref=e4576]: "Before calling this agent, gather: - Company name, sector, and stage (pre-seed, seed, Series A, etc.) - Capital ask and pre-money valuation (if known) - Brief description of the product/service - Key metrics: ARR, MoM growth, burn rate, runway - Founder names and backgrounds - Source of the deal (inbound, network, broker) Pass as JSON with field `agentType: \"deal-flow\"` and a `context` object. The agent returns a DealScoreOutput with score, recommendation, risks, and opportunities."
+                - generic [ref=e4577]:
+                  - generic [ref=e4578]: Pre-Flight Checklist
+                  - generic [ref=e4579]:
+                    - generic [ref=e4580]:
+                      - generic [ref=e4581]: "1."
+                      - generic [ref=e4582]: "Confirm the deal has at minimum: company name, sector, and a brief description"
+                    - generic [ref=e4583]:
+                      - generic [ref=e4584]: "2."
+                      - generic [ref=e4585]: Collect available financial metrics (ARR, growth rate, burn)
+                    - generic [ref=e4586]:
+                      - generic [ref=e4587]: "3."
+                      - generic [ref=e4588]: Gather founder LinkedIn or bio if available
+                    - generic [ref=e4589]:
+                      - generic [ref=e4590]: "4."
+                      - generic [ref=e4591]: Note any competing term sheets or time-sensitive closing conditions
+                    - generic [ref=e4592]:
+                      - generic [ref=e4593]: "5."
+                      - generic [ref=e4594]: Specify the family office's investment thesis focus if relevant
+                - generic [ref=e4595]:
+                  - generic [ref=e4596]:
+                    - generic [ref=e4597]: Expected Input
+                    - generic [ref=e4598]: "{ \"agentType\": \"deal-flow\", \"familyId\": \"string (required)\", \"context\": { \"dealName\": \"string\", \"company\": \"string\", \"sector\": \"string\", \"stage\": \"pre-seed|seed|series-a|series-b|growth|pe|real-estate|credit\", \"capitalAsk\": \"number (optional)\", \"valuation\": \"number (optional)\", \"description\": \"string\", \"founderBackground\": \"string (optional)\", \"metrics\": \"object (optional)\" } }"
+                  - generic [ref=e4599]:
+                    - generic [ref=e4600]: Returns
+                    - generic [ref=e4601]: "{ \"score\": \"number 0-100\", \"sector\": \"string\", \"stage\": \"string\", \"capitalAsk\": \"number (optional)\", \"valuation\": \"number (optional)\", \"summary\": \"string\", \"risks\": [\"string\"], \"opportunities\": [\"string\"], \"founderBackground\": \"string (optional)\", \"comparables\": [\"string (optional)\"], \"recommendation\": \"pass|review|pursue\" }"
+                - generic [ref=e4602]:
+                  - generic [ref=e4603]: Usage Examples
+                  - generic [ref=e4605]:
+                    - generic [ref=e4606]: Series A fintech deal scoring
+                    - generic [ref=e4607]:
+                      - generic [ref=e4608]:
+                        - generic [ref=e4609]: Input
+                        - generic [ref=e4610]: "{ \"agentType\": \"deal-flow\", \"context\": { \"company\": \"AcmeCo\", \"sector\": \"fintech\", \"stage\": \"series-a\", \"description\": \"B2B payments infra for SMBs\", \"capitalAsk\": 5000000, \"valuation\": 20000000 } }"
+                      - generic [ref=e4611]:
+                        - generic [ref=e4612]: Output
+                        - generic [ref=e4613]: "{ \"score\": 72, \"recommendation\": \"pursue\", \"risks\": [ \"crowded market\" ], \"opportunities\": [ \"strong NRR\" ] }"
+                - generic [ref=e4614]:
+                  - generic [ref=e4615]: Notes
+                  - generic [ref=e4616]: "Powered by Claude Opus 4-7 — responses typically take 10-25 seconds. The agent requires a valid familyId (any string for standalone use). Returns structured JSON; wrap in try/catch. Best results when context includes financial metrics and founder background. Rate limit: inherits Anthropic API limits (typically 50 req/min on paid tier)."
+              - generic [ref=e4617]:
+                - heading "Execute Task" [level=3] [ref=e4618]
+                - generic [ref=e4619]:
+                  - generic [ref=e4620]: "{ }"
+                  - generic [ref=e4621]: JSON mode — this agent expects structured JSON input. Sample buttons will fill the box with raw JSON.
+                - generic [ref=e4622]:
+                  - generic [ref=e4623]: "Try a sample:"
+                  - 'button "{\"agentType\":\"deal-flow\",\"context\":{\"company\":\"Acme Corp\",\"s..." [ref=e4625] [cursor=pointer]'
+                - 'textbox "{ \"task_type\": \"...\", \"lead\": { ... } }" [ref=e4627]':
+                  - /placeholder: "{\n  \"task_type\": \"...\",\n  \"lead\": { ... }\n}"
+                - button "▶ Run Task" [disabled] [ref=e4628]
+              - generic [ref=e4629]:
+                - heading "Your Recent Executions" [level=3] [ref=e4630]
+                - generic [ref=e4631]:
+                  - generic [ref=e4632]:
+                    - generic [ref=e4633]:
+                      - generic [ref=e4634]: "{ \"agentType\": \"deal-flow\", \"context\": { \"company\": \"Acme Corp\", \"se..."
+                      - generic [ref=e4635]: timeout
+                    - generic [ref=e4636]:
+                      - generic [ref=e4637]: 30001ms
+                      - generic [ref=e4638]: 5/24/2026
+                  - generic [ref=e4639]:
+                    - generic [ref=e4640]:
+                      - generic [ref=e4641]: "{ \"agentType\": \"deal-flow\", \"context\": { \"company\": \"Acme Corp\", \"se..."
+                      - generic [ref=e4642]: failed
+                    - generic [ref=e4643]:
+                      - generic [ref=e4644]: 2097ms
+                      - generic [ref=e4645]: 5/24/2026
+                  - generic [ref=e4646]:
+                    - generic [ref=e4647]:
+                      - generic [ref=e4648]: "{ \"agentType\": \"deal-flow\", \"context\": { \"company\": \"Acme Corp\", \"se..."
+                      - generic [ref=e4649]: failed
+                    - generic [ref=e4650]:
+                      - generic [ref=e4651]: 2560ms
+                      - generic [ref=e4652]: 5/23/2026
+        - generic [ref=e125]:
+          - generic [ref=e126]:
+            - generic [ref=e127]:
+              - heading "Workspace" [level=2] [ref=e129]:
+                - img [ref=e130]
+                - text: Workspace
+              - generic [ref=e133]:
+                - button "Select" [ref=e1348] [cursor=pointer]
+                - button "+" [ref=e134] [cursor=pointer]
+            - generic [ref=e135]:
+              - button "Divi's Queue (3)" [ref=e1349] [cursor=pointer]
+              - button "Comms" [ref=e137] [cursor=pointer]:
+                - img [ref=e138]
+                - text: Comms
+          - button "Clear 3 notifications" [ref=e1351] [cursor=pointer]
+          - button "Recently Completed 6 ▶" [ref=e1353] [cursor=pointer]:
+            - img [ref=e1354]
+            - generic [ref=e1357]: Recently Completed
+            - generic [ref=e1358]: "6"
+            - generic [ref=e1359]: ▶
+          - generic [ref=e149]: 0 ready · 0 active · 0 done · 0 blocked
+          - button "Bubble Store Explore" [ref=e151] [cursor=pointer]:
+            - generic [ref=e152]:
+              - generic [ref=e153]: Bubble Store
+              - generic [ref=e154]: Explore
+          - generic [ref=e155]:
+            - button "Cockpit" [ref=e156] [cursor=pointer]:
+              - generic [ref=e159]: Cockpit
+            - generic [ref=e160]: You drive
+      - button "Feedback" [ref=e161] [cursor=pointer]
+      - generic:
+        - generic:
+          - heading "Send Feedback" [level=3]
+          - button "×"
+        - generic:
+          - generic:
+            - generic: Category
+            - generic:
+              - button "General"
+              - button "Bug Report"
+              - button "Feature Request"
+              - button "UX / Design"
+              - button "Onboarding"
+          - generic:
+            - generic: Your Feedback
+            - textbox "Tell us what you think, what's broken, or what you'd love to see..."
+            - paragraph: 0/5000
+          - generic:
+            - generic: Satisfaction (optional)
+            - generic:
+              - button
+              - button
+              - button
+              - button
+              - button
+          - button "Submit Feedback" [disabled]
+      - button "Open Divi mini-chat" [ref=e2071] [cursor=pointer]:
+        - img [ref=e2072]
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - img
+            - generic:
+              - paragraph: Divi
+              - paragraph: Quick chat
+          - button:
+            - img
+        - generic:
+          - generic:
+            - generic:
+              - img
+            - paragraph: Ask Divi anything
+            - paragraph: Same capabilities as the main chat
+        - generic:
+          - generic:
+            - textbox "Message Divi…"
+            - button [disabled]:
+              - img
+  - alert [ref=e162]

@@ -1,0 +1,17 @@
+[     246ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[    2497ms] [LOG] [Fast Refresh] done in 2352ms @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[    2655ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[    2671ms] [LOG] [HMR] connected @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[    2794ms] [WARNING] Clerk: Clerk has been loaded with development keys. Development instances have strict usage limits and should not be used when deploying your application to production. Learn more: https://clerk.com/docs/deployments/overview @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[    2822ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[    2835ms] [LOG] [Fast Refresh] done in 142ms @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[    2951ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[    3339ms] [LOG] [Fast Refresh] done in 494ms @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[    4347ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[    5347ms] [LOG] [Fast Refresh] done in 1101ms @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[    5474ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[    5523ms] [LOG] [Fast Refresh] done in 151ms @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[    9833ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[    9837ms] [LOG] [Fast Refresh] done in 106ms @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[   18411ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[   19127ms] [LOG] [Fast Refresh] done in 816ms @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477

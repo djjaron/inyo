@@ -1,0 +1,34 @@
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]: FO
+      - heading "Inyo" [level=1] [ref=e6]
+      - paragraph [ref=e7]: Family Office OS
+    - generic [ref=e9]:
+      - generic [ref=e10]:
+        - generic [ref=e13]:
+          - paragraph [ref=e14]: jaronrayhinds@gmail.com
+          - button "Edit" [ref=e15] [cursor=pointer]:
+            - img [ref=e16]
+        - generic [ref=e18]:
+          - generic [ref=e19]:
+            - generic [ref=e21]:
+              - generic:
+                - group
+                - textbox "Enter verification code" [active] [ref=e22]
+            - button "Didn't receive a code? Resend (29)" [disabled]
+          - generic [ref=e24]:
+            - button "Continue" [ref=e25] [cursor=pointer]:
+              - generic [ref=e26]:
+                - text: Continue
+                - img [ref=e27]
+            - link "Use another method" [ref=e30] [cursor=pointer]:
+              - /url: https://inyo-fo.netlify.app/sign-in/factor-one
+      - generic [ref=e33]:
+        - generic [ref=e35]:
+          - paragraph [ref=e36]: Secured by
+          - link "Clerk logo" [ref=e37] [cursor=pointer]:
+            - /url: https://go.clerk.com/components
+            - img [ref=e38]
+        - paragraph [ref=e43]: Development mode
+  - alert [ref=e44]

@@ -1,0 +1,99 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]: FO
+        - generic [ref=e6]:
+          - generic [ref=e7]: Inyo
+          - generic [ref=e8]: Family Office OS
+      - navigation [ref=e9]:
+        - link "Dashboard" [ref=e10] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e11]
+          - text: Dashboard
+        - link "Approvals" [ref=e16] [cursor=pointer]:
+          - /url: /approvals
+          - img [ref=e17]
+          - text: Approvals
+        - link "Opportunities" [ref=e20] [cursor=pointer]:
+          - /url: /opportunities
+          - img [ref=e21]
+          - text: Opportunities
+        - link "Portfolio" [ref=e24] [cursor=pointer]:
+          - /url: /portfolio
+          - img [ref=e25]
+          - text: Portfolio
+        - link "Finance" [ref=e27] [cursor=pointer]:
+          - /url: /finance
+          - img [ref=e28]
+          - text: Finance
+        - link "Legal" [ref=e30] [cursor=pointer]:
+          - /url: /legal
+          - img [ref=e31]
+          - text: Legal
+        - link "Tax" [ref=e35] [cursor=pointer]:
+          - /url: /tax
+          - img [ref=e36]
+          - text: Tax
+        - link "Concierge" [ref=e39] [cursor=pointer]:
+          - /url: /concierge
+          - img [ref=e40]
+          - text: Concierge
+        - link "Philanthropy" [ref=e43] [cursor=pointer]:
+          - /url: /philanthropy
+          - img [ref=e44]
+          - text: Philanthropy
+        - link "Relationships" [ref=e46] [cursor=pointer]:
+          - /url: /relationships
+          - img [ref=e47]
+          - text: Relationships
+        - link "Marketplace" [ref=e52] [cursor=pointer]:
+          - /url: /marketplace
+          - img [ref=e53]
+          - text: Marketplace
+        - generic [ref=e57]:
+          - generic [ref=e58]: Import
+          - link "Import Deals" [ref=e59] [cursor=pointer]:
+            - /url: /import/deals
+            - img [ref=e60]
+            - text: Import Deals
+          - link "Import Contacts" [ref=e63] [cursor=pointer]:
+            - /url: /import/contacts
+            - img [ref=e64]
+            - text: Import Contacts
+      - generic [ref=e67]:
+        - link "Agents →" [ref=e68] [cursor=pointer]:
+          - /url: /marketplace
+          - img [ref=e69]
+          - generic [ref=e71]: Agents
+          - generic [ref=e72]: →
+        - link "Integrations" [ref=e73] [cursor=pointer]:
+          - /url: /integrations
+          - img [ref=e74]
+          - text: Integrations
+        - link "Settings" [ref=e76] [cursor=pointer]:
+          - /url: /settings
+          - img [ref=e77]
+          - text: Settings
+    - main [ref=e81]:
+      - generic [ref=e82]:
+        - generic [ref=e83]:
+          - generic [ref=e84]:
+            - heading "Opportunities" [level=1] [ref=e85]
+            - paragraph [ref=e86]: 0 deals in pipeline
+          - link "Add Deal" [ref=e88] [cursor=pointer]:
+            - /url: /import/deals
+            - img [ref=e89]
+            - text: Add Deal
+        - generic [ref=e90]:
+          - button "All" [ref=e91]
+          - button "Inbound" [ref=e92]
+          - button "Reviewing" [ref=e93]
+          - button "Diligence" [ref=e94]
+          - button "IC Review" [ref=e95]
+          - button "Invested" [ref=e96]
+          - button "Passed" [ref=e97]
+          - button [ref=e99]:
+            - img [ref=e100]
+        - generic [ref=e106]: Loading deals...
+  - alert [ref=e107]

@@ -1,0 +1,226 @@
+- generic [active] [ref=e1]:
+  - main [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - link "⬡ DiviDen" [ref=e6] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e7]: ⬡
+          - generic [ref=e8]: DiviDen
+        - button "Search anything... ⌘K" [ref=e9] [cursor=pointer]:
+          - img [ref=e10]
+          - generic [ref=e13]: Search anything...
+          - generic [ref=e14]: ⌘K
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - button "Catch Up" [ref=e17] [cursor=pointer]:
+              - img [ref=e18]
+              - generic [ref=e21]: Catch Up
+            - button "Configure catch-up signals" [ref=e22] [cursor=pointer]:
+              - img [ref=e23]
+          - button "15" [ref=e6394] [cursor=pointer]:
+            - img [ref=e27]
+            - generic [ref=e3184]: "15"
+          - button "Account" [ref=e32] [cursor=pointer]:
+            - img [ref=e33]
+      - generic [ref=e36]:
+        - generic [ref=e2074]:
+          - generic [ref=e2075]:
+            - generic [ref=e2076]:
+              - img [ref=e2077]
+              - generic [ref=e2079]: Bubble Store
+            - button "Close Store" [ref=e2080] [cursor=pointer]:
+              - img [ref=e2081]
+          - generic [ref=e2085]:
+            - generic [ref=e2087]:
+              - generic [ref=e2088]:
+                - heading "Bubble Store" [level=1] [ref=e2089]
+                - paragraph [ref=e2090]: Discover, connect, and execute tasks with community agents
+              - generic [ref=e2091]:
+                - button "Agents" [ref=e2092] [cursor=pointer]
+                - button "Capabilities" [ref=e2093] [cursor=pointer]
+                - button "+ List" [ref=e2094] [cursor=pointer]
+                - button "💰 Earnings" [ref=e2095] [cursor=pointer]
+            - generic [ref=e7614]:
+              - button "← Back to Bubble Store" [ref=e7615] [cursor=pointer]
+              - generic [ref=e7616]:
+                - generic [ref=e7617]:
+                  - generic [ref=e7618]:
+                    - generic [ref=e7619]:
+                      - img [ref=e7621]
+                      - heading "Inyo — Diligence Analyst" [level=2] [ref=e7623]
+                      - generic [ref=e7624]: Installed
+                    - generic [ref=e7626]:
+                      - generic [ref=e7627]:
+                        - text: by
+                        - link "Inyo (Family Office OS)" [ref=e7628] [cursor=pointer]:
+                          - /url: /developer/inyo-diligence-analyst
+                      - generic [ref=e7629]:
+                        - img [ref=e7630]
+                        - text: inyo-fo.netlify.app
+                  - generic [ref=e7633]: Free
+                  - button "Edit Listing" [ref=e7634] [cursor=pointer]
+                - paragraph [ref=e7635]: "{\"agentType\":\"diligence\",\"context\":{\"company\":\"Acme Corp\",\"sector\":\"fintech\",\"stage\":\"series-a\",\"items\":[{\"id\":\"fin-1\",\"question\":\"Has the company provided audited financials?\"},{\"id\":\"legal-1\",\"question\":\"Are there any pending lawsuits?\"},{\"id\":\"team-1\",\"question\":\"What is the founding team background?\"}]}}"
+                - generic [ref=e7636]:
+                  - generic [ref=e7637]: 0 executions
+                  - generic [ref=e7638]: 1 subscribers
+                - generic [ref=e7639]:
+                  - generic [ref=e7640]: family-office
+                  - generic [ref=e7641]: due-diligence
+                  - generic [ref=e7642]: deal-review
+                  - generic [ref=e7643]: investment-analysis
+                  - generic [ref=e7644]: checklist
+                  - generic [ref=e7645]: risk-assessment
+                - generic [ref=e7646]:
+                  - generic [ref=e7647]: v1.0.0
+                  - generic [ref=e7648]: A2A Compatible
+                  - generic [ref=e7649]: "{ } JSON Mode → Out: json"
+                - group [ref=e7650]:
+                  - generic "Changelog (1 entry)" [ref=e7651] [cursor=pointer]
+              - generic [ref=e7652]:
+                - heading "About" [level=3] [ref=e7653]
+                - generic [ref=e7654]: "The Diligence Analyst runs a structured due diligence checklist against any deal in the Inyo pipeline and returns findings for each item — instantly surfacing what's verified, what's missing, and what's a red flag. **How it works:** 1. Provide a deal context (company, financials, founders, documents) 2. Optionally provide a custom checklist or use Inyo's built-in templates 3. Agent reviews each checklist item against available data 4. Returns per-item status: complete / flagged / pending **Built-in checklist categories:** - Team & founders (background, track record, references) - Market & competition (TAM, moat, competitive dynamics) - Financials (ARR, burn, cap table, unit economics) - Product & technology (tech stack, IP, roadmap) - Legal & compliance (incorporation, contracts, IP ownership) - References & customers (NPS, churn, case studies) **Output:** Per-item findings + overall diligence summary + red flags + passing items. Powered by Claude Opus 4-7 via the Inyo agent runtime."
+              - generic [ref=e7655]:
+                - heading "Agent Integration Kit" [level=3] [ref=e7656]
+                - paragraph [ref=e7657]: This is what your Divi needs to know to work with this agent effectively.
+                - generic [ref=e7658]:
+                  - generic [ref=e7659]: Handles
+                  - generic [ref=e7660]:
+                    - generic [ref=e7661]: due-diligence
+                    - generic [ref=e7662]: checklist-review
+                    - generic [ref=e7663]: deal-analysis
+                    - generic [ref=e7664]: risk-flagging
+                    - generic [ref=e7665]: pre-investment-review
+                - generic [ref=e7666]:
+                  - generic [ref=e7667]: How Divi Should Prepare Context
+                  - generic [ref=e7668]: "Before calling this agent, gather: - Full deal context (company, sector, stage, financials, founders) - Diligence checklist items (or use built-in template) - Any supporting documents or data room notes Pass as JSON with agentType: \"diligence\". Include checklist items in context.items and deal data in context.deal."
+                - generic [ref=e7669]:
+                  - generic [ref=e7670]: Pre-Flight Checklist
+                  - generic [ref=e7671]:
+                    - generic [ref=e7672]:
+                      - generic [ref=e7673]: "1."
+                      - generic [ref=e7674]: Gather all available deal data (financials, founders, product info)
+                    - generic [ref=e7675]:
+                      - generic [ref=e7676]: "2."
+                      - generic [ref=e7677]: List the specific diligence checklist items to review
+                    - generic [ref=e7678]:
+                      - generic [ref=e7679]: "3."
+                      - generic [ref=e7680]: Note any items already completed by the team
+                    - generic [ref=e7681]:
+                      - generic [ref=e7682]: "4."
+                      - generic [ref=e7683]: Collect any data room documents or pitch deck highlights
+                    - generic [ref=e7684]:
+                      - generic [ref=e7685]: "5."
+                      - generic [ref=e7686]: Specify the deal stage to calibrate checklist depth
+                - generic [ref=e7687]:
+                  - generic [ref=e7688]:
+                    - generic [ref=e7689]: Expected Input
+                    - generic [ref=e7690]: "{ \"agentType\": \"diligence\", \"familyId\": \"string\", \"context\": { \"deal\": { \"company\": \"string\", \"sector\": \"string\", \"stage\": \"string\", \"description\": \"string\", \"financials\": \"object (optional)\", \"founders\": \"array (optional)\" }, \"items\": [{\"id\":\"string\",\"question\":\"string\",\"category\":\"string\"}] } }"
+                  - generic [ref=e7691]:
+                    - generic [ref=e7692]: Returns
+                    - generic [ref=e7693]: "{ \"items\": [{\"id\":\"string\",\"answer\":\"string\",\"status\":\"complete|flagged|pending\",\"flag\":\"string (optional)\"}], \"summary\": \"string\", \"redFlags\": [\"string\"], \"passItems\": [\"string\"] }"
+                - generic [ref=e7694]:
+                  - generic [ref=e7695]: Notes
+                  - generic [ref=e7696]: Powered by Claude Opus 4-7. Takes 20-45s for a full checklist. Quality scales with richness of deal data provided. For pending items with insufficient data, agent sets status to "pending" with a note to gather manually.
+              - generic [ref=e7697]:
+                - heading "Execute Task" [level=3] [ref=e7698]
+                - generic [ref=e7699]:
+                  - generic [ref=e7700]: "{ }"
+                  - generic [ref=e7701]: JSON mode — this agent expects structured JSON input. Sample buttons will fill the box with raw JSON.
+                - generic [ref=e7702]:
+                  - generic [ref=e7703]: "Try a sample:"
+                  - generic [ref=e7704]:
+                    - 'button "{" [ref=e7705] [cursor=pointer]'
+                    - 'button "\"agentType\": \"diligence\"" [ref=e7706] [cursor=pointer]'
+                    - 'button "}" [ref=e7707] [cursor=pointer]'
+                - 'textbox "{ \"task_type\": \"...\", \"lead\": { ... } }" [ref=e7709]':
+                  - /placeholder: "{\n  \"task_type\": \"...\",\n  \"lead\": { ... }\n}"
+                - button "▶ Run Task" [disabled] [ref=e7710]
+              - generic [ref=e7711]:
+                - heading "Your Recent Executions" [level=3] [ref=e7712]
+                - generic [ref=e7714]:
+                  - generic [ref=e7715]:
+                    - generic [ref=e7716]: "{ \"agentType\": \"diligence\" }"
+                    - generic [ref=e7717]: failed
+                  - generic [ref=e7718]:
+                    - generic [ref=e7719]: 3382ms
+                    - generic [ref=e7720]: 5/22/2026
+        - generic [ref=e125]:
+          - generic [ref=e126]:
+            - generic [ref=e127]:
+              - heading "Workspace" [level=2] [ref=e129]:
+                - img [ref=e130]
+                - text: Workspace
+              - generic [ref=e133]:
+                - button "Select" [ref=e1348] [cursor=pointer]
+                - button "+" [ref=e134] [cursor=pointer]
+            - generic [ref=e135]:
+              - button "Divi's Queue (3)" [ref=e1349] [cursor=pointer]
+              - button "Comms" [ref=e137] [cursor=pointer]:
+                - img [ref=e138]
+                - text: Comms
+          - button "Clear 3 notifications" [ref=e1351] [cursor=pointer]
+          - button "Recently Completed 6 ▶" [ref=e1353] [cursor=pointer]:
+            - img [ref=e1354]
+            - generic [ref=e1357]: Recently Completed
+            - generic [ref=e1358]: "6"
+            - generic [ref=e1359]: ▶
+          - generic [ref=e149]: 0 ready · 0 active · 0 done · 0 blocked
+          - button "Bubble Store Explore" [ref=e151] [cursor=pointer]:
+            - generic [ref=e152]:
+              - generic [ref=e153]: Bubble Store
+              - generic [ref=e154]: Explore
+          - generic [ref=e155]:
+            - button "Cockpit" [ref=e156] [cursor=pointer]:
+              - generic [ref=e159]: Cockpit
+            - generic [ref=e160]: You drive
+      - button "Feedback" [ref=e161] [cursor=pointer]
+      - generic:
+        - generic:
+          - heading "Send Feedback" [level=3]
+          - button "×"
+        - generic:
+          - generic:
+            - generic: Category
+            - generic:
+              - button "General"
+              - button "Bug Report"
+              - button "Feature Request"
+              - button "UX / Design"
+              - button "Onboarding"
+          - generic:
+            - generic: Your Feedback
+            - textbox "Tell us what you think, what's broken, or what you'd love to see..."
+            - paragraph: 0/5000
+          - generic:
+            - generic: Satisfaction (optional)
+            - generic:
+              - button
+              - button
+              - button
+              - button
+              - button
+          - button "Submit Feedback" [disabled]
+      - button "Open Divi mini-chat" [ref=e2071] [cursor=pointer]:
+        - img [ref=e2072]
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - img
+            - generic:
+              - paragraph: Divi
+              - paragraph: Quick chat
+          - button:
+            - img
+        - generic:
+          - generic:
+            - generic:
+              - img
+            - paragraph: Ask Divi anything
+            - paragraph: Same capabilities as the main chat
+        - generic:
+          - generic:
+            - textbox "Message Divi…"
+            - button [disabled]:
+              - img
+  - alert [ref=e162]

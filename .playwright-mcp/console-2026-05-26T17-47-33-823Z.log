@@ -1,0 +1,30 @@
+[    3976ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[    4042ms] [LOG] [HMR] connected @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[    4275ms] [WARNING] Clerk: Clerk has been loaded with development keys. Development instances have strict usage limits and should not be used when deploying your application to production. Learn more: https://clerk.com/docs/deployments/overview @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[    4841ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost:3001/sign-in?redirect_url=http%3A%2F%2Flocalhost%3A3001%2Fdashboard:0
+[ 5848902ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[ 5848913ms] [LOG] [Fast Refresh] done in 113ms @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[ 6651615ms] [ERROR] Failed to load resource: the server responded with a status of 422 () @ https://maximum-garfish-59.clerk.accounts.dev/v1/client/sign_ins/sia_3EGvNEl93R9f7gX9tx6hcO3jcRa/attempt_first_factor?__clerk_api_version=2025-11-10&_clerk_js_version=6.12.0&__clerk_db_jwt=dvb_3EGvKELnKwYd8z6gfBWAmeS09Zj:0
+[ 6680485ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost:3001/sign-in?redirect_url=http%3A%2F%2Flocalhost%3A3001%2Fdashboard:0
+[ 6681061ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[ 6681870ms] [LOG] [Fast Refresh] done in 910ms @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[ 6682080ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[ 6682448ms] [LOG] [Fast Refresh] done in 469ms @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[ 6684183ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[ 6684204ms] [LOG] [Fast Refresh] done in 122ms @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[ 6686386ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[ 6686717ms] [LOG] [Fast Refresh] done in 433ms @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[ 7002347ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[ 7002889ms] [LOG] [Fast Refresh] done in 643ms @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[ 7007412ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[ 7007790ms] [LOG] [Fast Refresh] done in 480ms @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[ 7009329ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[ 7009415ms] [LOG] [Fast Refresh] done in 186ms @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[ 7010108ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[ 7010129ms] [LOG] [Fast Refresh] done in 121ms @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[ 7025036ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[ 7025267ms] [LOG] [Fast Refresh] done in 332ms @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[ 7368244ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[ 7368919ms] [LOG] [Fast Refresh] done in 776ms @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[ 7402891ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477
+[ 7403022ms] [LOG] [Fast Refresh] done in 232ms @ http://localhost:3001/_next/static/chunks/0rrs_next_dist_0a7eobh._.js:2477

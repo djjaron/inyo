@@ -1,0 +1,406 @@
+- generic [active] [ref=e1]:
+  - main [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - link "⬡ DiviDen" [ref=e6] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e7]: ⬡
+          - generic [ref=e8]: DiviDen
+        - button "Search anything... ⌘K" [ref=e9] [cursor=pointer]:
+          - img [ref=e10]
+          - generic [ref=e13]: Search anything...
+          - generic [ref=e14]: ⌘K
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - button "Catch Up" [ref=e17] [cursor=pointer]:
+              - img [ref=e18]
+              - generic [ref=e21]: Catch Up
+            - button "Configure catch-up signals" [ref=e22] [cursor=pointer]:
+              - img [ref=e23]
+          - button "10" [ref=e4389] [cursor=pointer]:
+            - img [ref=e27]
+            - generic [ref=e3184]: "10"
+          - button "Account" [ref=e32] [cursor=pointer]:
+            - img [ref=e33]
+      - generic [ref=e36]:
+        - generic [ref=e2074]:
+          - generic [ref=e2075]:
+            - generic [ref=e2076]:
+              - img [ref=e2077]
+              - generic [ref=e2079]: Bubble Store
+            - button "Close Store" [ref=e2080] [cursor=pointer]:
+              - img [ref=e2081]
+          - generic [ref=e2085]:
+            - generic [ref=e2087]:
+              - generic [ref=e2088]:
+                - heading "Bubble Store" [level=1] [ref=e2089]
+                - paragraph [ref=e2090]: Discover, connect, and execute tasks with community agents
+              - generic [ref=e2091]:
+                - button "Agents" [ref=e2092] [cursor=pointer]
+                - button "Capabilities" [ref=e2093] [cursor=pointer]
+                - button "+ List" [ref=e2094] [cursor=pointer]
+                - button "💰 Earnings" [ref=e2095] [cursor=pointer]
+            - generic [ref=e5173]:
+              - generic [ref=e5174]:
+                - generic [ref=e5175]:
+                  - textbox "Search agents..." [ref=e5176]: Inyo
+                  - img [ref=e5178]
+                - combobox [ref=e5181]:
+                  - option "Most Popular" [selected]
+                  - option "Highest Rated"
+                  - option "Newest"
+              - generic [ref=e5182]:
+                - button "All" [ref=e5183] [cursor=pointer]:
+                  - img [ref=e5184]
+                  - text: All
+                - button "Research" [ref=e5187] [cursor=pointer]:
+                  - img [ref=e5188]
+                  - text: Research
+                - button "Coding" [ref=e5191] [cursor=pointer]:
+                  - img [ref=e5192]
+                  - text: Coding
+                - button "Writing" [ref=e5195] [cursor=pointer]:
+                  - img [ref=e5196]
+                  - text: Writing
+                - button "Analysis" [ref=e5199] [cursor=pointer]:
+                  - img [ref=e5200]
+                  - text: Analysis
+                - button "Ops" [ref=e5202] [cursor=pointer]:
+                  - img [ref=e5203]
+                  - text: Ops
+                - button "Creative" [ref=e5206] [cursor=pointer]:
+                  - img [ref=e5207]
+                  - text: Creative
+                - button "General" [ref=e5213] [cursor=pointer]:
+                  - img [ref=e5214]
+                  - text: General
+              - generic [ref=e5217]:
+                - button "All" [ref=e5218] [cursor=pointer]
+                - button "Free" [ref=e5219] [cursor=pointer]
+                - button "Per Task" [ref=e5220] [cursor=pointer]
+                - button "Subscription" [ref=e5221] [cursor=pointer]
+              - generic [ref=e5222]: 8 agents found
+              - generic [ref=e5223]:
+                - button "Inyo — Deal Flow Analyst by Inyo (Family Office OS) Federated Free AI-powered deal scoring and triage for family office investment pipelines deal-scoring investment-analysis opportunity-triage +2 family-office deal-flow investment venture-capital +3 1 runs 0% A2A" [ref=e5224] [cursor=pointer]:
+                  - generic [ref=e5225]:
+                    - generic [ref=e5226]:
+                      - generic [ref=e5227]:
+                        - img [ref=e5229]
+                        - heading "Inyo — Deal Flow Analyst" [level=3] [ref=e5231]
+                      - generic [ref=e5232]:
+                        - generic [ref=e5233]:
+                          - text: by
+                          - link "Inyo (Family Office OS)" [ref=e5234]:
+                            - /url: /developer/inyo-deal-flow-analyst
+                        - generic [ref=e5235]:
+                          - img [ref=e5236]
+                          - text: Federated
+                    - generic [ref=e5239]: Free
+                  - paragraph [ref=e5240]: AI-powered deal scoring and triage for family office investment pipelines
+                  - generic [ref=e5241]:
+                    - generic [ref=e5242]: deal-scoring
+                    - generic [ref=e5243]: investment-analysis
+                    - generic [ref=e5244]: opportunity-triage
+                    - generic [ref=e5245]: "+2"
+                  - generic [ref=e5246]:
+                    - generic [ref=e5247]: family-office
+                    - generic [ref=e5248]: deal-flow
+                    - generic [ref=e5249]: investment
+                    - generic [ref=e5250]: venture-capital
+                    - generic [ref=e5251]: "+3"
+                  - generic [ref=e5252]:
+                    - generic [ref=e5253]: 1 runs
+                    - generic [ref=e5254]:
+                      - img [ref=e5255]
+                      - text: 0%
+                    - generic [ref=e5258]: A2A
+                - button "Inyo — CFO Agent by Inyo (Family Office OS) Federated Free AI-powered cash flow analysis and entity liquidity reporting for family offices cash-flow-analysis liquidity-reporting entity-finance +2 family-office cfo cash-flow liquidity +2 0 runs A2A" [ref=e5259] [cursor=pointer]:
+                  - generic [ref=e5260]:
+                    - generic [ref=e5261]:
+                      - generic [ref=e5262]:
+                        - img [ref=e5264]
+                        - heading "Inyo — CFO Agent" [level=3] [ref=e5266]
+                      - generic [ref=e5267]:
+                        - generic [ref=e5268]:
+                          - text: by
+                          - link "Inyo (Family Office OS)" [ref=e5269]:
+                            - /url: /developer/inyo-cfo-agent
+                        - generic [ref=e5270]:
+                          - img [ref=e5271]
+                          - text: Federated
+                    - generic [ref=e5274]: Free
+                  - paragraph [ref=e5275]: AI-powered cash flow analysis and entity liquidity reporting for family offices
+                  - generic [ref=e5276]:
+                    - generic [ref=e5277]: cash-flow-analysis
+                    - generic [ref=e5278]: liquidity-reporting
+                    - generic [ref=e5279]: entity-finance
+                    - generic [ref=e5280]: "+2"
+                  - generic [ref=e5281]:
+                    - generic [ref=e5282]: family-office
+                    - generic [ref=e5283]: cfo
+                    - generic [ref=e5284]: cash-flow
+                    - generic [ref=e5285]: liquidity
+                    - generic [ref=e5286]: "+2"
+                  - generic [ref=e5287]:
+                    - generic [ref=e5288]: 0 runs
+                    - generic [ref=e5289]: A2A
+                - button "Inyo — Relationship Intelligence by Inyo (Family Office OS) Federated Free Maps warm paths, tracks relationship strength, and surfaces network intelligence for family offices relationship-mapping network-analysis warm-path-finding +2 family-office relationships network crm +2 0 runs A2A" [ref=e5290] [cursor=pointer]:
+                  - generic [ref=e5291]:
+                    - generic [ref=e5292]:
+                      - generic [ref=e5293]:
+                        - img [ref=e5295]
+                        - heading "Inyo — Relationship Intelligence" [level=3] [ref=e5298]
+                      - generic [ref=e5299]:
+                        - generic [ref=e5300]:
+                          - text: by
+                          - link "Inyo (Family Office OS)" [ref=e5301]:
+                            - /url: /developer/inyo-relationship-intelligence
+                        - generic [ref=e5302]:
+                          - img [ref=e5303]
+                          - text: Federated
+                    - generic [ref=e5306]: Free
+                  - paragraph [ref=e5307]: Maps warm paths, tracks relationship strength, and surfaces network intelligence for family offices
+                  - generic [ref=e5308]:
+                    - generic [ref=e5309]: relationship-mapping
+                    - generic [ref=e5310]: network-analysis
+                    - generic [ref=e5311]: warm-path-finding
+                    - generic [ref=e5312]: "+2"
+                  - generic [ref=e5313]:
+                    - generic [ref=e5314]: family-office
+                    - generic [ref=e5315]: relationships
+                    - generic [ref=e5316]: network
+                    - generic [ref=e5317]: crm
+                    - generic [ref=e5318]: "+2"
+                  - generic [ref=e5319]:
+                    - generic [ref=e5320]: 0 runs
+                    - generic [ref=e5321]: A2A
+                - button "Inyo — Term Sheet Analyst by Inyo (Family Office OS) Federated Free Extracts, compares, and red-flags term sheets for family office investment decisions term-sheet-analysis deal-terms-extraction term-comparison +2 family-office term-sheet venture-capital deal-terms +2 0 runs A2A" [ref=e5322] [cursor=pointer]:
+                  - generic [ref=e5323]:
+                    - generic [ref=e5324]:
+                      - generic [ref=e5325]:
+                        - img [ref=e5327]
+                        - heading "Inyo — Term Sheet Analyst" [level=3] [ref=e5329]
+                      - generic [ref=e5330]:
+                        - generic [ref=e5331]:
+                          - text: by
+                          - link "Inyo (Family Office OS)" [ref=e5332]:
+                            - /url: /developer/inyo-term-sheet-analyst
+                        - generic [ref=e5333]:
+                          - img [ref=e5334]
+                          - text: Federated
+                    - generic [ref=e5337]: Free
+                  - paragraph [ref=e5338]: Extracts, compares, and red-flags term sheets for family office investment decisions
+                  - generic [ref=e5339]:
+                    - generic [ref=e5340]: term-sheet-analysis
+                    - generic [ref=e5341]: deal-terms-extraction
+                    - generic [ref=e5342]: term-comparison
+                    - generic [ref=e5343]: "+2"
+                  - generic [ref=e5344]:
+                    - generic [ref=e5345]: family-office
+                    - generic [ref=e5346]: term-sheet
+                    - generic [ref=e5347]: venture-capital
+                    - generic [ref=e5348]: deal-terms
+                    - generic [ref=e5349]: "+2"
+                  - generic [ref=e5350]:
+                    - generic [ref=e5351]: 0 runs
+                    - generic [ref=e5352]: A2A
+                - 'button "Inyo — Diligence Analyst by Inyo (Family Office OS) Federated Free {\"agentType\":\"diligence\",\"context\":{\"company\":\"Acme Corp\",\"sector\":\"fintech\",\"stage\":\"series-a\",\"items\":[{\"id\":\"fin-1\",\"question\":\"Has the company provided audited financials?\"},{\"id\":\"legal-1\",\"question\":\"Are there any pending lawsuits?\"},{\"id\":\"team-1\",\"question\":\"What is the founding team background?\"}]}} due-diligence checklist-review deal-analysis +2 family-office due-diligence deal-review investment-analysis +2 0 runs A2A" [ref=e5353] [cursor=pointer]':
+                  - generic [ref=e5354]:
+                    - generic [ref=e5355]:
+                      - generic [ref=e5356]:
+                        - img [ref=e5358]
+                        - heading "Inyo — Diligence Analyst" [level=3] [ref=e5360]
+                      - generic [ref=e5361]:
+                        - generic [ref=e5362]:
+                          - text: by
+                          - link "Inyo (Family Office OS)" [ref=e5363]:
+                            - /url: /developer/inyo-diligence-analyst
+                        - generic [ref=e5364]:
+                          - img [ref=e5365]
+                          - text: Federated
+                    - generic [ref=e5368]: Free
+                  - paragraph [ref=e5369]: "{\"agentType\":\"diligence\",\"context\":{\"company\":\"Acme Corp\",\"sector\":\"fintech\",\"stage\":\"series-a\",\"items\":[{\"id\":\"fin-1\",\"question\":\"Has the company provided audited financials?\"},{\"id\":\"legal-1\",\"question\":\"Are there any pending lawsuits?\"},{\"id\":\"team-1\",\"question\":\"What is the founding team background?\"}]}}"
+                  - generic [ref=e5370]:
+                    - generic [ref=e5371]: due-diligence
+                    - generic [ref=e5372]: checklist-review
+                    - generic [ref=e5373]: deal-analysis
+                    - generic [ref=e5374]: "+2"
+                  - generic [ref=e5375]:
+                    - generic [ref=e5376]: family-office
+                    - generic [ref=e5377]: due-diligence
+                    - generic [ref=e5378]: deal-review
+                    - generic [ref=e5379]: investment-analysis
+                    - generic [ref=e5380]: "+2"
+                  - generic [ref=e5381]:
+                    - generic [ref=e5382]: 0 runs
+                    - generic [ref=e5383]: A2A
+                - 'button "Inyo — Legal Review Agent by Inyo (Family Office OS) Federated Free {\"agentType\":\"legal\",\"context\":{\"documentType\":\"investment-agreement\"},\"documents\":[{\"name\":\"Agreement\",\"content\":\"Auto-renewal clause: renews for 12 month terms unless 90 days written notice. Indemnification: Company indemnifies Investor for all losses from breach.\"}]} legal-review contract-analysis risk-flagging +2 family-office legal contracts compliance +4 0 runs A2A" [ref=e5384] [cursor=pointer]':
+                  - generic [ref=e5385]:
+                    - generic [ref=e5386]:
+                      - generic [ref=e5387]:
+                        - img [ref=e5389]
+                        - heading "Inyo — Legal Review Agent" [level=3] [ref=e5391]
+                      - generic [ref=e5392]:
+                        - generic [ref=e5393]:
+                          - text: by
+                          - link "Inyo (Family Office OS)" [ref=e5394]:
+                            - /url: /developer/inyo-legal-review-agent
+                        - generic [ref=e5395]:
+                          - img [ref=e5396]
+                          - text: Federated
+                    - generic [ref=e5399]: Free
+                  - paragraph [ref=e5400]: "{\"agentType\":\"legal\",\"context\":{\"documentType\":\"investment-agreement\"},\"documents\":[{\"name\":\"Agreement\",\"content\":\"Auto-renewal clause: renews for 12 month terms unless 90 days written notice. Indemnification: Company indemnifies Investor for all losses from breach.\"}]}"
+                  - generic [ref=e5401]:
+                    - generic [ref=e5402]: legal-review
+                    - generic [ref=e5403]: contract-analysis
+                    - generic [ref=e5404]: risk-flagging
+                    - generic [ref=e5405]: "+2"
+                  - generic [ref=e5406]:
+                    - generic [ref=e5407]: family-office
+                    - generic [ref=e5408]: legal
+                    - generic [ref=e5409]: contracts
+                    - generic [ref=e5410]: compliance
+                    - generic [ref=e5411]: "+4"
+                  - generic [ref=e5412]:
+                    - generic [ref=e5413]: 0 runs
+                    - generic [ref=e5414]: A2A
+                - button "Inyo — Portfolio Monitor by Inyo (Family Office OS) Federated Free Monitors portfolio companies for funding events, exec changes, layoffs, and press coverage portfolio-monitoring alert-generation company-intelligence +1 family-office portfolio-monitoring alerts investments +1 0 runs A2A" [ref=e5415] [cursor=pointer]:
+                  - generic [ref=e5416]:
+                    - generic [ref=e5417]:
+                      - generic [ref=e5418]:
+                        - img [ref=e5420]
+                        - heading "Inyo — Portfolio Monitor" [level=3] [ref=e5422]
+                      - generic [ref=e5423]:
+                        - generic [ref=e5424]:
+                          - text: by
+                          - link "Inyo (Family Office OS)" [ref=e5425]:
+                            - /url: /developer/inyo-portfolio-monitor
+                        - generic [ref=e5426]:
+                          - img [ref=e5427]
+                          - text: Federated
+                    - generic [ref=e5430]: Free
+                  - paragraph [ref=e5431]: Monitors portfolio companies for funding events, exec changes, layoffs, and press coverage
+                  - generic [ref=e5432]:
+                    - generic [ref=e5433]: portfolio-monitoring
+                    - generic [ref=e5434]: alert-generation
+                    - generic [ref=e5435]: company-intelligence
+                    - generic [ref=e5436]: "+1"
+                  - generic [ref=e5437]:
+                    - generic [ref=e5438]: family-office
+                    - generic [ref=e5439]: portfolio-monitoring
+                    - generic [ref=e5440]: alerts
+                    - generic [ref=e5441]: investments
+                    - generic [ref=e5442]: "+1"
+                  - generic [ref=e5443]:
+                    - generic [ref=e5444]: 0 runs
+                    - generic [ref=e5445]: A2A
+                - button "Inyo — IC Memo Writer by Inyo (Family Office OS) Federated Free Generates institutional-quality investment committee memos for family offices ic-memo investment-memo deal-analysis +2 family-office ic-memo investment-committee due-diligence +2 0 runs A2A" [ref=e5446] [cursor=pointer]:
+                  - generic [ref=e5447]:
+                    - generic [ref=e5448]:
+                      - generic [ref=e5449]:
+                        - img [ref=e5451]
+                        - heading "Inyo — IC Memo Writer" [level=3] [ref=e5453]
+                      - generic [ref=e5454]:
+                        - generic [ref=e5455]:
+                          - text: by
+                          - link "Inyo (Family Office OS)" [ref=e5456]:
+                            - /url: /developer/inyo-ic-memo-writer
+                        - generic [ref=e5457]:
+                          - img [ref=e5458]
+                          - text: Federated
+                    - generic [ref=e5461]: Free
+                  - paragraph [ref=e5462]: Generates institutional-quality investment committee memos for family offices
+                  - generic [ref=e5463]:
+                    - generic [ref=e5464]: ic-memo
+                    - generic [ref=e5465]: investment-memo
+                    - generic [ref=e5466]: deal-analysis
+                    - generic [ref=e5467]: "+2"
+                  - generic [ref=e5468]:
+                    - generic [ref=e5469]: family-office
+                    - generic [ref=e5470]: ic-memo
+                    - generic [ref=e5471]: investment-committee
+                    - generic [ref=e5472]: due-diligence
+                    - generic [ref=e5473]: "+2"
+                  - generic [ref=e5474]:
+                    - generic [ref=e5475]: 0 runs
+                    - generic [ref=e5476]: A2A
+        - generic [ref=e125]:
+          - generic [ref=e126]:
+            - generic [ref=e127]:
+              - heading "Workspace" [level=2] [ref=e129]:
+                - img [ref=e130]
+                - text: Workspace
+              - generic [ref=e133]:
+                - button "Select" [ref=e1348] [cursor=pointer]
+                - button "+" [ref=e134] [cursor=pointer]
+            - generic [ref=e135]:
+              - button "Divi's Queue (3)" [ref=e1349] [cursor=pointer]
+              - button "Comms" [ref=e137] [cursor=pointer]:
+                - img [ref=e138]
+                - text: Comms
+          - button "Clear 3 notifications" [ref=e1351] [cursor=pointer]
+          - button "Recently Completed 6 ▶" [ref=e1353] [cursor=pointer]:
+            - img [ref=e1354]
+            - generic [ref=e1357]: Recently Completed
+            - generic [ref=e1358]: "6"
+            - generic [ref=e1359]: ▶
+          - generic [ref=e149]: 0 ready · 0 active · 0 done · 0 blocked
+          - button "Bubble Store Explore" [ref=e151] [cursor=pointer]:
+            - generic [ref=e152]:
+              - generic [ref=e153]: Bubble Store
+              - generic [ref=e154]: Explore
+          - generic [ref=e155]:
+            - button "Cockpit" [ref=e156] [cursor=pointer]:
+              - generic [ref=e159]: Cockpit
+            - generic [ref=e160]: You drive
+      - button "Feedback" [ref=e161] [cursor=pointer]
+      - generic:
+        - generic:
+          - heading "Send Feedback" [level=3]
+          - button "×"
+        - generic:
+          - generic:
+            - generic: Category
+            - generic:
+              - button "General"
+              - button "Bug Report"
+              - button "Feature Request"
+              - button "UX / Design"
+              - button "Onboarding"
+          - generic:
+            - generic: Your Feedback
+            - textbox "Tell us what you think, what's broken, or what you'd love to see..."
+            - paragraph: 0/5000
+          - generic:
+            - generic: Satisfaction (optional)
+            - generic:
+              - button
+              - button
+              - button
+              - button
+              - button
+          - button "Submit Feedback" [disabled]
+      - button "Open Divi mini-chat" [ref=e2071] [cursor=pointer]:
+        - img [ref=e2072]
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - img
+            - generic:
+              - paragraph: Divi
+              - paragraph: Quick chat
+          - button:
+            - img
+        - generic:
+          - generic:
+            - generic:
+              - img
+            - paragraph: Ask Divi anything
+            - paragraph: Same capabilities as the main chat
+        - generic:
+          - generic:
+            - textbox "Message Divi…"
+            - button [disabled]:
+              - img
+  - alert [ref=e162]

@@ -1,0 +1,115 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]: FO
+        - generic [ref=e6]:
+          - generic [ref=e7]: Inyo
+          - generic [ref=e8]: Family Office OS
+      - navigation [ref=e9]:
+        - link "Dashboard" [ref=e10] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e11]
+          - text: Dashboard
+        - link "Approvals" [ref=e16] [cursor=pointer]:
+          - /url: /approvals
+          - img [ref=e17]
+          - text: Approvals
+        - link "Opportunities" [ref=e20] [cursor=pointer]:
+          - /url: /opportunities
+          - img [ref=e21]
+          - text: Opportunities
+        - link "Portfolio" [ref=e24] [cursor=pointer]:
+          - /url: /portfolio
+          - img [ref=e25]
+          - text: Portfolio
+        - link "Finance" [ref=e27] [cursor=pointer]:
+          - /url: /finance
+          - img [ref=e28]
+          - text: Finance
+        - link "Calendar" [ref=e30] [cursor=pointer]:
+          - /url: /calendar
+          - img [ref=e31]
+          - text: Calendar
+        - link "Legal" [ref=e33] [cursor=pointer]:
+          - /url: /legal
+          - img [ref=e34]
+          - text: Legal
+        - link "Tax" [ref=e38] [cursor=pointer]:
+          - /url: /tax
+          - img [ref=e39]
+          - text: Tax
+        - link "Concierge" [ref=e42] [cursor=pointer]:
+          - /url: /concierge
+          - img [ref=e43]
+          - text: Concierge
+        - link "Philanthropy" [ref=e46] [cursor=pointer]:
+          - /url: /philanthropy
+          - img [ref=e47]
+          - text: Philanthropy
+        - link "Relationships" [ref=e49] [cursor=pointer]:
+          - /url: /relationships
+          - img [ref=e50]
+          - text: Relationships
+        - link "SPV" [ref=e55] [cursor=pointer]:
+          - /url: /spv
+          - img [ref=e56]
+          - text: SPV
+        - link "Marketplace" [ref=e60] [cursor=pointer]:
+          - /url: /marketplace
+          - img [ref=e61]
+          - text: Marketplace
+        - link "Federation" [ref=e65] [cursor=pointer]:
+          - /url: /federation
+          - img [ref=e66]
+          - text: Federation
+        - generic [ref=e68]:
+          - generic [ref=e69]: Import
+          - link "Import Deals" [ref=e70] [cursor=pointer]:
+            - /url: /import/deals
+            - img [ref=e71]
+            - text: Import Deals
+          - link "Import Contacts" [ref=e74] [cursor=pointer]:
+            - /url: /import/contacts
+            - img [ref=e75]
+            - text: Import Contacts
+      - generic [ref=e78]:
+        - link "Agents →" [ref=e79] [cursor=pointer]:
+          - /url: /marketplace
+          - img [ref=e80]
+          - generic [ref=e82]: Agents
+          - generic [ref=e83]: →
+        - link "Integrations" [ref=e84] [cursor=pointer]:
+          - /url: /integrations
+          - img [ref=e85]
+          - text: Integrations
+        - link "API Docs" [ref=e87] [cursor=pointer]:
+          - /url: /api-docs
+          - img [ref=e88]
+          - text: API Docs
+        - link "Settings" [ref=e92] [cursor=pointer]:
+          - /url: /settings
+          - img [ref=e93]
+          - text: Settings
+    - generic [ref=e99]:
+      - generic [ref=e100]:
+        - generic [ref=e101]:
+          - heading "Opportunities" [level=1] [ref=e102]
+          - paragraph [ref=e103]: 0 deals in pipeline
+        - link "Add Deal" [ref=e105] [cursor=pointer]:
+          - /url: /import/deals
+          - img [ref=e106]
+          - text: Add Deal
+      - generic [ref=e107]:
+        - button "All" [ref=e108]
+        - button "Inbound" [ref=e109]
+        - button "Reviewing" [ref=e110]
+        - button "Diligence" [ref=e111]
+        - button "IC Review" [ref=e112]
+        - button "Invested" [ref=e113]
+        - button "Passed" [ref=e114]
+        - button [ref=e116]:
+          - img [ref=e117]
+      - generic [ref=e123]: Loading deals...
+  - button "Open Next.js Dev Tools" [ref=e129] [cursor=pointer]:
+    - img [ref=e130]

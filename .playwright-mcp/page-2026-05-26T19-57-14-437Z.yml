@@ -1,0 +1,189 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]: FO
+        - generic [ref=e6]:
+          - generic [ref=e7]: Inyo
+          - generic [ref=e8]: Family Office OS
+      - navigation [ref=e9]:
+        - link "Dashboard" [ref=e10] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e11]
+          - text: Dashboard
+        - link "Approvals" [ref=e16] [cursor=pointer]:
+          - /url: /approvals
+          - img [ref=e17]
+          - text: Approvals
+        - link "Opportunities" [ref=e20] [cursor=pointer]:
+          - /url: /opportunities
+          - img [ref=e21]
+          - text: Opportunities
+        - link "Portfolio" [ref=e24] [cursor=pointer]:
+          - /url: /portfolio
+          - img [ref=e25]
+          - text: Portfolio
+        - link "Finance" [ref=e27] [cursor=pointer]:
+          - /url: /finance
+          - img [ref=e28]
+          - text: Finance
+        - link "Calendar" [ref=e30] [cursor=pointer]:
+          - /url: /calendar
+          - img [ref=e31]
+          - text: Calendar
+        - link "Legal" [ref=e33] [cursor=pointer]:
+          - /url: /legal
+          - img [ref=e34]
+          - text: Legal
+        - link "Tax" [ref=e38] [cursor=pointer]:
+          - /url: /tax
+          - img [ref=e39]
+          - text: Tax
+        - link "Concierge" [ref=e42] [cursor=pointer]:
+          - /url: /concierge
+          - img [ref=e43]
+          - text: Concierge
+        - link "Philanthropy" [ref=e46] [cursor=pointer]:
+          - /url: /philanthropy
+          - img [ref=e47]
+          - text: Philanthropy
+        - link "Relationships" [ref=e49] [cursor=pointer]:
+          - /url: /relationships
+          - img [ref=e50]
+          - text: Relationships
+        - link "SPV" [ref=e55] [cursor=pointer]:
+          - /url: /spv
+          - img [ref=e56]
+          - text: SPV
+        - link "Marketplace" [ref=e60] [cursor=pointer]:
+          - /url: /marketplace
+          - img [ref=e61]
+          - text: Marketplace
+        - link "Federation" [ref=e65] [cursor=pointer]:
+          - /url: /federation
+          - img [ref=e66]
+          - text: Federation
+        - generic [ref=e68]:
+          - generic [ref=e69]: Import
+          - link "Import Deals" [ref=e70] [cursor=pointer]:
+            - /url: /import/deals
+            - img [ref=e71]
+            - text: Import Deals
+          - link "Import Contacts" [ref=e74] [cursor=pointer]:
+            - /url: /import/contacts
+            - img [ref=e75]
+            - text: Import Contacts
+      - generic [ref=e78]:
+        - link "Agents →" [ref=e79] [cursor=pointer]:
+          - /url: /marketplace
+          - img [ref=e80]
+          - generic [ref=e82]: Agents
+          - generic [ref=e83]: →
+        - link "Integrations" [ref=e84] [cursor=pointer]:
+          - /url: /integrations
+          - img [ref=e85]
+          - text: Integrations
+        - link "API Docs" [ref=e87] [cursor=pointer]:
+          - /url: /api-docs
+          - img [ref=e88]
+          - text: API Docs
+        - link "Settings" [ref=e92] [cursor=pointer]:
+          - /url: /settings
+          - img [ref=e93]
+          - text: Settings
+    - generic [ref=e99]:
+      - generic [ref=e101]:
+        - heading "Tax" [level=1] [ref=e102]
+        - paragraph [ref=e103]: K-1 tracking, estimated payments, and filing calendar
+      - generic [ref=e105]:
+        - generic [ref=e106]:
+          - heading "K-1 Tracker — Tax Year 2025" [level=2] [ref=e107]
+          - table [ref=e109]:
+            - rowgroup [ref=e110]:
+              - row "Entity Year Status Income/Loss Filed" [ref=e111]:
+                - columnheader "Entity" [ref=e112]
+                - columnheader "Year" [ref=e113]
+                - columnheader "Status" [ref=e114]
+                - columnheader "Income/Loss" [ref=e115]
+                - columnheader "Filed" [ref=e116]
+            - rowgroup [ref=e117]:
+              - row "Hartwell Cayman LP 2025 received $2.8M Pending" [ref=e118]:
+                - cell "Hartwell Cayman LP" [ref=e119]:
+                  - generic [ref=e120]:
+                    - img [ref=e121]
+                    - generic [ref=e124]: Hartwell Cayman LP
+                - cell "2025" [ref=e125]
+                - cell "received" [ref=e126]:
+                  - generic [ref=e127]: received
+                - cell "$2.8M" [ref=e128]
+                - cell "Pending" [ref=e129]:
+                  - generic [ref=e130]: Pending
+              - row "Arcadia Energy Fund II 2025 pending — Pending" [ref=e131]:
+                - cell "Arcadia Energy Fund II" [ref=e132]:
+                  - generic [ref=e133]:
+                    - img [ref=e134]
+                    - generic [ref=e137]: Arcadia Energy Fund II
+                - cell "2025" [ref=e138]
+                - cell "pending" [ref=e139]:
+                  - generic [ref=e140]: pending
+                - cell "—" [ref=e141]
+                - cell "Pending" [ref=e142]:
+                  - generic [ref=e143]: Pending
+              - row "Meridian AI SPV 2025 received $120K Pending" [ref=e144]:
+                - cell "Meridian AI SPV" [ref=e145]:
+                  - generic [ref=e146]:
+                    - img [ref=e147]
+                    - generic [ref=e150]: Meridian AI SPV
+                - cell "2025" [ref=e151]
+                - cell "received" [ref=e152]:
+                  - generic [ref=e153]: received
+                - cell "$120K" [ref=e154]
+                - cell "Pending" [ref=e155]:
+                  - generic [ref=e156]: Pending
+              - row "Terrace REIT 2025 received $380K Filed" [ref=e157]:
+                - cell "Terrace REIT" [ref=e158]:
+                  - generic [ref=e159]:
+                    - img [ref=e160]
+                    - generic [ref=e163]: Terrace REIT
+                - cell "2025" [ref=e164]
+                - cell "received" [ref=e165]:
+                  - generic [ref=e166]: received
+                - cell "$380K" [ref=e167]
+                - cell "Filed" [ref=e168]:
+                  - generic [ref=e169]: Filed
+          - generic [ref=e170]:
+            - generic [ref=e171]: Upload K-1 Document
+            - button "Choose file (.pdf, .txt)" [ref=e172]
+        - generic [ref=e173]:
+          - heading "Tax Intelligence" [level=2] [ref=e174]
+          - generic [ref=e175]:
+            - textbox "Ask about your tax position... e.g. 'What's my estimated Q3 liability?' or 'Summarize K-1 income'" [ref=e176]
+            - button "Analyze" [disabled] [ref=e177]
+        - generic [ref=e178]:
+          - heading "Filing Calendar" [level=2] [ref=e179]
+          - generic [ref=e180]:
+            - generic [ref=e181]:
+              - generic [ref=e182]: Q2 Federal Estimated Payment
+              - generic [ref=e183]:
+                - generic [ref=e184]:
+                  - img [ref=e185]
+                  - text: 2026-06-16
+                - generic [ref=e187]: $485K
+            - generic [ref=e188]:
+              - generic [ref=e189]: State Tax Returns — CA, NY, DE
+              - generic [ref=e191]:
+                - img [ref=e192]
+                - text: 2026-10-15
+            - generic [ref=e194]:
+              - generic [ref=e195]: Foundation 990-PF Filing
+              - generic [ref=e197]:
+                - img [ref=e198]
+                - text: 2026-11-15
+            - generic [ref=e200]:
+              - generic [ref=e201]: FBAR Foreign Account Report
+              - generic [ref=e203]:
+                - img [ref=e204]
+                - text: 2026-10-15
+  - button "Open Next.js Dev Tools" [ref=e211] [cursor=pointer]:
+    - img [ref=e212]
+  - alert [ref=e215]

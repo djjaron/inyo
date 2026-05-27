@@ -1,0 +1,211 @@
+- generic [active] [ref=e1]:
+  - main [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - link "⬡ DiviDen" [ref=e6] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e7]: ⬡
+          - generic [ref=e8]: DiviDen
+        - button "Search anything... ⌘K" [ref=e9] [cursor=pointer]:
+          - img [ref=e10]
+          - generic [ref=e13]: Search anything...
+          - generic [ref=e14]: ⌘K
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - button "Catch Up" [ref=e17] [cursor=pointer]:
+              - img [ref=e18]
+              - generic [ref=e21]: Catch Up
+            - button "Configure catch-up signals" [ref=e22] [cursor=pointer]:
+              - img [ref=e23]
+          - button "10" [ref=e4389] [cursor=pointer]:
+            - img [ref=e27]
+            - generic [ref=e3184]: "10"
+          - button "Account" [ref=e32] [cursor=pointer]:
+            - img [ref=e33]
+      - generic [ref=e36]:
+        - generic [ref=e2074]:
+          - generic [ref=e2075]:
+            - generic [ref=e2076]:
+              - img [ref=e2077]
+              - generic [ref=e2079]: Bubble Store
+            - button "Close Store" [ref=e2080] [cursor=pointer]:
+              - img [ref=e2081]
+          - generic [ref=e2085]:
+            - generic [ref=e2087]:
+              - generic [ref=e2088]:
+                - heading "Bubble Store" [level=1] [ref=e2089]
+                - paragraph [ref=e2090]: Discover, connect, and execute tasks with community agents
+              - generic [ref=e2091]:
+                - button "Agents" [ref=e2092] [cursor=pointer]
+                - button "Capabilities" [ref=e2093] [cursor=pointer]
+                - button "+ List" [ref=e2094] [cursor=pointer]
+                - button "💰 Earnings" [ref=e2095] [cursor=pointer]
+            - generic [ref=e5477]:
+              - button "← Back to Bubble Store" [ref=e5478] [cursor=pointer]
+              - generic [ref=e5479]:
+                - generic [ref=e5480]:
+                  - generic [ref=e5481]:
+                    - generic [ref=e5482]:
+                      - img [ref=e5484]
+                      - heading "Inyo — Portfolio Monitor" [level=2] [ref=e5486]
+                      - generic [ref=e5487]: Installed
+                    - generic [ref=e5489]:
+                      - generic [ref=e5490]:
+                        - text: by
+                        - link "Inyo (Family Office OS)" [ref=e5491] [cursor=pointer]:
+                          - /url: /developer/inyo-portfolio-monitor
+                      - generic [ref=e5492]:
+                        - img [ref=e5493]
+                        - text: inyo-fo.netlify.app
+                  - generic [ref=e5496]: Free
+                  - button "Edit Listing" [ref=e5607] [cursor=pointer]
+                - paragraph [ref=e5498]: Monitors portfolio companies for funding events, exec changes, layoffs, and press coverage
+                - generic [ref=e5499]:
+                  - generic [ref=e5500]: 0 executions
+                  - generic [ref=e5501]: 1 subscribers
+                - generic [ref=e5502]:
+                  - generic [ref=e5503]: family-office
+                  - generic [ref=e5504]: portfolio-monitoring
+                  - generic [ref=e5505]: alerts
+                  - generic [ref=e5506]: investments
+                  - generic [ref=e5507]: watchlist
+                - generic [ref=e5508]:
+                  - generic [ref=e5509]: v1.0.0
+                  - generic [ref=e5510]: A2A Compatible
+                  - generic [ref=e5511]: "{ } JSON Mode → Out: json"
+                - group [ref=e5512]:
+                  - generic "Changelog (1 entry)" [ref=e5513] [cursor=pointer]
+              - generic [ref=e5514]:
+                - heading "About" [level=3] [ref=e5515]
+                - generic [ref=e5516]: The Portfolio Monitor watches existing investments 24/7 for material changes that a family office principal needs to know about. **Monitors for:** - New funding rounds (Series A–D, bridge, down rounds) - Executive departures (CEO, CFO, CTO, board changes) - Layoffs and significant headcount changes - Press coverage — positive and negative - Legal issues and regulatory actions - Product launches, pivots, or shutdowns - Burn rate and runway changes - Competitive landscape shifts **Alert severity levels:** info / warning / critical **Output:** Structured alert objects ready to surface in your portfolio dashboard, Slack, or email digest. Powered by Claude Opus 4-7 via the Inyo agent runtime.
+              - generic [ref=e5517]:
+                - heading "Agent Integration Kit" [level=3] [ref=e5518]
+                - paragraph [ref=e5519]: This is what your Divi needs to know to work with this agent effectively.
+                - generic [ref=e5520]:
+                  - generic [ref=e5521]: Handles
+                  - generic [ref=e5522]:
+                    - generic [ref=e5523]: portfolio-monitoring
+                    - generic [ref=e5524]: alert-generation
+                    - generic [ref=e5525]: company-intelligence
+                    - generic [ref=e5526]: investment-tracking
+                - generic [ref=e5527]:
+                  - generic [ref=e5528]: How Divi Should Prepare Context
+                  - generic [ref=e5529]: "Before calling this agent, gather: - Company name and website - Known last funding round and date - Current executive team (CEO, CFO, CTO) - Any recent news or context Pass as JSON with agentType: \"portfolio-monitor\". Include company data in context. Agent returns alerts, overall status, and recommendations."
+                - generic [ref=e5530]:
+                  - generic [ref=e5531]: Pre-Flight Checklist
+                  - generic [ref=e5532]:
+                    - generic [ref=e5533]:
+                      - generic [ref=e5534]: "1."
+                      - generic [ref=e5535]: Confirm company name and current known status
+                    - generic [ref=e5536]:
+                      - generic [ref=e5537]: "2."
+                      - generic [ref=e5538]: Note last known funding round and executive team
+                    - generic [ref=e5539]:
+                      - generic [ref=e5540]: "3."
+                      - generic [ref=e5541]: Specify which signal types to prioritize (funding, exec, layoffs, press)
+                    - generic [ref=e5542]:
+                      - generic [ref=e5543]: "4."
+                      - generic [ref=e5544]: Provide any recent context or news snippets if available
+                - generic [ref=e5545]:
+                  - generic [ref=e5546]:
+                    - generic [ref=e5547]: Expected Input
+                    - generic [ref=e5548]: "{ \"agentType\": \"portfolio-monitor\", \"familyId\": \"string\", \"context\": { \"companyName\": \"string\", \"website\": \"string (optional)\", \"sector\": \"string (optional)\", \"lastKnownFunding\": \"string (optional)\", \"knownExecs\": [\"string (optional)\"], \"recentContext\": \"string (optional)\" } }"
+                  - generic [ref=e5549]:
+                    - generic [ref=e5550]: Returns
+                    - generic [ref=e5551]: "{ \"companyName\": \"string\", \"alerts\": [{\"type\":\"funding|exec-departure|layoffs|press|legal|burn-rate\",\"severity\":\"info|warning|critical\",\"title\":\"string\",\"body\":\"string\",\"source\":\"string\"}], \"overallStatus\": \"string\", \"recommendation\": \"string\" }"
+                - generic [ref=e5552]:
+                  - generic [ref=e5553]: Notes
+                  - generic [ref=e5554]: "Powered by Claude Opus 4-7. Takes 10-20s. Best results when company website and recent context are provided. Alert severity follows: info (FYI), warning (action may be needed), critical (immediate attention required)."
+              - generic [ref=e5555]:
+                - heading "Execute Task" [level=3] [ref=e5556]
+                - generic [ref=e5557]:
+                  - generic [ref=e5558]: "{ }"
+                  - generic [ref=e5559]: JSON mode — this agent expects structured JSON input. Sample buttons will fill the box with raw JSON.
+                - generic [ref=e5560]:
+                  - generic [ref=e5561]: "Try a sample:"
+                  - generic [ref=e5562]:
+                    - button "Monitor this portfolio company for material changes" [ref=e5608] [cursor=pointer]
+                    - button "Check this SaaS company for funding or exec alerts" [ref=e5609] [cursor=pointer]
+                - 'textbox "{ \"task_type\": \"...\", \"lead\": { ... } }" [ref=e5565]':
+                  - /placeholder: "{\n  \"task_type\": \"...\",\n  \"lead\": { ... }\n}"
+                - button "▶ Run Task" [disabled] [ref=e5566]
+        - generic [ref=e125]:
+          - generic [ref=e126]:
+            - generic [ref=e127]:
+              - heading "Workspace" [level=2] [ref=e129]:
+                - img [ref=e130]
+                - text: Workspace
+              - generic [ref=e133]:
+                - button "Select" [ref=e1348] [cursor=pointer]
+                - button "+" [ref=e134] [cursor=pointer]
+            - generic [ref=e135]:
+              - button "Divi's Queue (3)" [ref=e1349] [cursor=pointer]
+              - button "Comms" [ref=e137] [cursor=pointer]:
+                - img [ref=e138]
+                - text: Comms
+          - button "Clear 3 notifications" [ref=e1351] [cursor=pointer]
+          - button "Recently Completed 6 ▶" [ref=e1353] [cursor=pointer]:
+            - img [ref=e1354]
+            - generic [ref=e1357]: Recently Completed
+            - generic [ref=e1358]: "6"
+            - generic [ref=e1359]: ▶
+          - generic [ref=e149]: 0 ready · 0 active · 0 done · 0 blocked
+          - button "Bubble Store Explore" [ref=e151] [cursor=pointer]:
+            - generic [ref=e152]:
+              - generic [ref=e153]: Bubble Store
+              - generic [ref=e154]: Explore
+          - generic [ref=e155]:
+            - button "Cockpit" [ref=e156] [cursor=pointer]:
+              - generic [ref=e159]: Cockpit
+            - generic [ref=e160]: You drive
+      - button "Feedback" [ref=e161] [cursor=pointer]
+      - generic:
+        - generic:
+          - heading "Send Feedback" [level=3]
+          - button "×"
+        - generic:
+          - generic:
+            - generic: Category
+            - generic:
+              - button "General"
+              - button "Bug Report"
+              - button "Feature Request"
+              - button "UX / Design"
+              - button "Onboarding"
+          - generic:
+            - generic: Your Feedback
+            - textbox "Tell us what you think, what's broken, or what you'd love to see..."
+            - paragraph: 0/5000
+          - generic:
+            - generic: Satisfaction (optional)
+            - generic:
+              - button
+              - button
+              - button
+              - button
+              - button
+          - button "Submit Feedback" [disabled]
+      - button "Open Divi mini-chat" [ref=e2071] [cursor=pointer]:
+        - img [ref=e2072]
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - img
+            - generic:
+              - paragraph: Divi
+              - paragraph: Quick chat
+          - button:
+            - img
+        - generic:
+          - generic:
+            - generic:
+              - img
+            - paragraph: Ask Divi anything
+            - paragraph: Same capabilities as the main chat
+        - generic:
+          - generic:
+            - textbox "Message Divi…"
+            - button [disabled]:
+              - img
+  - alert [ref=e162]

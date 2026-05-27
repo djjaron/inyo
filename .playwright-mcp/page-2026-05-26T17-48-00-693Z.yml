@@ -1,0 +1,36 @@
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]: FO
+      - heading "Inyo" [level=1] [ref=e6]
+      - paragraph [ref=e7]: Family Office OS
+    - generic [ref=e63]:
+      - generic [ref=e64]:
+        - generic [ref=e67]:
+          - paragraph [ref=e68]: jaronrayhinds@gmail.com
+          - button "Edit" [ref=e69] [cursor=pointer]:
+            - img [ref=e70]
+        - generic [ref=e72]:
+          - generic [ref=e73]:
+            - generic [ref=e75]:
+              - generic:
+                - group
+                - textbox "Enter verification code" [active] [ref=e76]
+            - button "Didn't receive a code? Resend (29)" [disabled]
+          - generic [ref=e78]:
+            - button "Continue" [ref=e79] [cursor=pointer]:
+              - generic [ref=e80]:
+                - text: Continue
+                - img [ref=e81]
+            - link "Use another method" [ref=e84] [cursor=pointer]:
+              - /url: http://localhost:3001/sign-in/factor-one
+      - generic [ref=e87]:
+        - generic [ref=e89]:
+          - paragraph [ref=e90]: Secured by
+          - link "Clerk logo" [ref=e91] [cursor=pointer]:
+            - /url: https://go.clerk.com/components
+            - img [ref=e92]
+        - paragraph [ref=e97]: Development mode
+  - button "Open Next.js Dev Tools" [ref=e59] [cursor=pointer]:
+    - img [ref=e60]
+  - alert [ref=e8]

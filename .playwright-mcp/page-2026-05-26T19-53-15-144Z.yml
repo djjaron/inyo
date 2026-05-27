@@ -1,0 +1,213 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]: FO
+        - generic [ref=e6]:
+          - generic [ref=e7]: Inyo
+          - generic [ref=e8]: Family Office OS
+      - navigation [ref=e9]:
+        - link "Dashboard" [ref=e10] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e11]
+          - text: Dashboard
+        - link "Approvals" [ref=e16] [cursor=pointer]:
+          - /url: /approvals
+          - img [ref=e17]
+          - text: Approvals
+        - link "Opportunities" [ref=e20] [cursor=pointer]:
+          - /url: /opportunities
+          - img [ref=e21]
+          - text: Opportunities
+        - link "Portfolio" [ref=e24] [cursor=pointer]:
+          - /url: /portfolio
+          - img [ref=e25]
+          - text: Portfolio
+        - link "Finance" [ref=e27] [cursor=pointer]:
+          - /url: /finance
+          - img [ref=e28]
+          - text: Finance
+        - link "Calendar" [ref=e30] [cursor=pointer]:
+          - /url: /calendar
+          - img [ref=e31]
+          - text: Calendar
+        - link "Legal" [ref=e33] [cursor=pointer]:
+          - /url: /legal
+          - img [ref=e34]
+          - text: Legal
+        - link "Tax" [ref=e38] [cursor=pointer]:
+          - /url: /tax
+          - img [ref=e39]
+          - text: Tax
+        - link "Concierge" [ref=e42] [cursor=pointer]:
+          - /url: /concierge
+          - img [ref=e43]
+          - text: Concierge
+        - link "Philanthropy" [ref=e46] [cursor=pointer]:
+          - /url: /philanthropy
+          - img [ref=e47]
+          - text: Philanthropy
+        - link "Relationships" [ref=e49] [cursor=pointer]:
+          - /url: /relationships
+          - img [ref=e50]
+          - text: Relationships
+        - link "SPV" [ref=e55] [cursor=pointer]:
+          - /url: /spv
+          - img [ref=e56]
+          - text: SPV
+        - link "Marketplace" [ref=e60] [cursor=pointer]:
+          - /url: /marketplace
+          - img [ref=e61]
+          - text: Marketplace
+        - link "Federation" [ref=e65] [cursor=pointer]:
+          - /url: /federation
+          - img [ref=e66]
+          - text: Federation
+        - generic [ref=e68]:
+          - generic [ref=e69]: Import
+          - link "Import Deals" [ref=e70] [cursor=pointer]:
+            - /url: /import/deals
+            - img [ref=e71]
+            - text: Import Deals
+          - link "Import Contacts" [ref=e74] [cursor=pointer]:
+            - /url: /import/contacts
+            - img [ref=e75]
+            - text: Import Contacts
+      - generic [ref=e78]:
+        - link "Agents →" [ref=e79] [cursor=pointer]:
+          - /url: /marketplace
+          - img [ref=e80]
+          - generic [ref=e82]: Agents
+          - generic [ref=e83]: →
+        - link "Integrations" [ref=e84] [cursor=pointer]:
+          - /url: /integrations
+          - img [ref=e85]
+          - text: Integrations
+        - link "API Docs" [ref=e87] [cursor=pointer]:
+          - /url: /api-docs
+          - img [ref=e88]
+          - text: API Docs
+        - link "Settings" [ref=e92] [cursor=pointer]:
+          - /url: /settings
+          - img [ref=e93]
+          - text: Settings
+        - button "Open user menu" [ref=e134] [cursor=pointer]:
+          - img "Jaron Ray Hinds's logo" [ref=e137]
+    - generic [ref=e174]:
+      - generic [ref=e175]:
+        - link "Pipeline" [ref=e176] [cursor=pointer]:
+          - /url: /opportunities
+          - img [ref=e177]
+          - text: Pipeline
+        - generic [ref=e179]:
+          - generic [ref=e180]:
+            - generic [ref=e181]:
+              - heading "Toolkit" [level=1] [ref=e182]
+              - combobox [ref=e184] [cursor=pointer]:
+                - option "Inbound" [selected]
+                - option "Reviewing"
+                - option "Diligence"
+                - option "IC Review"
+                - option "Passed"
+                - option "Invested"
+              - generic [ref=e185]: pre seed
+            - paragraph [ref=e186]: Enterprise AI
+          - generic [ref=e187]:
+            - button "Analyze" [ref=e188]:
+              - img [ref=e423]
+              - text: Analyze
+            - button "IC Memo" [ref=e191]:
+              - img [ref=e192]
+              - text: IC Memo
+        - generic [ref=e195]:
+          - generic [ref=e196]:
+            - img [ref=e197]
+            - text: $5.0M ask
+          - generic [ref=e199]:
+            - img [ref=e200]
+            - text: $150.0M valuation
+          - generic [ref=e203]:
+            - img [ref=e204]
+            - text: via Jaron Hinds
+          - generic [ref=e207]:
+            - img [ref=e208]
+            - text: Added May 21, 2026
+      - generic [ref=e210]:
+        - button "Overview" [ref=e211]:
+          - img [ref=e212]
+          - text: Overview
+        - button "Deal Analysis" [ref=e216]:
+          - img [ref=e217]
+          - text: Deal Analysis
+        - button "IC Memo" [ref=e220]:
+          - img [ref=e221]
+          - text: IC Memo
+        - button "Terms" [ref=e224]:
+          - img [ref=e225]
+          - text: Terms
+        - button "Diligence" [ref=e229]:
+          - img [ref=e230]
+          - text: Diligence
+      - generic [ref=e426]:
+        - generic [ref=e427]:
+          - generic [ref=e428]: Deal Flow Analysis
+          - button "Re-run" [ref=e429]:
+            - img [ref=e430]
+            - text: Re-run
+        - generic [ref=e435]:
+          - generic [ref=e436]: Demo analysis — add an Anthropic API key for real AI output
+          - generic [ref=e437]:
+            - generic [ref=e438]:
+              - img [ref=e439]
+              - generic [ref=e442]: "81"
+            - generic [ref=e443]:
+              - generic [ref=e444]:
+                - generic [ref=e445]: Deal Score
+                - generic [ref=e446]: PURSUE
+              - paragraph [ref=e447]: Meridian AI is building vertical LLM infrastructure for enterprise compliance teams. Strong ARR growth (3.2x YoY), founder has prior exit. Market timing is excellent with regulatory pressure increasing.
+          - generic [ref=e448]:
+            - generic [ref=e449]:
+              - generic [ref=e450]: Sector
+              - generic [ref=e451]: Enterprise AI
+            - generic [ref=e452]:
+              - generic [ref=e453]: Stage
+              - generic [ref=e454]: Series B
+            - generic [ref=e455]:
+              - generic [ref=e456]: Capital Ask
+              - generic [ref=e457]: $12.0M
+            - generic [ref=e458]:
+              - generic [ref=e459]: Valuation
+              - generic [ref=e460]: $85.0M
+          - generic [ref=e461]:
+            - generic [ref=e462]:
+              - generic [ref=e463]:
+                - img [ref=e464]
+                - generic [ref=e466]: Risks
+              - list [ref=e467]:
+                - listitem [ref=e468]: Customer concentration (top 3 = 67% ARR)
+                - listitem [ref=e470]: GTM complexity in regulated industries
+                - listitem [ref=e472]: Competing against well-funded incumbents
+            - generic [ref=e474]:
+              - generic [ref=e475]:
+                - img [ref=e476]
+                - generic [ref=e479]: Opportunities
+              - list [ref=e480]:
+                - listitem [ref=e481]: Defense market expansion
+                - listitem [ref=e483]: Platform play across compliance verticals
+                - listitem [ref=e485]: Potential strategic synergy with portfolio company ClearReg
+          - generic [ref=e487]:
+            - generic [ref=e488]:
+              - img [ref=e489]
+              - generic [ref=e494]: Founding Team
+            - paragraph [ref=e495]: "Sarah Chen (CEO): ex-Palantir, Stanford CS. Prior exit to Salesforce ($180M). Co-founder Marcus Webb: ex-Two Sigma, MIT."
+          - generic [ref=e496]:
+            - generic [ref=e497]:
+              - img [ref=e498]
+              - generic [ref=e500]: Comparables
+            - generic [ref=e501]:
+              - generic [ref=e502]: Harvey AI
+              - generic [ref=e503]: Ironclad
+              - generic [ref=e504]: Compliance.ai
+  - button "Open Next.js Dev Tools" [ref=e129] [cursor=pointer]:
+    - img [ref=e130]
+  - alert [ref=e173]

@@ -1,0 +1,133 @@
+- generic [active] [ref=e1]:
+  - main [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - link "⬡ DiviDen" [ref=e6] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e7]: ⬡
+          - generic [ref=e8]: DiviDen
+        - button "Search anything... ⌘K" [ref=e9] [cursor=pointer]:
+          - img [ref=e10]
+          - generic [ref=e13]: Search anything...
+          - generic [ref=e14]: ⌘K
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - button "Catch Up" [ref=e17] [cursor=pointer]:
+              - img [ref=e18]
+              - generic [ref=e21]: Catch Up
+            - button "Configure catch-up signals" [ref=e22] [cursor=pointer]:
+              - img [ref=e23]
+          - button "Notifications" [ref=e26] [cursor=pointer]:
+            - img [ref=e27]
+          - button "Account" [ref=e32] [cursor=pointer]:
+            - img [ref=e33]
+      - generic [ref=e36]:
+        - generic [ref=e39]:
+          - generic [ref=e40]:
+            - generic [ref=e41]:
+              - heading "NOW" [level=2] [ref=e42]:
+                - img [ref=e43]
+                - text: NOW
+              - generic [ref=e45]: Dynamic
+            - generic [ref=e46]: 0 ranked items • 0 goals • 0 active
+          - generic [ref=e47]:
+            - generic [ref=e48]:
+              - generic [ref=e49]:
+                - generic [ref=e50]: "0"
+                - generic [ref=e51]: Goals
+              - generic [ref=e52]:
+                - generic [ref=e53]: "0"
+                - generic [ref=e54]: Critical
+              - generic [ref=e55]:
+                - generic [ref=e56]: "0"
+                - generic [ref=e57]: Due Soon
+              - generic [ref=e58]:
+                - generic [ref=e59]: "0"
+                - generic [ref=e60]: On Track
+            - generic [ref=e61]: Scoring priorities...
+          - button "Open Board" [ref=e63] [cursor=pointer]:
+            - img [ref=e64]
+            - generic [ref=e67]: Open Board
+          - generic [ref=e68]:
+            - button "Activity ▲" [ref=e70] [cursor=pointer]:
+              - img [ref=e71]
+              - generic [ref=e73]: Activity
+              - generic [ref=e74]: ▲
+            - generic [ref=e76]: Loading...
+        - generic [ref=e78]:
+          - generic [ref=e80]:
+            - generic [ref=e81]:
+              - button "Chat" [ref=e82] [cursor=pointer]:
+                - img [ref=e83]
+                - text: Chat
+              - button "CRM" [ref=e85] [cursor=pointer]:
+                - img [ref=e86]
+                - text: CRM
+              - button "Calendar" [ref=e91] [cursor=pointer]:
+                - img [ref=e92]
+                - text: Calendar
+              - button "Email" [ref=e94] [cursor=pointer]:
+                - img [ref=e95]
+                - text: Email
+            - button "More tabs" [ref=e99] [cursor=pointer]:
+              - img [ref=e100]
+          - generic [ref=e105]:
+            - generic [ref=e108]: Chat with Divi
+            - generic [ref=e111]: Loading messages...
+            - generic [ref=e113]:
+              - button "Voice input" [ref=e115] [cursor=pointer]:
+                - img [ref=e116]
+              - combobox "Message Divi" [ref=e118]
+              - button "Enable voice responses" [ref=e119] [cursor=pointer]:
+                - img [ref=e120]
+              - button "Send" [disabled] [ref=e122]
+        - generic [ref=e125]:
+          - generic [ref=e126]:
+            - generic [ref=e127]:
+              - heading "Workspace" [level=2] [ref=e129]:
+                - img [ref=e130]
+                - text: Workspace
+              - button "+" [ref=e134] [cursor=pointer]
+            - generic [ref=e135]:
+              - button "Divi's Queue (0)" [ref=e136] [cursor=pointer]
+              - button "Comms" [ref=e137] [cursor=pointer]:
+                - img [ref=e138]
+                - text: Comms
+          - generic [ref=e146]: Loading...
+          - generic [ref=e149]: 0 ready · 0 active · 0 done · 0 blocked
+          - button "Bubble Store Explore" [ref=e151] [cursor=pointer]:
+            - generic [ref=e152]:
+              - generic [ref=e153]: Bubble Store
+              - generic [ref=e154]: Explore
+          - generic [ref=e155]:
+            - button "Cockpit" [ref=e156] [cursor=pointer]:
+              - generic [ref=e159]: Cockpit
+            - generic [ref=e160]: You drive
+      - button "Feedback" [ref=e161] [cursor=pointer]
+      - generic:
+        - generic:
+          - heading "Send Feedback" [level=3]
+          - button "×"
+        - generic:
+          - generic:
+            - generic: Category
+            - generic:
+              - button "General"
+              - button "Bug Report"
+              - button "Feature Request"
+              - button "UX / Design"
+              - button "Onboarding"
+          - generic:
+            - generic: Your Feedback
+            - textbox "Tell us what you think, what's broken, or what you'd love to see..."
+            - paragraph: 0/5000
+          - generic:
+            - generic: Satisfaction (optional)
+            - generic:
+              - button
+              - button
+              - button
+              - button
+              - button
+          - button "Submit Feedback" [disabled]
+  - alert [ref=e162]

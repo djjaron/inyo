@@ -1,0 +1,188 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]: FO
+        - generic [ref=e6]:
+          - generic [ref=e7]: Inyo
+          - generic [ref=e8]: Family Office OS
+      - navigation [ref=e9]:
+        - link "Dashboard" [ref=e10] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e11]
+          - text: Dashboard
+        - link "Approvals" [ref=e16] [cursor=pointer]:
+          - /url: /approvals
+          - img [ref=e17]
+          - text: Approvals
+        - link "Opportunities" [ref=e20] [cursor=pointer]:
+          - /url: /opportunities
+          - img [ref=e21]
+          - text: Opportunities
+        - link "Portfolio" [ref=e24] [cursor=pointer]:
+          - /url: /portfolio
+          - img [ref=e25]
+          - text: Portfolio
+        - link "Finance" [ref=e27] [cursor=pointer]:
+          - /url: /finance
+          - img [ref=e28]
+          - text: Finance
+        - link "Legal" [ref=e30] [cursor=pointer]:
+          - /url: /legal
+          - img [ref=e31]
+          - text: Legal
+        - link "Tax" [ref=e35] [cursor=pointer]:
+          - /url: /tax
+          - img [ref=e36]
+          - text: Tax
+        - link "Concierge" [ref=e39] [cursor=pointer]:
+          - /url: /concierge
+          - img [ref=e40]
+          - text: Concierge
+        - link "Philanthropy" [ref=e43] [cursor=pointer]:
+          - /url: /philanthropy
+          - img [ref=e44]
+          - text: Philanthropy
+        - link "Relationships" [ref=e46] [cursor=pointer]:
+          - /url: /relationships
+          - img [ref=e47]
+          - text: Relationships
+        - link "Marketplace" [ref=e52] [cursor=pointer]:
+          - /url: /marketplace
+          - img [ref=e53]
+          - text: Marketplace
+        - generic [ref=e57]:
+          - generic [ref=e58]: Import
+          - link "Import Deals" [ref=e59] [cursor=pointer]:
+            - /url: /import/deals
+            - img [ref=e60]
+            - text: Import Deals
+          - link "Import Contacts" [ref=e63] [cursor=pointer]:
+            - /url: /import/contacts
+            - img [ref=e64]
+            - text: Import Contacts
+      - generic [ref=e67]:
+        - link "Agents →" [ref=e68] [cursor=pointer]:
+          - /url: /marketplace
+          - img [ref=e69]
+          - generic [ref=e71]: Agents
+          - generic [ref=e72]: →
+        - link "Integrations" [ref=e73] [cursor=pointer]:
+          - /url: /integrations
+          - img [ref=e74]
+          - text: Integrations
+        - link "Settings" [ref=e76] [cursor=pointer]:
+          - /url: /settings
+          - img [ref=e77]
+          - text: Settings
+        - button "Open user menu" [ref=e109] [cursor=pointer]:
+          - img "Jaron Ray Hinds's logo" [ref=e112]
+    - main [ref=e81]:
+      - generic [ref=e147]:
+        - generic [ref=e148]:
+          - link "Pipeline" [ref=e149] [cursor=pointer]:
+            - /url: /opportunities
+            - img [ref=e150]
+            - text: Pipeline
+          - generic [ref=e152]:
+            - generic [ref=e153]:
+              - generic [ref=e154]:
+                - heading "Toolkit" [level=1] [ref=e155]
+                - combobox [ref=e157] [cursor=pointer]:
+                  - option "Inbound" [selected]
+                  - option "Reviewing"
+                  - option "Diligence"
+                  - option "IC Review"
+                  - option "Passed"
+                  - option "Invested"
+                - generic [ref=e158]: pre seed
+              - paragraph [ref=e159]: Enterprise AI
+            - generic [ref=e160]:
+              - button "Analyze" [ref=e161]:
+                - img [ref=e162]
+                - text: Analyze
+              - button "IC Memo" [ref=e164]:
+                - img [ref=e165]
+                - text: IC Memo
+          - generic [ref=e168]:
+            - generic [ref=e169]:
+              - img [ref=e170]
+              - text: $5.0M ask
+            - generic [ref=e172]:
+              - img [ref=e173]
+              - text: $150.0M valuation
+            - generic [ref=e176]:
+              - img [ref=e177]
+              - text: via Jaron Hinds
+            - generic [ref=e180]:
+              - img [ref=e181]
+              - text: Added May 21, 2026
+        - generic [ref=e183]:
+          - button "Overview" [ref=e184]:
+            - img [ref=e185]
+            - text: Overview
+          - button "Deal Analysis" [ref=e189]:
+            - img [ref=e190]
+            - text: Deal Analysis
+          - button "IC Memo" [ref=e193]:
+            - img [ref=e194]
+            - text: IC Memo
+        - generic [ref=e199]:
+          - generic [ref=e200]:
+            - generic [ref=e201]:
+              - generic [ref=e202]: Document / Pitch Deck Text
+              - paragraph [ref=e203]: Paste pitch deck or memo text here — it will be passed to the AI agents for richer analysis.
+              - textbox "Paste pitch deck text, executive summary, or any deal materials..." [ref=e204]
+              - generic [ref=e205]:
+                - generic [ref=e206]: No document added
+                - generic [ref=e207]:
+                  - button "Run Analysis" [ref=e208]:
+                    - img [ref=e209]
+                    - text: Run Analysis
+                  - button "Generate IC Memo" [ref=e211]:
+                    - img [ref=e212]
+                    - text: Generate IC Memo
+            - generic [ref=e215]:
+              - generic [ref=e216]: Analysis History
+              - generic [ref=e217]:
+                - generic [ref=e218]:
+                  - generic [ref=e219]:
+                    - img [ref=e220]
+                    - generic [ref=e223]: IC Memo
+                  - generic [ref=e224]: May 21, 2026
+                - generic [ref=e225]:
+                  - generic [ref=e226]:
+                    - img [ref=e227]
+                    - generic [ref=e230]: Deal Flow Analysis
+                  - generic [ref=e231]: May 21, 2026
+                - generic [ref=e232]:
+                  - generic [ref=e233]:
+                    - img [ref=e234]
+                    - generic [ref=e237]: IC Memo
+                  - generic [ref=e238]: May 21, 2026
+          - generic [ref=e239]:
+            - generic [ref=e240]:
+              - generic [ref=e241]: Sector
+              - generic [ref=e242]: Enterprise AI
+            - generic [ref=e243]:
+              - generic [ref=e244]: Stage
+              - generic [ref=e245]: pre seed
+            - generic [ref=e246]:
+              - generic [ref=e247]: Status
+              - generic [ref=e248]: Inbound
+            - generic [ref=e249]:
+              - generic [ref=e250]: Capital Ask
+              - generic [ref=e251]: $5.0M
+            - generic [ref=e252]:
+              - generic [ref=e253]: Valuation
+              - generic [ref=e254]: $150.0M
+            - generic [ref=e255]:
+              - generic [ref=e256]: Source Type
+              - generic [ref=e257]: network
+            - generic [ref=e258]:
+              - generic [ref=e259]: Source Contact
+              - generic [ref=e260]: Jaron Hinds
+            - generic [ref=e261]:
+              - generic [ref=e262]: Added
+              - generic [ref=e263]: May 21, 2026
+  - alert [ref=e107]
