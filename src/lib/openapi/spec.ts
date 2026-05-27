@@ -1251,23 +1251,51 @@ export const openApiSpec = {
         },
       },
     },
-    "/agents/deal-flow": {
+    "/agents/{type}": {
       post: {
-        summary: "Run deal flow agent",
-        description: "Scores and triages an inbound deal. Returns score, recommendation, risks, and opportunities.",
+        summary: "Run any Inyo agent",
+        description: "Unified agent execution endpoint. Pass the agent type in the path and a `context` object matching that agent's input schema. All 23 Inyo agents are accessible here. Requires Clerk session.",
         tags: ["Agents"],
+        parameters: [
+          {
+            name: "type",
+            in: "path",
+            required: true,
+            description: "Agent identifier",
+            schema: {
+              type: "string",
+              enum: [
+                "deal-flow", "ic-memo", "portfolio-monitor", "cfo", "legal", "tax",
+                "chief-of-staff", "concierge", "philanthropy", "relationships",
+                "deal-enrichment", "term-sheet", "diligence",
+                "unit-economics", "saas-model", "cap-table", "term-loan",
+                "sales-forecast", "sales-quota", "cash-management", "venture-stagger",
+                "option-grants", "startup-kit",
+              ],
+            },
+          },
+        ],
         requestBody: {
           required: true,
           content: {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["familyId","context"],
+                required: ["familyId", "context"],
                 properties: {
-                  familyId: { type: "string" },
-                  dealId: { type: "string", nullable: true },
-                  context: { type: "object", description: "Deal context (company, sector, stage, etc.)" },
-                  documentContent: { type: "string", nullable: true },
+                  familyId: { type: "string", description: "Your family office ID" },
+                  context: { type: "object", description: "Input data for the agent — shape varies by type. See agent descriptions and sample prompts in the Dividen Bubble Store." },
+                  documents: {
+                    type: "array",
+                    description: "Optional document attachments (used by term-sheet, diligence, legal agents)",
+                    items: {
+                      type: "object",
+                      properties: {
+                        name: { type: "string" },
+                        content: { type: "string" },
+                      },
+                    },
+                  },
                 },
               },
             },
@@ -1275,20 +1303,32 @@ export const openApiSpec = {
         },
         responses: {
           "200": {
-            description: "Agent analysis result",
-            content: { "application/json": { schema: { type: "object", properties: { analysis: { "$ref": "#/components/schemas/AgentRun" }, result: { "$ref": "#/components/schemas/DealFlowResult" } } } } },
+            description: "Agent result",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    result: { type: "object", description: "Structured JSON output — shape varies by agent type. Always includes `_preview` field with a one-line summary." },
+                    tokensUsed: { type: "integer" },
+                    model: { type: "string" },
+                  },
+                },
+              },
+            },
           },
-          "400": { "$ref": "#/components/responses/BadRequest" },
+          "400": { description: "Unknown agent type", content: { "application/json": { schema: { type: "object", properties: { error: { type: "string" } } } } } },
           "500": { "$ref": "#/components/responses/ServerError" },
         },
       },
     },
-    "/agents/deal-flow/stream": {
+    "/agents/{type}/stream": {
       get: {
-        summary: "Stream deal flow agent (SSE)",
-        description: "Server-Sent Events stream of deal flow analysis tokens.",
+        summary: "Stream agent output (SSE)",
+        description: "Server-Sent Events stream of agent tokens. Supported for: deal-flow, ic-memo, term-sheet, diligence.",
         tags: ["Agents"],
         parameters: [
+          { name: "type", in: "path", required: true, schema: { type: "string", enum: ["deal-flow","ic-memo","term-sheet","diligence"] } },
           { name: "dealId", in: "query", schema: { type: "string" } },
           { name: "familyId", in: "query", schema: { type: "string" } },
         ],
@@ -1299,8 +1339,8 @@ export const openApiSpec = {
     },
     "/agents/ic-memo": {
       post: {
-        summary: "Run IC memo writer agent",
-        description: "Generates an institutional investment committee memo for a deal.",
+        summary: "Run IC memo writer agent (legacy path)",
+        description: "Generates an institutional investment committee memo for a deal. Prefer `/agents/ic-memo` via the unified `/agents/{type}` route.",
         tags: ["Agents"],
         requestBody: {
           required: true,
@@ -1649,8 +1689,8 @@ export const openApiSpec = {
     },
     "/federation/tasks": {
       post: {
-        summary: "Receive inbound federated task",
-        description: "Accepts a task dispatched from a peer Dividen node.",
+        summary: "Inbound A2A task (Dividen federation)",
+        description: "Primary Inyo federation endpoint. Accepts agent-to-agent tasks from Dividen peers and executes them using the Inyo agent runtime. Authentication is handled by the Dividen platform — no Clerk session required for this route.",
         tags: ["Federation"],
         requestBody: {
           required: true,
@@ -1658,11 +1698,27 @@ export const openApiSpec = {
             "application/json": {
               schema: {
                 type: "object",
+                required: ["agentType", "context"],
                 properties: {
-                  taskId: { type: "string" },
-                  type: { type: "string" },
-                  payload: { type: "object" },
-                  sourceInstanceId: { type: "string" },
+                  agentType: {
+                    type: "string",
+                    description: "Which Inyo agent to invoke",
+                    enum: [
+                      "deal-flow", "ic-memo", "portfolio-monitor", "cfo", "legal", "tax",
+                      "chief-of-staff", "concierge", "philanthropy", "relationships",
+                      "deal-enrichment", "term-sheet", "diligence",
+                      "unit-economics", "saas-model", "cap-table", "term-loan",
+                      "sales-forecast", "sales-quota", "cash-management", "venture-stagger",
+                      "option-grants", "startup-kit",
+                    ],
+                  },
+                  context: { type: "object", description: "Agent input data — shape varies by agentType. See Dividen Bubble Store sample prompts for each agent." },
+                  documents: {
+                    type: "array",
+                    description: "Optional documents (used by term-sheet, diligence, legal)",
+                    items: { type: "object", properties: { name: { type: "string" }, content: { type: "string" } } },
+                  },
+                  taskId: { type: "string", description: "Optional correlation ID from the calling peer" },
                 },
               },
             },
@@ -1670,10 +1726,24 @@ export const openApiSpec = {
         },
         responses: {
           "200": {
-            description: "Task accepted",
-            content: { "application/json": { schema: { type: "object", properties: { accepted: { type: "boolean" } } } } },
+            description: "Task completed",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    taskId: { type: "string" },
+                    status: { type: "string", enum: ["completed", "failed"] },
+                    result: { type: "object", description: "Structured agent output. Always includes `_preview` summary field." },
+                    tokensUsed: { type: "integer" },
+                    model: { type: "string" },
+                  },
+                },
+              },
+            },
           },
           "400": { "$ref": "#/components/responses/BadRequest" },
+          "500": { "$ref": "#/components/responses/ServerError" },
         },
       },
     },

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Plug, Copy, Check, ArrowRight, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { Plug, Copy, Check, ArrowRight, Loader2, CheckCircle2, AlertCircle, Zap, Code2 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import { useFamilyId } from "@/context/FamilyContext";
 
@@ -102,7 +102,7 @@ export default function IntegrationsPage() {
     <div className="flex flex-col h-full" style={{ background: "var(--bg-base)" }}>
       <PageHeader
         title="Integrations"
-        subtitle="Connect external data sources"
+        subtitle="Connect external sources, federation peers, and the Inyo agent API"
       />
 
       <div className="flex-1 overflow-auto p-8">
@@ -276,7 +276,145 @@ export default function IntegrationsPage() {
             </div>
           </div>
 
-          {/* ── Section 2: Webhook URL ── */}
+          {/* ── Section 2: Dividen A2A Federation ── */}
+          <div
+            className="rounded-lg border overflow-hidden"
+            style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}
+          >
+            <div className="flex items-start gap-4 px-6 py-5 border-b" style={{ borderColor: "var(--border)" }}>
+              <div className="w-9 h-9 rounded-md flex items-center justify-center shrink-0"
+                style={{ background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)" }}>
+                <Zap size={16} style={{ color: "var(--accent)" }} />
+              </div>
+              <div>
+                <div className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+                  Dividen A2A Federation
+                </div>
+                <div className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
+                  23 Inyo agents live in the Dividen Bubble Store — callable from any Dividen peer
+                </div>
+              </div>
+              <div className="ml-auto">
+                <span className="text-xs px-2 py-1 rounded-full font-medium"
+                  style={{ background: "rgba(16,185,129,0.12)", color: "#10b981", border: "1px solid rgba(16,185,129,0.2)" }}>
+                  Active
+                </span>
+              </div>
+            </div>
+            <div className="px-6 py-5 flex flex-col gap-4">
+              <div>
+                <div className="mb-1 text-xs font-mono font-medium tracking-widest uppercase" style={{ color: "var(--text-muted)" }}>
+                  Inbound task endpoint
+                </div>
+                <div className="flex items-center gap-3 px-4 py-3 rounded-md border"
+                  style={{ background: "var(--bg-elevated)", borderColor: "var(--border)" }}>
+                  <span className="flex-1 text-xs font-mono truncate" style={{ color: "var(--text-primary)" }}>
+                    <span style={{ color: "var(--text-muted)" }}>POST </span>
+                    https://inyo-fo.netlify.app/api/federation/tasks
+                  </span>
+                  <CopyButton text="https://inyo-fo.netlify.app/api/federation/tasks" />
+                </div>
+              </div>
+              <div>
+                <div className="mb-1 text-xs font-mono font-medium tracking-widest uppercase" style={{ color: "var(--text-muted)" }}>
+                  Sample A2A payload
+                </div>
+                <div className="relative rounded-md border overflow-hidden" style={{ borderColor: "var(--border)" }}>
+                  <pre className="text-xs p-4 overflow-auto font-mono leading-relaxed"
+                    style={{ background: "var(--bg-base)", color: "var(--text-secondary)", margin: 0 }}>
+{`{
+  "agentType": "deal-flow",
+  "context": {
+    "company": "Meridian AI",
+    "sector": "enterprise-ai",
+    "stage": "series-b",
+    "capitalAsk": 12000000,
+    "valuation": 85000000,
+    "description": "Enterprise compliance LLM. $8.4M ARR."
+  }
+}`}
+                  </pre>
+                  <div className="absolute top-2 right-2">
+                    <CopyButton text={`{\n  "agentType": "deal-flow",\n  "context": {\n    "company": "Meridian AI",\n    "sector": "enterprise-ai",\n    "stage": "series-b",\n    "capitalAsk": 12000000,\n    "valuation": 85000000,\n    "description": "Enterprise compliance LLM. $8.4M ARR."\n  }\n}`} />
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 flex-wrap text-xs" style={{ color: "var(--text-muted)" }}>
+                <span>23 agents available</span>
+                <span>·</span>
+                <span>Authenticated by Dividen platform</span>
+                <span>·</span>
+                <Link href="/federation" style={{ color: "var(--accent)" }} className="flex items-center gap-1">
+                  View federation status <ArrowRight size={11} />
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Section 3: Agent API ── */}
+          <div
+            className="rounded-lg border overflow-hidden"
+            style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}
+          >
+            <div className="flex items-start gap-4 px-6 py-5 border-b" style={{ borderColor: "var(--border)" }}>
+              <div className="w-9 h-9 rounded-md flex items-center justify-center shrink-0"
+                style={{ background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)" }}>
+                <Code2 size={16} style={{ color: "var(--accent)" }} />
+              </div>
+              <div>
+                <div className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+                  Agent API
+                </div>
+                <div className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
+                  Call any of the 23 Inyo agents directly via REST — requires Clerk session
+                </div>
+              </div>
+            </div>
+            <div className="px-6 py-5 flex flex-col gap-4">
+              <div>
+                <div className="mb-1 text-xs font-mono font-medium tracking-widest uppercase" style={{ color: "var(--text-muted)" }}>
+                  Unified endpoint
+                </div>
+                <div className="flex items-center gap-3 px-4 py-3 rounded-md border"
+                  style={{ background: "var(--bg-elevated)", borderColor: "var(--border)" }}>
+                  <span className="flex-1 text-xs font-mono" style={{ color: "var(--text-primary)" }}>
+                    <span style={{ color: "var(--text-muted)" }}>POST </span>
+                    /api/agents/<span style={{ color: "var(--accent)" }}>{"{type}"}</span>
+                  </span>
+                  <CopyButton text="POST /api/agents/{type}" />
+                </div>
+              </div>
+              <div>
+                <div className="mb-2 text-xs font-mono font-medium tracking-widest uppercase" style={{ color: "var(--text-muted)" }}>
+                  Available agent types
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {[
+                    "deal-flow","ic-memo","portfolio-monitor","cfo","legal","tax",
+                    "chief-of-staff","concierge","philanthropy","relationships",
+                    "deal-enrichment","term-sheet","diligence",
+                    "unit-economics","saas-model","cap-table","term-loan",
+                    "sales-forecast","sales-quota","cash-management","venture-stagger",
+                    "option-grants","startup-kit",
+                  ].map((t) => (
+                    <span key={t} className="text-xs font-mono px-2 py-0.5 rounded"
+                      style={{ background: "var(--bg-elevated)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="flex items-center gap-3 flex-wrap">
+                <Link href="/api-docs"
+                  className="flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors"
+                  style={{ background: "var(--accent)", color: "#fff" }}>
+                  View full API docs <ArrowRight size={13} />
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Section 5: Inbound Webhook ── */}
           <div
             className="rounded-lg border overflow-hidden"
             style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}
