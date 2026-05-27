@@ -1,6 +1,6 @@
 {
   "name": "Inyo",
-  "description": "Private AI operating system for modern family offices. 13 specialized agents covering deal flow, portfolio monitoring, legal, tax, CFO, concierge, philanthropy, and relationship intelligence.",
+  "description": "Private AI operating system for modern family offices. 17 specialized agents covering deal flow, portfolio monitoring, legal, tax, CFO, concierge, philanthropy, and relationship intelligence.",
   "version": "1.0.0",
   "protocol": "dividen/1.0",
   "endpointUrl": "/api/federation/tasks",
@@ -162,6 +162,54 @@
       "samplePrompts": [
         {"label": "Run diligence checklist on Meridian AI Series B", "agentType": "diligence", "context": {"company": "Meridian AI", "stage": "series-b", "checklistItems": [{"id": "1", "question": "ARR growth above 100% YoY?", "answer": "$8.4M ARR, grew from $2.6M — 3.2x growth"}, {"id": "2", "question": "Customer concentration under 30%?", "answer": "Top 3 customers = 67% of ARR — CONCENTRATION RISK"}, {"id": "3", "question": "Founder prior exit or domain expertise?", "answer": "CEO prior exit $180M, CTO ex-Two Sigma quant"}, {"id": "4", "question": "IP assignment clean?", "answer": "All IP cleanly assigned, no moonlighting issues found"}, {"id": "5", "question": "Any pending litigation?", "answer": "None identified in public records"}]}},
         {"label": "Flag red flags in seed deal diligence", "agentType": "diligence", "context": {"company": "PayFlow", "stage": "seed", "checklistItems": [{"id": "1", "question": "Cap table clean?", "answer": "3 departed co-founders holding 18% combined with no vesting cliff — RISK"}, {"id": "2", "question": "Product demo reviewed?", "answer": "Demo reviewed — MVP stage, no production customers yet"}, {"id": "3", "question": "Reference calls completed?", "answer": "2 of 3 references checked — one reference did not respond"}]}}
+      ]
+    },
+    {
+      "id": "unit-economics",
+      "name": "Unit Economics Analyst",
+      "description": "Evaluates LTV, CAC, payback period, gross margin, NRR, and unit-level business model health. Returns health rating with benchmarks and recommendations.",
+      "model": "claude-haiku-4-5-20251001",
+      "inputFormat": "json",
+      "outputFormat": "json",
+      "samplePrompts": [
+        {"label": "Analyze MedSync unit economics", "agentType": "unit-economics", "context": {"company": "MedSync", "sector": "healthtech", "stage": "series-a", "cac": 42000, "avgContractValue": 96000, "grossMarginPct": 72, "annualChurnPct": 8, "smSpendLastQuarter": 840000, "newCustomersLastQuarter": 20, "revenuePerFte": 220000, "nrr": 118}},
+        {"label": "Score PayFlow unit economics at seed", "agentType": "unit-economics", "context": {"company": "PayFlow", "sector": "fintech", "stage": "seed", "cac": 8500, "avgContractValue": 18000, "grossMarginPct": 61, "annualChurnPct": 22, "smSpendLastQuarter": 170000, "newCustomersLastQuarter": 20, "revenuePerFte": 85000, "nrr": 94}}
+      ]
+    },
+    {
+      "id": "saas-model",
+      "name": "SaaS Operating Model Analyst",
+      "description": "Scores SaaS business health: Rule of 40, magic number, burn multiple, NRR, churn, and GTM efficiency. Returns tier rating with benchmarks.",
+      "model": "claude-haiku-4-5-20251001",
+      "inputFormat": "json",
+      "outputFormat": "json",
+      "samplePrompts": [
+        {"label": "Score Meridian AI SaaS operating model", "agentType": "saas-model", "context": {"company": "Meridian AI", "arr": 8400000, "arrGrowthPct": 220, "grossChurnPct": 4, "nrr": 138, "grossMarginPct": 74, "burnRate": 620000, "netNewArrLastQuarter": 1800000, "smSpendLastQuarter": 1100000, "headcount": 38}},
+        {"label": "Evaluate MedSync SaaS metrics", "agentType": "saas-model", "context": {"company": "MedSync", "arr": 3200000, "arrGrowthPct": 180, "grossChurnPct": 7, "nrr": 118, "grossMarginPct": 72, "burnRate": 480000, "netNewArrLastQuarter": 640000, "smSpendLastQuarter": 420000, "headcount": 24}}
+      ]
+    },
+    {
+      "id": "cap-table",
+      "name": "Cap Table Analyst",
+      "description": "Models pre/post dilution, ownership waterfall at various exit values, ESOP pool adequacy, and anti-dilution impact for a proposed financing round.",
+      "model": "claude-haiku-4-5-20251001",
+      "inputFormat": "json",
+      "outputFormat": "json",
+      "samplePrompts": [
+        {"label": "Model Meridian AI Series B dilution", "agentType": "cap-table", "context": {"company": "Meridian AI", "preMoney": 85000000, "newInvestment": 12000000, "holders": [{"name": "Founders (2)", "type": "founder", "sharesPre": 6000000}, {"name": "ESOP Pool", "type": "esop", "sharesPre": 1200000}, {"name": "Seed Investors", "type": "angel", "sharesPre": 1500000}, {"name": "Series A — Accel", "type": "institutional", "sharesPre": 1300000}], "totalSharesPre": 10000000, "liquidationPrefs": "1x non-participating on Series A; proposed Series B 1x non-participating"}},
+        {"label": "Analyze PayFlow seed cap table", "agentType": "cap-table", "context": {"company": "PayFlow", "preMoney": 15000000, "newInvestment": 3000000, "holders": [{"name": "Founders (3)", "type": "founder", "sharesPre": 7000000}, {"name": "ESOP Pool", "type": "esop", "sharesPre": 1000000}, {"name": "Angels", "type": "angel", "sharesPre": 500000}], "totalSharesPre": 8500000, "liquidationPrefs": "proposed seed: 1x non-participating"}}
+      ]
+    },
+    {
+      "id": "term-loan",
+      "name": "Term Loan Analyst",
+      "description": "Analyzes debt financing structures: effective rate, amortization schedule, covenant risk, prepayment penalties, and comparison to market terms.",
+      "model": "claude-haiku-4-5-20251001",
+      "inputFormat": "json",
+      "outputFormat": "json",
+      "samplePrompts": [
+        {"label": "Analyze Arcadia Defense venture loan", "agentType": "term-loan", "context": {"company": "Arcadia Defense", "lender": "Silicon Valley Bank", "principalAmount": 5000000, "interestRatePct": 8.5, "termMonths": 36, "originationFeePct": 0.5, "prepaymentPenalty": "3% year 1, 2% year 2, 1% year 3", "amortization": "interest-only 12 months then 24-month straight amortization", "covenants": [{"name": "Minimum Cash", "threshold": "$2M unrestricted cash"}, {"name": "Revenue Growth", "threshold": "Must maintain >50% YoY ARR growth"}], "warrantCoverage": "1% warrant coverage at Series A price", "collateral": "First lien on all assets"}},
+        {"label": "Review MedSync growth facility terms", "agentType": "term-loan", "context": {"company": "MedSync", "lender": "Hercules Capital", "principalAmount": 8000000, "interestRatePct": 11.25, "termMonths": 48, "originationFeePct": 1.0, "prepaymentPenalty": "2% declining", "amortization": "interest-only 18 months then 30-month amortization", "covenants": [{"name": "Minimum ARR", "threshold": "$3.5M ARR"}, {"name": "Gross Margin", "threshold": "Must maintain >65% gross margin"}], "warrantCoverage": "2% of loan amount", "collateral": "First lien on IP and receivables"}}
       ]
     }
   ]

@@ -382,6 +382,10 @@ function buildUserContent(
     "deal-enrichment": "Analyze this deal using the sourced data and return a JSON DealEnrichmentOutput.",
     "term-sheet": "Extract and compare term sheet data. Return a JSON TermSheetOutput.",
     "diligence": "Review each checklist item for this deal and return your findings as a JSON DiligenceOutput.",
+    "unit-economics": "Evaluate the unit economics of this company and return a JSON UnitEconomicsOutput.",
+    "saas-model": "Evaluate the SaaS operating model metrics and return a JSON SaasModelOutput.",
+    "cap-table": "Analyze the cap table and model dilution scenarios. Return a JSON CapTableOutput.",
+    "term-loan": "Analyze this term loan structure and return a JSON TermLoanOutput.",
   };
 
   return `${content}\n\nInstruction: ${instructions[agentType]}`;
@@ -635,6 +639,22 @@ Return a JSON object with EXACTLY these fields:
   "webSignals": { "websiteQuality": "string", "techStack": ["string"], "teamPagePresence": boolean, "pressOrMedia": ["string"] },
   "summary": "2-3 sentence synthesis of the enrichment findings"
 }`,
+
+    "unit-economics": `${base}
+
+You are the Unit Economics Analyst. Evaluate the unit economics of the given company and return a JSON UnitEconomicsOutput.`,
+
+    "saas-model": `${base}
+
+You are the SaaS Operating Model Analyst. Evaluate the SaaS metrics of the given company and return a JSON SaasModelOutput.`,
+
+    "cap-table": `${base}
+
+You are the Cap Table Analyst. Analyze the capitalization table and model dilution scenarios for the given company. Return a JSON CapTableOutput.`,
+
+    "term-loan": `${base}
+
+You are the Term Loan Analyst. Analyze the debt financing structure and return a JSON TermLoanOutput.`,
   };
 
   return prompts[agentType];

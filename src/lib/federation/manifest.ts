@@ -102,6 +102,30 @@ const CAPABILITIES: AgentCapability[] = [
     description: "Reviews deal diligence checklists with AI analysis",
     model: "deep",
   },
+  {
+    type: "unit-economics" satisfies AgentType,
+    name: "Unit Economics Analyst",
+    description: "Evaluates LTV, CAC, payback period, and unit-level business model health",
+    model: "fast",
+  },
+  {
+    type: "saas-model" satisfies AgentType,
+    name: "SaaS Operating Model Analyst",
+    description: "Scores SaaS metrics: Rule of 40, magic number, burn multiple, NRR",
+    model: "fast",
+  },
+  {
+    type: "cap-table" satisfies AgentType,
+    name: "Cap Table Analyst",
+    description: "Models dilution scenarios, ownership waterfall, and ESOP pool analysis",
+    model: "fast",
+  },
+  {
+    type: "term-loan" satisfies AgentType,
+    name: "Term Loan Analyst",
+    description: "Analyzes debt structures, amortization, covenants, and cost of capital",
+    model: "fast",
+  },
 ];
 
 export function buildManifest(baseUrl: string): InstanceManifest {
