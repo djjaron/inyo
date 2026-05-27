@@ -15,7 +15,11 @@ export type AgentType =
   | "unit-economics"
   | "saas-model"
   | "cap-table"
-  | "term-loan";
+  | "term-loan"
+  | "sales-forecast"
+  | "sales-quota"
+  | "cash-management"
+  | "venture-stagger";
 
 export type DealStatus =
   | "inbound"

@@ -126,6 +126,30 @@ const CAPABILITIES: AgentCapability[] = [
     description: "Analyzes debt structures, amortization, covenants, and cost of capital",
     model: "fast",
   },
+  {
+    type: "sales-forecast" satisfies AgentType,
+    name: "Sales Forecast Analyst",
+    description: "Analyzes pipeline coverage, attainment scenarios, and commit vs. best-case bookings",
+    model: "fast",
+  },
+  {
+    type: "sales-quota" satisfies AgentType,
+    name: "Sales Quota Analyst",
+    description: "Evaluates quota model, OTE structure, attainment distribution, and quota adequacy",
+    model: "fast",
+  },
+  {
+    type: "cash-management" satisfies AgentType,
+    name: "Cash Management Advisor",
+    description: "Analyzes runway, burn trend, treasury allocation, and next-raise timing",
+    model: "fast",
+  },
+  {
+    type: "venture-stagger" satisfies AgentType,
+    name: "Venture Stagger Analyst",
+    description: "Models round-by-round dilution, valuation step-ups, and fundraising cadence",
+    model: "fast",
+  },
 ];
 
 export function buildManifest(baseUrl: string): InstanceManifest {

@@ -386,6 +386,10 @@ function buildUserContent(
     "saas-model": "Evaluate the SaaS operating model metrics and return a JSON SaasModelOutput.",
     "cap-table": "Analyze the cap table and model dilution scenarios. Return a JSON CapTableOutput.",
     "term-loan": "Analyze this term loan structure and return a JSON TermLoanOutput.",
+    "sales-forecast": "Analyze the sales pipeline and produce a forecast with attainment scenarios. Return a JSON SalesForecastOutput.",
+    "sales-quota": "Evaluate the sales quota model and OTE structure. Return a JSON SalesQuotaOutput.",
+    "cash-management": "Analyze cash position, burn rate, and runway. Return a JSON CashManagementOutput.",
+    "venture-stagger": "Analyze round-by-round fundraising cadence and dilution trajectory. Return a JSON VentureStaggerOutput.",
   };
 
   return `${content}\n\nInstruction: ${instructions[agentType]}`;
@@ -655,6 +659,22 @@ You are the Cap Table Analyst. Analyze the capitalization table and model diluti
     "term-loan": `${base}
 
 You are the Term Loan Analyst. Analyze the debt financing structure and return a JSON TermLoanOutput.`,
+
+    "sales-forecast": `${base}
+
+You are the Sales Forecast Analyst. Analyze the sales pipeline and produce a forecast with attainment scenarios. Return a JSON SalesForecastOutput.`,
+
+    "sales-quota": `${base}
+
+You are the Sales Quota Analyst. Evaluate the sales quota model and OTE structure. Return a JSON SalesQuotaOutput.`,
+
+    "cash-management": `${base}
+
+You are the Cash Management Advisor. Analyze cash position, burn rate, and runway. Return a JSON CashManagementOutput.`,
+
+    "venture-stagger": `${base}
+
+You are the Venture Stagger Analyst. Analyze round-by-round fundraising cadence and dilution trajectory. Return a JSON VentureStaggerOutput.`,
   };
 
   return prompts[agentType];

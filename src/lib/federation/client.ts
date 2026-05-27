@@ -71,6 +71,10 @@ const CATEGORY_MAP: Record<string, string> = {
   "saas-model": "analysis",
   "cap-table": "analysis",
   "term-loan": "analysis",
+  "sales-forecast": "analysis",
+  "sales-quota": "analysis",
+  "cash-management": "analysis",
+  "venture-stagger": "analysis",
 };
 
 const SAMPLE_PROMPTS: Record<string, Record<string, unknown>[]> = {
@@ -141,6 +145,22 @@ const SAMPLE_PROMPTS: Record<string, Record<string, unknown>[]> = {
   "term-loan": [
     { label: "Analyze Arcadia Defense venture loan", agentType: "term-loan", context: { company: "Arcadia Defense", lender: "Silicon Valley Bank", principalAmount: 5000000, interestRatePct: 8.5, termMonths: 36, originationFeePct: 0.5, prepaymentPenalty: "3% year 1, 2% year 2, 1% year 3", amortization: "interest-only 12mo then 24mo straight amortization", covenants: [{ name: "Minimum Cash", threshold: "$2M unrestricted cash" }, { name: "Revenue Growth", threshold: ">50% YoY ARR growth" }], warrantCoverage: "1% at Series A price", collateral: "First lien on all assets" } },
     { label: "Review MedSync growth facility terms", agentType: "term-loan", context: { company: "MedSync", lender: "Hercules Capital", principalAmount: 8000000, interestRatePct: 11.25, termMonths: 48, originationFeePct: 1.0, prepaymentPenalty: "2% declining", amortization: "interest-only 18mo then 30mo amortization", covenants: [{ name: "Minimum ARR", threshold: "$3.5M ARR" }, { name: "Gross Margin", threshold: ">65% gross margin" }], warrantCoverage: "2% of loan amount", collateral: "First lien on IP and receivables" } },
+  ],
+  "sales-forecast": [
+    { label: "Forecast MedSync Q2 2026 attainment", agentType: "sales-forecast", context: { company: "MedSync", forecastPeriod: "Q2 2026", quota: 1200000, pipeline: [{ name: "Regional Health System — TX", value: 180000, stage: "negotiation", closeProbPct: 85 }, { name: "Midwest Hospital Network", value: 240000, stage: "verbal-commit", closeProbPct: 95 }, { name: "NYC Academic Medical Center", value: 320000, stage: "proposal", closeProbPct: 55 }, { name: "West Coast Health Group", value: 210000, stage: "negotiation", closeProbPct: 80 }] } },
+    { label: "Forecast Meridian AI Q2 2026 pipeline", agentType: "sales-forecast", context: { company: "Meridian AI", forecastPeriod: "Q2 2026", quota: 2400000, pipeline: [{ name: "Fortune 500 Bank", value: 480000, stage: "verbal-commit", closeProbPct: 92 }, { name: "Global Insurance Co", value: 360000, stage: "negotiation", closeProbPct: 78 }, { name: "Regional Compliance Firm", value: 120000, stage: "proposal", closeProbPct: 60 }, { name: "Tech Conglomerate", value: 650000, stage: "demo", closeProbPct: 35 }] } },
+  ],
+  "sales-quota": [
+    { label: "Review MedSync AE quota model", agentType: "sales-quota", context: { company: "MedSync", repCount: 6, quotaPerRep: 800000, revenuePlan: 4000000, annualOtePerRep: 180000, baseVariableSplit: "50/50", rampMonths: 4, attainmentDistribution: { above100Pct: 2, between75And100Pct: 2, below75Pct: 2 } } },
+    { label: "Analyze Meridian AI sales team quota", agentType: "sales-quota", context: { company: "Meridian AI", repCount: 8, quotaPerRep: 1200000, revenuePlan: 8000000, annualOtePerRep: 220000, baseVariableSplit: "50/50", rampMonths: 5, attainmentDistribution: { above100Pct: 3, between75And100Pct: 3, below75Pct: 2 } } },
+  ],
+  "cash-management": [
+    { label: "Analyze Volta Energy cash runway", agentType: "cash-management", context: { company: "Volta Energy", currentCash: 8200000, monthlyGrossBurn: 920000, monthlyRevenue: 340000, burnTrend: "accelerating", nextPayrollDate: "2026-06-15", treasuryAllocation: { checking: 8200000, moneyMarket: 0, tbills: 0 } } },
+    { label: "Review Strata Security runway risk", agentType: "cash-management", context: { company: "Strata Security", currentCash: 3100000, monthlyGrossBurn: 520000, monthlyRevenue: 180000, burnTrend: "stable", nextPayrollDate: "2026-06-01", treasuryAllocation: { checking: 3100000, moneyMarket: 0, tbills: 0 } } },
+  ],
+  "venture-stagger": [
+    { label: "Model Meridian AI fundraising stagger", agentType: "venture-stagger", context: { company: "Meridian AI", rounds: [{ label: "Pre-Seed", date: "2022-06", raised: 1500000, postMoney: 8000000 }, { label: "Seed", date: "2023-03", raised: 4000000, postMoney: 22000000 }, { label: "Series A", date: "2024-01", raised: 14000000, postMoney: 65000000 }, { label: "Series B", date: "2025-02", raised: 12000000, postMoney: 97000000 }], currentArr: 8400000, currentBurnRate: 620000 } },
+    { label: "Stagger analysis for MedSync", agentType: "venture-stagger", context: { company: "MedSync", rounds: [{ label: "Seed", date: "2022-09", raised: 2500000, postMoney: 12000000 }, { label: "Series A", date: "2024-02", raised: 8000000, postMoney: 42000000 }], currentArr: 3200000, currentBurnRate: 480000 } },
   ],
 };
 
