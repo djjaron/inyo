@@ -900,7 +900,6 @@ For each founder query, provide:
   "events": [{ "name": "<string>", "relevance": "<why this fits>", "frequency": "<string>", "priority": "high" | "medium" | "low" }],
   "media": [{ "name": "<string>", "focus": "<string>", "pitchAdvice": "<string>" }],
   "fundingSources": [{ "name": "<string>", "type": "accelerator" | "angel-network" | "vc", "checkSize": "<string>", "focus": "<string>", "relevance": "<why this fits>", "priority": "high" | "medium" | "low" }],
-  "s3VenturesInfo": { "investmentStage": "Series A / Series B", "thesis": "Texas-focused, broad sectors", "contactPath": "<string>" },
   "actionPlan": ["<step 1>", "<step 2>", "<step 3>"],
   "summary": "<2-3 sentence personalized guide>"
 }`,

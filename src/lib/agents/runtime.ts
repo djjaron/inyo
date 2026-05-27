@@ -196,10 +196,19 @@ function getModel(agentType: AgentType): string {
 }
 
 function parseAgentText(text: string): Record<string, unknown> {
+  let s = text.trim();
+  // Strip opening code fence (```json or ```)
+  s = s.replace(/^```(?:json)?\s*\n?/, "");
+  // Strip closing code fence
+  s = s.replace(/\n?```\s*$/, "").trim();
   try {
-    const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/) ?? text.match(/\{[\s\S]*\}/);
-    return JSON.parse(jsonMatch?.[1] ?? jsonMatch?.[0] ?? text);
+    return JSON.parse(s);
   } catch {
+    // Fall back to extracting the outermost JSON object
+    try {
+      const m = s.match(/\{[\s\S]*\}/);
+      if (m) return JSON.parse(m[0]);
+    } catch {}
     return { raw: text };
   }
 }
