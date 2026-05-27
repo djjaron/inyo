@@ -150,6 +150,18 @@ const CAPABILITIES: AgentCapability[] = [
     description: "Models round-by-round dilution, valuation step-ups, and fundraising cadence",
     model: "fast",
   },
+  {
+    type: "option-grants" satisfies AgentType,
+    name: "Option Grants Advisor",
+    description: "Manages option policy matrix, budget tracking, and board grant approval templates",
+    model: "fast",
+  },
+  {
+    type: "startup-kit" satisfies AgentType,
+    name: "Texas Startup Navigator",
+    description: "Guides Texas founders through S3 Ventures' startup ecosystem: communities, events, media, accelerators",
+    model: "fast",
+  },
 ];
 
 export function buildManifest(baseUrl: string): InstanceManifest {

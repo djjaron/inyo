@@ -19,7 +19,9 @@ export type AgentType =
   | "sales-forecast"
   | "sales-quota"
   | "cash-management"
-  | "venture-stagger";
+  | "venture-stagger"
+  | "option-grants"
+  | "startup-kit";
 
 export type DealStatus =
   | "inbound"

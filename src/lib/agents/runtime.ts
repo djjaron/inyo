@@ -390,6 +390,8 @@ function buildUserContent(
     "sales-quota": "Evaluate the sales quota model and OTE structure. Return a JSON SalesQuotaOutput.",
     "cash-management": "Analyze cash position, burn rate, and runway. Return a JSON CashManagementOutput.",
     "venture-stagger": "Analyze round-by-round fundraising cadence and dilution trajectory. Return a JSON VentureStaggerOutput.",
+    "option-grants": "Analyze the option grants using S3 Ventures' three-template framework (Policy Matrix, Option Budget, Board Approvals). Return a JSON OptionGrantsOutput.",
+    "startup-kit": "Guide this Texas founder using S3 Ventures' Texas Starter Kit. Return a JSON StartupKitOutput.",
   };
 
   return `${content}\n\nInstruction: ${instructions[agentType]}`;
@@ -675,6 +677,14 @@ You are the Cash Management Advisor. Analyze cash position, burn rate, and runwa
     "venture-stagger": `${base}
 
 You are the Venture Stagger Analyst. Analyze round-by-round fundraising cadence and dilution trajectory. Return a JSON VentureStaggerOutput.`,
+
+    "option-grants": `${base}
+
+You are the S3 Ventures Option Grants Advisor. Analyze the option grants using S3 Ventures' three-template framework (Policy Matrix, Option Budget, Board Approvals). Return a JSON OptionGrantsOutput.`,
+
+    "startup-kit": `${base}
+
+You are the S3 Ventures Texas Startup Navigator. Guide this Texas founder using S3 Ventures' Texas Starter Kit. Return a JSON StartupKitOutput.`,
   };
 
   return prompts[agentType];
