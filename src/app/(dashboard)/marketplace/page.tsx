@@ -185,7 +185,7 @@ export default function MarketplacePage() {
         style={{ borderColor: "var(--border)", background: "var(--bg-surface)", color: "var(--text-muted)" }}
       >
         <Zap size={12} style={{ color: "var(--accent)" }} />
-        <span>10 core agents active</span>
+        <span>23 core agents active</span>
         <span className="mx-1">·</span>
         <span>0 premium packs installed</span>
       </div>
@@ -275,6 +275,48 @@ export default function MarketplacePage() {
                 </div>
               );
             })}
+          </div>
+        </div>
+
+        {/* S3 Venture Tools */}
+        <div className="mb-10">
+          <h2 className="text-xs font-medium tracking-wider uppercase mb-4" style={{ color: "var(--text-muted)" }}>
+            Venture Tools
+          </h2>
+          <p className="text-xs mb-4" style={{ color: "var(--text-secondary)" }}>
+            10 S3-powered financial models and startup intelligence tools. Available in{" "}
+            <a href="/tools" className="underline" style={{ color: "var(--accent)" }}>Venture Tools</a>.
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { id: "unit-economics", name: "Unit Economics", desc: "Cohort analysis: logo churn, NDR, renewal rates" },
+              { id: "saas-model", name: "SaaS Financial Model", desc: "3-statement IS/BS/CF model for fundraising readiness" },
+              { id: "cap-table", name: "Cap Table Analyzer", desc: "SAFEs, convertible notes, shadow securities" },
+              { id: "term-loan", name: "Term Loan Modeler", desc: "Multi-tranche schedule with warrant coverage" },
+              { id: "sales-forecast", name: "Sales Forecast", desc: "Closed / Scenarios / Pipeline Changes framework" },
+              { id: "sales-quota", name: "Sales Quota Planner", desc: "Ramp-adjusted capacity with attrition modeling" },
+              { id: "cash-management", name: "Cash Management", desc: "IntraFi ICS, banking diversification, board policy" },
+              { id: "venture-stagger", name: "Venture Stagger", desc: "Rolling AOP vs forecast vs actuals tracker" },
+              { id: "option-grants", name: "Option Grants", desc: "Policy matrix, option budget, board approvals" },
+              { id: "startup-kit", name: "Startup Kit", desc: "TX ecosystem: communities, events, angel networks" },
+            ].map((tool) => (
+              <a
+                key={tool.id}
+                href="/tools"
+                className="flex items-start gap-3 p-4 rounded-md border"
+                style={{ background: "var(--bg-surface)", borderColor: "var(--border)", textDecoration: "none" }}
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2 mb-0.5">
+                    <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{tool.name}</span>
+                    <span className="flex-shrink-0 text-xs px-1.5 py-0.5 rounded font-medium" style={{ background: "rgba(99,102,241,0.12)", color: "#818cf8", border: "1px solid rgba(99,102,241,0.25)" }}>
+                      Active
+                    </span>
+                  </div>
+                  <p className="text-xs" style={{ color: "var(--text-secondary)" }}>{tool.desc}</p>
+                </div>
+              </a>
+            ))}
           </div>
         </div>
 

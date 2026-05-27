@@ -2,16 +2,12 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 const AGENT_TYPES = [
-  "deal-flow",
-  "ic-memo",
-  "portfolio-monitor",
-  "cfo",
-  "legal",
-  "tax",
-  "chief-of-staff",
-  "concierge",
-  "philanthropy",
-  "relationships",
+  "deal-flow","ic-memo","portfolio-monitor","cfo","legal","tax",
+  "chief-of-staff","concierge","philanthropy","relationships",
+  "deal-enrichment","term-sheet","diligence",
+  "unit-economics","saas-model","cap-table","term-loan",
+  "sales-forecast","sales-quota","cash-management","venture-stagger",
+  "option-grants","startup-kit",
 ] as const;
 
 export async function GET() {
