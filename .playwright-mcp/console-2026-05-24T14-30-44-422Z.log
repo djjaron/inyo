@@ -1,6 +1,0 @@
-[     667ms] [WARNING] <meta name="apple-mobile-web-app-capable" content="yes"> is deprecated. Please include <meta name="mobile-web-app-capable" content="yes"> @ https://dividen.ai/dashboard:0
-[     695ms] [LOG] [SW] Registered, scope: https://dividen.ai/ @ https://dividen.ai/_next/static/chunks/app/layout-6d2d03e3.js:0
-[  306750ms] [ERROR] Failed to load resource: net::ERR_HTTP2_PROTOCOL_ERROR @ https://dividen.ai/api/activity/stream:0
-[  609977ms] [ERROR] Failed to load resource: net::ERR_HTTP2_PROTOCOL_ERROR @ https://dividen.ai/api/activity/stream:0
-[  913916ms] [ERROR] Failed to load resource: net::ERR_HTTP2_PROTOCOL_ERROR @ https://dividen.ai/api/activity/stream:0
-[ 1217358ms] [ERROR] Failed to load resource: net::ERR_HTTP2_PROTOCOL_ERROR @ https://dividen.ai/api/activity/stream:0

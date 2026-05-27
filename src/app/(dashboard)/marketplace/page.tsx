@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
   Store,
   Download,
@@ -16,134 +17,109 @@ import {
   Users,
   Heart,
   Building2,
+  Shield,
+  Search,
+  PieChart,
+  Target,
+  Landmark,
+  CalendarDays,
+  Award,
+  MapPin,
   X,
+  ExternalLink,
   LucideIcon,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import Badge from "@/components/ui/Badge";
 
-// ── Core Agents ──────────────────────────────────────────────────────────────
+// ── All Agents ────────────────────────────────────────────────────────────────
 
 const ICON_MAP: Record<string, LucideIcon> = {
-  TrendingUp,
-  FileText,
-  BarChart3,
-  DollarSign,
-  Scale,
-  Receipt,
-  Briefcase,
-  Users,
-  Heart,
-  Building2,
+  TrendingUp, FileText, BarChart3, DollarSign, Scale, Receipt,
+  Briefcase, Users, Heart, Building2, Shield, Search, PieChart,
+  Target, Landmark, CalendarDays, Award, MapPin,
 };
 
-const CORE_AGENTS = [
-  { id: "deal-flow", name: "Deal Flow Analyst", description: "Scores and triages inbound opportunities", icon: "TrendingUp" },
-  { id: "ic-memo", name: "IC Memo Writer", description: "Generates institutional investment committee memos", icon: "FileText" },
-  { id: "portfolio-monitor", name: "Portfolio Monitor", description: "Watches investments for material changes", icon: "BarChart3" },
-  { id: "cfo", name: "CFO Agent", description: "Cash flow, liquidity, and entity analysis", icon: "DollarSign" },
-  { id: "legal", name: "Legal Review", description: "Document review and clause flagging", icon: "Scale" },
-  { id: "tax", name: "Tax Intelligence", description: "K-1 analysis and tax position optimization", icon: "Receipt" },
-  { id: "chief-of-staff", name: "Chief of Staff", description: "Task coordination and lifestyle management", icon: "Briefcase" },
-  { id: "relationships", name: "Relationship Intelligence", description: "Network graph and warm path finder", icon: "Users" },
-  { id: "philanthropy", name: "Philanthropy Advisor", description: "Impact analysis and giving optimization", icon: "Heart" },
-  { id: "cfo", name: "Finance Advisor", description: "Entity-level financial intelligence", icon: "Building2" },
-] as const;
+interface AgentDef {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  category: string;
+  href: string;
+}
+
+const ALL_AGENTS: AgentDef[] = [
+  // ── Deal Flow ──────────────────────────────────────────────────────────────
+  { id: "deal-flow",       name: "Deal Flow Analyst",       description: "Scores and triages inbound opportunities against your thesis",          icon: "TrendingUp",   category: "Deal Flow",   href: "/opportunities" },
+  { id: "ic-memo",         name: "IC Memo Writer",          description: "Generates institutional investment committee memos",                    icon: "FileText",     category: "Deal Flow",   href: "/opportunities" },
+  { id: "term-sheet",      name: "Term Sheet Analyzer",     description: "Flags material terms, pricing, and structural risks in term sheets",    icon: "Scale",        category: "Deal Flow",   href: "/opportunities" },
+  { id: "diligence",       name: "Diligence Agent",         description: "Synthesizes diligence documents and surfaces key risks",                icon: "Search",       category: "Deal Flow",   href: "/opportunities" },
+  { id: "deal-enrichment", name: "Deal Enrichment",         description: "Enriches deal records with market data and comparable transactions",    icon: "BarChart3",    category: "Deal Flow",   href: "/opportunities" },
+
+  // ── Portfolio ──────────────────────────────────────────────────────────────
+  { id: "portfolio-monitor", name: "Portfolio Monitor",     description: "Watches investments for material changes and triggers alerts",          icon: "BarChart3",    category: "Portfolio",   href: "/portfolio" },
+
+  // ── Finance & Operations ───────────────────────────────────────────────────
+  { id: "cfo",             name: "CFO Agent",               description: "Cash flow, entity liquidity, and expense reporting",                    icon: "DollarSign",   category: "Finance",     href: "/finance" },
+  { id: "legal",           name: "Legal Review",            description: "Document review, clause flagging, and risk identification",             icon: "Scale",        category: "Finance",     href: "/legal" },
+  { id: "tax",             name: "Tax Intelligence",        description: "K-1 analysis, tax position optimization, and entity structuring",       icon: "Receipt",      category: "Finance",     href: "/tax" },
+
+  // ── Operations ─────────────────────────────────────────────────────────────
+  { id: "chief-of-staff",  name: "Chief of Staff",         description: "Task coordination, scheduling, and family office operations",            icon: "Briefcase",    category: "Operations",  href: "/concierge" },
+  { id: "concierge",       name: "Concierge",              description: "Lifestyle, household, travel, and personal service requests",            icon: "Heart",        category: "Operations",  href: "/concierge" },
+  { id: "relationships",   name: "Relationship Intelligence", description: "Network graph, warm path finder, and interaction history",            icon: "Users",        category: "Operations",  href: "/relationships" },
+  { id: "philanthropy",    name: "Philanthropy Advisor",   description: "Impact analysis, grant recommendations, and giving optimization",        icon: "Heart",        category: "Operations",  href: "/philanthropy" },
+
+  // ── Venture Tools (S3) ─────────────────────────────────────────────────────
+  { id: "unit-economics",  name: "Unit Economics",         description: "Cohort analysis — logo churn, NDR, and renewal rates by vintage",       icon: "TrendingUp",   category: "Venture Tools", href: "/tools/unit-economics" },
+  { id: "saas-model",      name: "SaaS Financial Model",   description: "3-statement IS/BS/CF model for fundraising readiness",                  icon: "BarChart3",    category: "Venture Tools", href: "/tools/saas-model" },
+  { id: "cap-table",       name: "Cap Table Analyzer",     description: "SAFEs, convertible notes, shadow securities, and pro-rata",             icon: "PieChart",     category: "Venture Tools", href: "/tools/cap-table" },
+  { id: "term-loan",       name: "Term Loan Modeler",      description: "Multi-tranche schedule with warrant coverage equity cost",              icon: "DollarSign",   category: "Venture Tools", href: "/tools/term-loan" },
+  { id: "sales-forecast",  name: "Sales Forecast",         description: "3-element board framework: Closed / Scenarios / Pipeline Changes",      icon: "Target",       category: "Venture Tools", href: "/tools/sales-forecast" },
+  { id: "sales-quota",     name: "Sales Quota Planner",    description: "Ramp-adjusted capacity planning with attrition modeling",               icon: "Users",        category: "Venture Tools", href: "/tools/sales-quota" },
+  { id: "cash-management", name: "Cash Management",        description: "IntraFi ICS banking diversification and board investment policy",       icon: "Landmark",     category: "Venture Tools", href: "/tools/cash-management" },
+  { id: "venture-stagger", name: "Venture Stagger",        description: "Rolling AOP vs. forecast vs. actuals tracker for board reporting",     icon: "CalendarDays", category: "Venture Tools", href: "/tools/venture-stagger" },
+  { id: "option-grants",   name: "Option Grants",          description: "Policy matrix, option budget, and board approval package",              icon: "Award",        category: "Venture Tools", href: "/tools/option-grants" },
+  { id: "startup-kit",     name: "Texas Startup Navigator", description: "TX ecosystem guide: communities, events, angel networks, accelerators", icon: "MapPin",      category: "Venture Tools", href: "/tools/startup-kit" },
+];
+
+const CATEGORIES = ["All", "Deal Flow", "Portfolio", "Finance", "Operations", "Venture Tools"] as const;
+type Category = (typeof CATEGORIES)[number];
 
 // ── Premium Packs ─────────────────────────────────────────────────────────────
 
 const AGENT_PACKS = [
-  {
-    id: "1",
-    name: "Private Market Research",
-    description: "Track deal flow across AI, biotech, energy, real estate, and credit. Daily sector digests.",
-    category: "Research",
-    price: "+$3K/mo",
-    rating: 4.9,
-    installs: 42,
-    status: "available",
-  },
-  {
-    id: "2",
-    name: "Real Estate Asset Manager",
-    description: "NOI tracking, lease management, maintenance coordination, and vendor relationships across properties.",
-    category: "Operations",
-    price: "+$2.5K/mo",
-    rating: 4.7,
-    installs: 28,
-    status: "available",
-  },
-  {
-    id: "3",
-    name: "Risk Radar",
-    description: "Macro event monitoring, litigation tracking, geopolitical risk alerts, and regulatory change summaries.",
-    category: "Intelligence",
-    price: "+$2K/mo",
-    rating: 4.8,
-    installs: 35,
-    status: "available",
-  },
-  {
-    id: "4",
-    name: "Yacht & Aviation Ops",
-    description: "Maintenance scheduling, crew management, compliance tracking, and logistics coordination.",
-    category: "Lifestyle",
-    price: "+$4K/mo",
-    rating: 4.6,
-    installs: 12,
-    status: "available",
-  },
-  {
-    id: "5",
-    name: "Bloomberg Data Bridge",
-    description: "Live market data, pricing feeds, and analytics directly in your family office context.",
-    category: "Data",
-    price: "+$5K/mo",
-    rating: 4.5,
-    installs: 19,
-    status: "coming-soon",
-  },
-  {
-    id: "6",
-    name: "CPA Integration Suite",
-    description: "Direct sync with your accounting firm — automated K-1 collection, AP approvals, and filing confirmations.",
-    category: "Finance",
-    price: "Custom",
-    rating: 0,
-    installs: 0,
-    status: "coming-soon",
-  },
+  { id: "1", name: "Private Market Research",  description: "Track deal flow across AI, biotech, energy, real estate, and credit. Daily sector digests.",                   category: "Research",     price: "+$3K/mo",  rating: 4.9, installs: 42, status: "available" },
+  { id: "2", name: "Real Estate Asset Manager",description: "NOI tracking, lease management, maintenance coordination, and vendor relationships across properties.",           category: "Operations",   price: "+$2.5K/mo",rating: 4.7, installs: 28, status: "available" },
+  { id: "3", name: "Risk Radar",               description: "Macro event monitoring, litigation tracking, geopolitical risk alerts, and regulatory change summaries.",       category: "Intelligence", price: "+$2K/mo",  rating: 4.8, installs: 35, status: "available" },
+  { id: "4", name: "Yacht & Aviation Ops",     description: "Maintenance scheduling, crew management, compliance tracking, and logistics coordination.",                     category: "Lifestyle",    price: "+$4K/mo",  rating: 4.6, installs: 12, status: "available" },
+  { id: "5", name: "Bloomberg Data Bridge",    description: "Live market data, pricing feeds, and analytics directly in your family office context.",                        category: "Data",         price: "+$5K/mo",  rating: 4.5, installs: 19, status: "coming-soon" },
+  { id: "6", name: "CPA Integration Suite",   description: "Direct sync with your accounting firm — automated K-1 collection, AP approvals, and filing confirmations.",     category: "Finance",      price: "Custom",   rating: 0,   installs: 0,  status: "coming-soon" },
 ];
 
-const categoryVariant: Record<string, "accent" | "success" | "warning" | "muted" | "default"> = {
-  Research: "accent",
-  Operations: "success",
-  Intelligence: "warning",
-  Lifestyle: "default",
-  Data: "muted",
-  Finance: "success",
+const categoryBadgeVariant: Record<string, "accent" | "success" | "warning" | "muted" | "default"> = {
+  Research: "accent", Operations: "success", Intelligence: "warning",
+  Lifestyle: "default", Data: "muted", Finance: "success",
+};
+
+const agentCategoryVariant: Record<string, "accent" | "success" | "warning" | "muted"> = {
+  "Deal Flow":     "accent",
+  "Portfolio":     "success",
+  "Finance":       "warning",
+  "Operations":    "muted",
+  "Venture Tools": "accent",
 };
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-interface AgentStatus {
-  type: string;
-  lastRun: string | null;
-  totalRuns: number;
-}
-
-interface StatusResponse {
-  apiKeySet: boolean;
-  agents: AgentStatus[];
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
+interface AgentStatus { type: string; lastRun: string | null; totalRuns: number; }
+interface StatusResponse { apiKeySet: boolean; agents: AgentStatus[]; }
 
 function formatLastRun(lastRun: string | null): string {
   if (!lastRun) return "Never";
   const d = new Date(lastRun);
-  const now = Date.now();
-  const diff = now - d.getTime();
+  const diff = Date.now() - d.getTime();
   const mins = Math.floor(diff / 60_000);
   if (mins < 1) return "Just now";
   if (mins < 60) return `${mins}m ago`;
@@ -157,80 +133,98 @@ function formatLastRun(lastRun: string | null): string {
 export default function MarketplacePage() {
   const [statusData, setStatusData] = useState<StatusResponse | null>(null);
   const [bannerDismissed, setBannerDismissed] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<Category>("All");
 
   useEffect(() => {
     fetch("/api/agents/status")
       .then((r) => r.json())
       .then((d: StatusResponse) => setStatusData(d))
-      .catch(() => {/* ignore */});
+      .catch(() => {});
   }, []);
 
   const agentStatusMap = new Map<string, AgentStatus>(
     statusData?.agents.map((a) => [a.type, a]) ?? []
   );
 
-  const showDemoBanner =
-    !bannerDismissed && statusData !== null && !statusData.apiKeySet;
+  const showDemoBanner = !bannerDismissed && statusData !== null && !statusData.apiKeySet;
+
+  const filtered = activeCategory === "All"
+    ? ALL_AGENTS
+    : ALL_AGENTS.filter((a) => a.category === activeCategory);
 
   return (
     <div className="flex flex-col h-full">
       <PageHeader
         title="Agent Marketplace"
-        subtitle="Core agents and premium packs for advanced family office operations"
+        subtitle="23 active agents across deal flow, portfolio, finance, operations, and venture tools"
       />
 
-      {/* Installed badge */}
+      {/* Stats bar */}
       <div
         className="flex items-center gap-3 px-8 py-3 border-b text-xs"
         style={{ borderColor: "var(--border)", background: "var(--bg-surface)", color: "var(--text-muted)" }}
       >
         <Zap size={12} style={{ color: "var(--accent)" }} />
-        <span>23 core agents active</span>
+        <span>23 agents active</span>
         <span className="mx-1">·</span>
         <span>0 premium packs installed</span>
+        <span className="mx-1">·</span>
+        <span style={{ color: "var(--accent)" }}>Venture Tools by S3</span>
       </div>
 
       <div className="flex-1 overflow-auto p-8">
 
-        {/* API key demo banner */}
+        {/* Demo banner */}
         {showDemoBanner && (
           <div
             className="flex items-center justify-between gap-3 px-4 py-3 rounded-md mb-6 text-sm"
-            style={{
-              background: "rgba(245,158,11,0.08)",
-              border: "1px solid rgba(245,158,11,0.25)",
-              color: "#f59e0b",
-            }}
+            style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.25)", color: "#f59e0b" }}
           >
             <span>
               AI agents are running in demo mode. Add your Anthropic API key in Netlify environment variables to enable real AI responses.
             </span>
-            <button
-              onClick={() => setBannerDismissed(true)}
-              className="flex-shrink-0 p-1 rounded"
-              style={{ color: "#f59e0b" }}
-              aria-label="Dismiss"
-            >
+            <button onClick={() => setBannerDismissed(true)} className="flex-shrink-0 p-1 rounded" style={{ color: "#f59e0b" }} aria-label="Dismiss">
               <X size={14} />
             </button>
           </div>
         )}
 
-        {/* Core Agents */}
+        {/* All Agents */}
         <div className="mb-10">
-          <h2 className="text-xs font-medium tracking-wider uppercase mb-4" style={{ color: "var(--text-muted)" }}>
-            Core Agents
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xs font-medium tracking-wider uppercase" style={{ color: "var(--text-muted)" }}>
+              Agents
+            </h2>
+            {/* Category filter */}
+            <div className="flex items-center gap-1">
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className="px-3 py-1 rounded text-xs font-medium transition-colors"
+                  style={
+                    activeCategory === cat
+                      ? { background: "var(--accent)", color: "#fff" }
+                      : { background: "var(--bg-elevated)", color: "var(--text-muted)", border: "1px solid var(--border)" }
+                  }
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
-            {CORE_AGENTS.map((agent, idx) => {
+            {filtered.map((agent) => {
               const Icon = ICON_MAP[agent.icon] ?? Store;
               const agentStatus = agentStatusMap.get(agent.id);
               const lastRun = agentStatus ? formatLastRun(agentStatus.lastRun) : "Never";
               const apiKeySet = statusData?.apiKeySet ?? true;
+              const isVenture = agent.category === "Venture Tools";
 
               return (
                 <div
-                  key={idx}
+                  key={agent.id}
                   className="flex items-start gap-3 p-4 rounded-md border"
                   style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}
                 >
@@ -239,7 +233,7 @@ export default function MarketplacePage() {
                     className="flex-shrink-0 w-8 h-8 rounded flex items-center justify-center mt-0.5"
                     style={{ background: "var(--bg-elevated)" }}
                   >
-                    <Icon size={15} style={{ color: "var(--accent)" }} />
+                    <Icon size={15} style={{ color: isVenture ? "#818cf8" : "var(--accent)" }} />
                   </div>
 
                   {/* Content */}
@@ -248,75 +242,38 @@ export default function MarketplacePage() {
                       <span className="text-sm font-medium truncate" style={{ color: "var(--text-primary)" }}>
                         {agent.name}
                       </span>
-                      {/* Active badge */}
-                      <span
-                        className="flex-shrink-0 text-xs px-1.5 py-0.5 rounded font-medium"
-                        style={{
-                          background: "rgba(16,185,129,0.12)",
-                          color: "#10b981",
-                          border: "1px solid rgba(16,185,129,0.25)",
-                        }}
-                      >
-                        Active
-                      </span>
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                        <Badge label={agent.category} variant={agentCategoryVariant[agent.category] ?? "muted"} size="xs" />
+                        <span
+                          className="text-xs px-1.5 py-0.5 rounded font-medium"
+                          style={{ background: "rgba(16,185,129,0.12)", color: "#10b981", border: "1px solid rgba(16,185,129,0.25)" }}
+                        >
+                          Active
+                        </span>
+                      </div>
                     </div>
 
-                    <p className="text-xs mb-1.5 leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                    <p className="text-xs mb-2 leading-relaxed" style={{ color: "var(--text-secondary)" }}>
                       {agent.description}
                     </p>
 
-                    <div className="flex items-center gap-3 text-xs" style={{ color: "var(--text-muted)" }}>
-                      <span>Last run: {lastRun}</span>
-                      {!apiKeySet && (
-                        <span style={{ color: "#f59e0b" }}>Demo mode</span>
-                      )}
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+                        Last run: {lastRun}
+                        {!apiKeySet && <span className="ml-2" style={{ color: "#f59e0b" }}>Demo</span>}
+                      </span>
+                      <Link
+                        href={agent.href}
+                        className="flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded"
+                        style={{ background: "var(--bg-elevated)", color: "var(--accent)", border: "1px solid var(--border)" }}
+                      >
+                        Open <ExternalLink size={10} />
+                      </Link>
                     </div>
                   </div>
                 </div>
               );
             })}
-          </div>
-        </div>
-
-        {/* S3 Venture Tools */}
-        <div className="mb-10">
-          <h2 className="text-xs font-medium tracking-wider uppercase mb-4" style={{ color: "var(--text-muted)" }}>
-            Venture Tools
-          </h2>
-          <p className="text-xs mb-4" style={{ color: "var(--text-secondary)" }}>
-            10 S3-powered financial models and startup intelligence tools. Available in{" "}
-            <a href="/tools" className="underline" style={{ color: "var(--accent)" }}>Venture Tools</a>.
-          </p>
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { id: "unit-economics", name: "Unit Economics", desc: "Cohort analysis: logo churn, NDR, renewal rates" },
-              { id: "saas-model", name: "SaaS Financial Model", desc: "3-statement IS/BS/CF model for fundraising readiness" },
-              { id: "cap-table", name: "Cap Table Analyzer", desc: "SAFEs, convertible notes, shadow securities" },
-              { id: "term-loan", name: "Term Loan Modeler", desc: "Multi-tranche schedule with warrant coverage" },
-              { id: "sales-forecast", name: "Sales Forecast", desc: "Closed / Scenarios / Pipeline Changes framework" },
-              { id: "sales-quota", name: "Sales Quota Planner", desc: "Ramp-adjusted capacity with attrition modeling" },
-              { id: "cash-management", name: "Cash Management", desc: "IntraFi ICS, banking diversification, board policy" },
-              { id: "venture-stagger", name: "Venture Stagger", desc: "Rolling AOP vs forecast vs actuals tracker" },
-              { id: "option-grants", name: "Option Grants", desc: "Policy matrix, option budget, board approvals" },
-              { id: "startup-kit", name: "Startup Kit", desc: "TX ecosystem: communities, events, angel networks" },
-            ].map((tool) => (
-              <a
-                key={tool.id}
-                href="/tools"
-                className="flex items-start gap-3 p-4 rounded-md border"
-                style={{ background: "var(--bg-surface)", borderColor: "var(--border)", textDecoration: "none" }}
-              >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2 mb-0.5">
-                    <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{tool.name}</span>
-                    <span className="flex-shrink-0 text-xs px-1.5 py-0.5 rounded font-medium" style={{ background: "rgba(99,102,241,0.12)", color: "#818cf8", border: "1px solid rgba(99,102,241,0.25)" }}>
-                      Active
-                    </span>
-                  </div>
-                  <p className="text-xs" style={{ color: "var(--text-secondary)" }}>{tool.desc}</p>
-                </div>
-              </a>
-            ))}
           </div>
         </div>
 
@@ -340,12 +297,10 @@ export default function MarketplacePage() {
                   <div>
                     <div className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{pack.name}</div>
                     <div className="mt-1">
-                      <Badge label={pack.category} variant={categoryVariant[pack.category]} size="xs" />
+                      <Badge label={pack.category} variant={categoryBadgeVariant[pack.category]} size="xs" />
                     </div>
                   </div>
-                  {pack.status === "coming-soon" && (
-                    <Badge label="Coming Soon" variant="muted" size="xs" />
-                  )}
+                  {pack.status === "coming-soon" && <Badge label="Coming Soon" variant="muted" size="xs" />}
                 </div>
 
                 <p className="text-xs flex-1 mb-4" style={{ color: "var(--text-secondary)", lineHeight: 1.65 }}>
@@ -367,8 +322,7 @@ export default function MarketplacePage() {
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium"
                       style={{ background: "var(--accent)", color: "#fff" }}
                     >
-                      <Download size={11} />
-                      Install
+                      <Download size={11} /> Install
                     </button>
                   ) : (
                     <button

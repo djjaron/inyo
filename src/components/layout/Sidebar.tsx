@@ -21,7 +21,6 @@ import {
   Plug,
   Layers,
   Code2,
-  Wrench,
 } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
@@ -32,7 +31,6 @@ const nav = [
   { label: "Opportunities", href: "/opportunities", icon: TrendingUp },
   { label: "Portfolio", href: "/portfolio", icon: BarChart3 },
   { label: "Finance", href: "/finance", icon: DollarSign },
-  { label: "Venture Tools", href: "/tools", icon: Wrench },
   { label: "Calendar", href: "/calendar", icon: Calendar },
   { label: "Legal", href: "/legal", icon: Scale },
   { label: "Tax", href: "/tax", icon: Receipt },
