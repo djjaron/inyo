@@ -11,6 +11,7 @@ vi.mock("@/lib/prisma", () => ({
     },
     portfolioCompany: {
       count: vi.fn().mockResolvedValue(3),
+      aggregate: vi.fn().mockResolvedValue({ _sum: { investedAmount: 20_000_000, currentValue: 25_000_000 } }),
     },
     portfolioAlert: {
       findMany: vi.fn().mockResolvedValue([]),
