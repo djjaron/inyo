@@ -36,6 +36,8 @@ export async function POST(req: NextRequest) {
 
   // Return mock if no API key is configured
   if (!process.env.ANTHROPIC_API_KEY) {
+    // Fire-and-forget runAgent() so AgentRun gets persisted
+    runAgent({ agentType: "relationships" as any, familyId: familyId ?? "", context: { query, contacts }, triggerType: "manual" }).catch(() => {});
     return NextResponse.json({ result: MOCK_RELATIONSHIPS_RESULT, _mock: true });
   }
 

@@ -69,6 +69,8 @@ export async function POST(req: NextRequest) {
 
   // Return mock if no API key is configured
   if (!process.env.ANTHROPIC_API_KEY) {
+    // Fire-and-forget runAgent() so AgentRun gets persisted
+    runAgent({ agentType: "legal" as any, familyId: familyId ?? "", context: { documentName, documentContent }, triggerType: "manual" }).catch(() => {});
     const mockAnalysis = {
       id: `analysis_mock_${Date.now()}`,
       agentType: "legal",
