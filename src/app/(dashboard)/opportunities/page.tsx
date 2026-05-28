@@ -1163,6 +1163,60 @@ export default function OpportunitiesPage() {
         </div>
       </div>
 
+      {/* Score Distribution */}
+      {deals.some((d) => d.dealScore != null) && (
+        <div
+          className="flex items-center gap-4 px-8 py-2 flex-wrap"
+          style={{ borderBottom: "1px solid var(--border)", background: "var(--bg-base)" }}
+        >
+          {[
+            { label: "Strong", min: 80, max: 100, color: "#10b981" },
+            { label: "Promising", min: 60, max: 79, color: "#f59e0b" },
+            { label: "Borderline", min: 40, max: 59, color: "var(--accent)" },
+            { label: "Pass", min: 0, max: 39, color: "#6b7280" },
+          ].map(({ label, min, max, color }) => {
+            const count = deals.filter((d) => d.dealScore != null && d.dealScore >= min && d.dealScore <= max).length;
+            return (
+              <div key={label} className="flex items-center gap-1.5">
+                <span
+                  className="flex-shrink-0 rounded-full"
+                  style={{ width: 7, height: 7, background: color, display: "inline-block" }}
+                />
+                <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+                  {label}
+                </span>
+                <span
+                  className="text-xs font-semibold"
+                  style={{ color: count > 0 ? color : "var(--text-muted)", fontVariantNumeric: "tabular-nums" }}
+                >
+                  ({count})
+                </span>
+              </div>
+            );
+          })}
+          {(() => {
+            const unscoredCount = deals.filter((d) => d.dealScore == null).length;
+            return unscoredCount > 0 ? (
+              <div className="flex items-center gap-1.5">
+                <span
+                  className="flex-shrink-0 rounded-full"
+                  style={{ width: 7, height: 7, background: "var(--border)", display: "inline-block" }}
+                />
+                <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+                  Unscored
+                </span>
+                <span
+                  className="text-xs font-semibold"
+                  style={{ color: "var(--text-muted)", fontVariantNumeric: "tabular-nums" }}
+                >
+                  ({unscoredCount})
+                </span>
+              </div>
+            ) : null;
+          })()}
+        </div>
+      )}
+
       {/* Content: List or Board */}
       {viewMode === "list" ? (
         <div className="flex-1 overflow-auto px-8 py-4">

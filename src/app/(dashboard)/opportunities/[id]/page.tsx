@@ -2,7 +2,7 @@
 
 import { useState, useEffect, use } from "react";
 import Link from "next/link";
-import { ChevronLeft, Bot, FileText, RefreshCw, Zap, Loader2, Building2, Tag, DollarSign, Calendar, User, Globe, Link2, TrendingUp, Pencil, X, Plus, AlertTriangle, Users, ChevronDown, ChevronUp, Scale, Layers, CheckSquare, Square, AlertOctagon } from "lucide-react";
+import { ChevronLeft, Bot, FileText, RefreshCw, Zap, Loader2, Building2, Tag, DollarSign, Calendar, User, Globe, Link2, TrendingUp, Pencil, X, Plus, AlertTriangle, Users, ChevronDown, ChevronUp, Scale, Layers, CheckSquare, Square, AlertOctagon, StickyNote } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import ScoreRing from "@/components/ui/ScoreRing";
 import DealAnalysisPanel from "@/components/ui/DealAnalysisPanel";
@@ -30,7 +30,7 @@ const spvStatusVariant: Record<string, "success" | "warning" | "accent" | "dange
   cancelled: "danger",
 };
 
-type Tab = "overview" | "analysis" | "memo" | "terms" | "diligence";
+type Tab = "overview" | "analysis" | "memo" | "terms" | "diligence" | "notes";
 
 interface TermSheetSheet {
   label: string;
@@ -272,6 +272,12 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
   const [diligenceLoaded, setDiligenceLoaded] = useState(false);
   const [expandedDiligenceItems, setExpandedDiligenceItems] = useState<Set<string>>(new Set());
 
+  // Notes state
+  const [notes, setNotes] = useState<Array<{ id: string; input: Record<string, unknown>; createdAt: string }>>([]);
+  const [notesLoaded, setNotesLoaded] = useState(false);
+  const [noteText, setNoteText] = useState("");
+  const [noteSaving, setNoteSaving] = useState(false);
+
   useEffect(() => {
     fetch(`/api/deals/${id}`)
       .then((r) => r.json())
@@ -376,6 +382,17 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
     }, 1000);
     return () => clearTimeout(t);
   }, [diligenceItems, diligenceLoaded, id]);
+
+  // Load notes when tab is first activated
+  useEffect(() => {
+    if (tab !== "notes" || !deal || notesLoaded) return;
+    fetch(`/api/deals/${id}/notes`)
+      .then(r => r.json())
+      .then(data => {
+        setNotes(data.notes ?? []);
+        setNotesLoaded(true);
+      });
+  }, [tab, deal, notesLoaded, id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function runDealFlow() {
     if (!deal) return;
@@ -760,6 +777,7 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
     { key: "memo", label: "IC Memo", icon: <FileText size={13} /> },
     { key: "terms", label: "Terms", icon: <Scale size={13} /> },
     { key: "diligence", label: "Diligence", icon: <CheckSquare size={13} /> },
+    { key: "notes", label: "Notes", icon: <StickyNote size={13} /> },
   ];
 
   const scoreCards: Array<{ label: string; value: number; color: string; inverted?: boolean }> = [
@@ -2259,6 +2277,120 @@ export default function DealDetailPage({ params }: { params: Promise<{ id: strin
                     Analyze Terms
                   </button>
                 </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {tab === "notes" && (
+          <div className="p-8 max-w-3xl">
+            <div className="mb-6">
+              <h2 className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>Deal Notes</h2>
+              <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+                Private notes for this deal. Visible to your team only.
+              </p>
+            </div>
+
+            {/* Add note form */}
+            <div
+              className="mb-6 rounded-lg p-4 space-y-3"
+              style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)" }}
+            >
+              <textarea
+                value={noteText}
+                onChange={(e) => setNoteText(e.target.value)}
+                placeholder="Add a note…"
+                rows={3}
+                className="w-full rounded text-sm p-3 resize-none outline-none"
+                style={{
+                  background: "var(--bg-surface)",
+                  border: "1px solid var(--border)",
+                  color: "var(--text-primary)",
+                  fontFamily: "inherit",
+                  lineHeight: 1.6,
+                }}
+              />
+              <div className="flex items-center justify-end">
+                <button
+                  disabled={noteSaving || !noteText.trim()}
+                  onClick={async () => {
+                    if (!noteText.trim()) return;
+                    setNoteSaving(true);
+                    try {
+                      const res = await fetch(`/api/deals/${id}/notes`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ text: noteText.trim() }),
+                      });
+                      const data = await res.json();
+                      if (data.note) {
+                        setNotes((prev) => [data.note, ...prev]);
+                        setNoteText("");
+                      }
+                    } catch {
+                      // silently fail
+                    } finally {
+                      setNoteSaving(false);
+                    }
+                  }}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded text-xs font-medium transition-opacity disabled:opacity-40"
+                  style={{ background: "var(--accent)", color: "#fff" }}
+                >
+                  {noteSaving ? <Loader2 size={11} className="animate-spin" /> : <Plus size={11} />}
+                  Add Note
+                </button>
+              </div>
+            </div>
+
+            {/* Notes list */}
+            {!notesLoaded ? (
+              <div className="flex items-center gap-2 py-8 justify-center text-sm" style={{ color: "var(--text-muted)" }}>
+                <Loader2 size={14} className="animate-spin" />
+                Loading notes…
+              </div>
+            ) : notes.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
+                <StickyNote size={32} style={{ color: "var(--text-muted)", opacity: 0.4 }} />
+                <p className="text-sm" style={{ color: "var(--text-muted)" }}>No notes yet. Add the first note above.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {notes.map((note) => {
+                  const text = (note.input as { text?: string }).text ?? "";
+                  const author = (note.input as { authorLabel?: string }).authorLabel ?? "Team";
+                  const created = new Date(note.createdAt);
+                  const now = Date.now();
+                  const diffMs = now - created.getTime();
+                  const diffMin = Math.floor(diffMs / 60000);
+                  const diffHr = Math.floor(diffMin / 60);
+                  const diffDay = Math.floor(diffHr / 24);
+                  const relTime = diffDay > 30
+                    ? created.toLocaleDateString()
+                    : diffDay > 0
+                    ? `${diffDay}d ago`
+                    : diffHr > 0
+                    ? `${diffHr}h ago`
+                    : diffMin > 0
+                    ? `${diffMin}m ago`
+                    : "just now";
+
+                  return (
+                    <div
+                      key={note.id}
+                      className="rounded-lg p-4"
+                      style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)" }}
+                    >
+                      <p className="text-sm leading-relaxed mb-3" style={{ color: "var(--text-primary)", whiteSpace: "pre-wrap" }}>
+                        {text}
+                      </p>
+                      <div className="flex items-center gap-2 text-xs" style={{ color: "var(--text-muted)" }}>
+                        <span style={{ color: "var(--text-secondary)", fontWeight: 500 }}>{author}</span>
+                        <span>·</span>
+                        <span>{relTime}</span>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
