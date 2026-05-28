@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { TrendingUp, Plus, Filter, ChevronRight, ExternalLink, Zap, RefreshCw, ChevronDown } from "lucide-react";
+import { TrendingUp, Plus, Filter, ChevronRight, ExternalLink, Zap, RefreshCw, ChevronDown, LayoutList, Kanban, X } from "lucide-react";
 import Link from "next/link";
 import Badge from "@/components/ui/Badge";
 import ScoreRing from "@/components/ui/ScoreRing";
@@ -584,11 +584,419 @@ function StatusDropdown({
   );
 }
 
+const PIPELINE_STATUSES = ["inbound", "reviewing", "diligence", "ic-review", "invested"] as const;
+
+const COLUMN_ACCENT: Record<string, string> = {
+  inbound: "var(--accent)",
+  reviewing: "var(--accent)",
+  diligence: "#f59e0b",
+  "ic-review": "#f59e0b",
+  invested: "#10b981",
+};
+
+interface KanbanBoardProps {
+  filtered: Deal[];
+  loading: boolean;
+  handleStatusUpdate: (dealId: string, newStatus: string, prevStatus: string) => void;
+  openDealPanel: (deal: Deal) => void;
+}
+
+function KanbanBoard({ filtered, loading, handleStatusUpdate, openDealPanel }: KanbanBoardProps) {
+  // Group deals by status
+  const columns = PIPELINE_STATUSES.map((status) => ({
+    status,
+    deals: filtered.filter((d) => d.status === status),
+  }));
+
+  function getNextStatus(status: string): string | null {
+    const idx = PIPELINE_STATUSES.indexOf(status as typeof PIPELINE_STATUSES[number]);
+    if (idx === -1 || idx === PIPELINE_STATUSES.length - 1) return null;
+    return PIPELINE_STATUSES[idx + 1];
+  }
+
+  const canPass = (status: string) =>
+    ["inbound", "reviewing", "diligence", "ic-review"].includes(status);
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        gap: 12,
+        overflowX: "auto",
+        overflowY: "hidden",
+        paddingBottom: 16,
+        height: "100%",
+        alignItems: "flex-start",
+      }}
+    >
+      {columns.map(({ status, deals: colDeals }) => {
+        const totalAsk = colDeals.reduce((sum, d) => sum + (d.capitalAsk ?? 0), 0);
+        const accent = COLUMN_ACCENT[status] ?? "var(--accent)";
+
+        return (
+          <div
+            key={status}
+            style={{
+              minWidth: 280,
+              maxWidth: 280,
+              display: "flex",
+              flexDirection: "column",
+              height: "100%",
+              flexShrink: 0,
+            }}
+          >
+            {/* Column header */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "8px 4px",
+                marginBottom: 8,
+                borderBottom: `2px solid ${accent}`,
+              }}
+            >
+              <span
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: "var(--text-primary)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                }}
+              >
+                {statusLabel[status] ?? status}
+              </span>
+              <span
+                style={{
+                  fontSize: 11,
+                  fontWeight: 600,
+                  color: accent,
+                  background: `${accent}22`,
+                  borderRadius: 10,
+                  padding: "1px 7px",
+                  lineHeight: 1.5,
+                  border: `1px solid ${accent}44`,
+                }}
+              >
+                {loading ? "—" : colDeals.length}
+              </span>
+              {!loading && totalAsk > 0 && (
+                <span
+                  style={{
+                    marginLeft: "auto",
+                    fontSize: 11,
+                    color: "var(--text-muted)",
+                    fontVariantNumeric: "tabular-nums",
+                  }}
+                >
+                  {formatCurrency(totalAsk)}
+                </span>
+              )}
+            </div>
+
+            {/* Cards area */}
+            <div
+              style={{
+                flex: 1,
+                overflowY: "auto",
+                display: "flex",
+                flexDirection: "column",
+                gap: 8,
+              }}
+            >
+              {loading ? (
+                // Skeleton ghost cards
+                [0, 1, 2].map((i) => (
+                  <div
+                    key={i}
+                    style={{
+                      border: "1px solid var(--border)",
+                      borderRadius: 8,
+                      padding: 12,
+                      background: "var(--bg-surface)",
+                      opacity: 0.5,
+                    }}
+                  >
+                    <div
+                      style={{
+                        height: 12,
+                        borderRadius: 4,
+                        background: "var(--bg-elevated)",
+                        marginBottom: 8,
+                        width: "70%",
+                      }}
+                    />
+                    <div
+                      style={{
+                        height: 10,
+                        borderRadius: 4,
+                        background: "var(--bg-elevated)",
+                        marginBottom: 6,
+                        width: "45%",
+                      }}
+                    />
+                    <div
+                      style={{
+                        height: 10,
+                        borderRadius: 4,
+                        background: "var(--bg-elevated)",
+                        width: "55%",
+                      }}
+                    />
+                  </div>
+                ))
+              ) : colDeals.length === 0 ? (
+                // Empty state
+                <div
+                  style={{
+                    border: "1px dashed var(--border)",
+                    borderRadius: 8,
+                    padding: "24px 12px",
+                    textAlign: "center",
+                    color: "var(--text-muted)",
+                    fontSize: 12,
+                  }}
+                >
+                  No deals
+                </div>
+              ) : (
+                colDeals.map((deal) => {
+                  const nextStatus = getNextStatus(deal.status);
+                  return (
+                    <div
+                      key={deal.id}
+                      onClick={() => openDealPanel(deal)}
+                      style={{
+                        border: "1px solid var(--border)",
+                        borderRadius: 8,
+                        padding: 12,
+                        background: "var(--bg-surface)",
+                        cursor: "pointer",
+                        position: "relative",
+                        transition: "border-color 0.15s, background 0.15s",
+                      }}
+                      onMouseEnter={(e) => {
+                        (e.currentTarget as HTMLDivElement).style.background = "var(--bg-elevated)";
+                        (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(99,102,241,0.4)";
+                      }}
+                      onMouseLeave={(e) => {
+                        (e.currentTarget as HTMLDivElement).style.background = "var(--bg-surface)";
+                        (e.currentTarget as HTMLDivElement).style.borderColor = "var(--border)";
+                      }}
+                    >
+                      {/* Score ring — top right if present */}
+                      {deal.dealScore != null && (
+                        <div
+                          style={{ position: "absolute", top: 10, right: 10 }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <ScoreRing score={deal.dealScore} size={28} />
+                        </div>
+                      )}
+
+                      {/* Company name */}
+                      <div
+                        style={{
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: "var(--text-primary)",
+                          paddingRight: deal.dealScore != null ? 36 : 0,
+                          marginBottom: 4,
+                          lineHeight: 1.3,
+                        }}
+                      >
+                        {deal.company}
+                      </div>
+
+                      {/* Sector + stage */}
+                      <div
+                        style={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          gap: 4,
+                          marginBottom: 6,
+                          alignItems: "center",
+                        }}
+                      >
+                        {deal.sector && (
+                          <span
+                            style={{
+                              fontSize: 10,
+                              color: "var(--text-muted)",
+                              background: "var(--bg-elevated)",
+                              borderRadius: 4,
+                              padding: "1px 5px",
+                              border: "1px solid var(--border)",
+                            }}
+                          >
+                            {deal.sector}
+                          </span>
+                        )}
+                        {deal.stage && (
+                          <span
+                            style={{
+                              fontSize: 10,
+                              color: "var(--text-muted)",
+                            }}
+                          >
+                            {deal.stage.replace(/-/g, " ")}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Capital ask */}
+                      {deal.capitalAsk != null && (
+                        <div
+                          style={{
+                            fontSize: 12,
+                            color: "var(--text-secondary)",
+                            fontVariantNumeric: "tabular-nums",
+                            marginBottom: 4,
+                          }}
+                        >
+                          {formatCurrency(deal.capitalAsk)}
+                        </div>
+                      )}
+
+                      {/* Source type chip */}
+                      {deal.sourceType && (
+                        <div
+                          style={{
+                            fontSize: 10,
+                            color: "var(--text-muted)",
+                            marginBottom: 8,
+                          }}
+                        >
+                          via {deal.sourceType.replace(/-/g, " ")}
+                        </div>
+                      )}
+
+                      {/* Bottom row: view link + action buttons */}
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          marginTop: 6,
+                        }}
+                      >
+                        <Link
+                          href={`/opportunities/${deal.id}`}
+                          onClick={(e) => e.stopPropagation()}
+                          style={{
+                            fontSize: 10,
+                            color: "var(--accent)",
+                            textDecoration: "none",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 2,
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.textDecoration = "underline";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.textDecoration = "none";
+                          }}
+                        >
+                          View details
+                        </Link>
+
+                        <div
+                          style={{ display: "flex", alignItems: "center", gap: 4 }}
+                        >
+                          {/* Pass button */}
+                          {canPass(deal.status) && (
+                            <button
+                              title="Pass on deal"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleStatusUpdate(deal.id, "passed", deal.status);
+                              }}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                width: 22,
+                                height: 22,
+                                borderRadius: 4,
+                                border: "1px solid var(--border)",
+                                background: "transparent",
+                                cursor: "pointer",
+                                color: "var(--text-muted)",
+                                padding: 0,
+                              }}
+                              onMouseEnter={(e) => {
+                                (e.currentTarget as HTMLButtonElement).style.color = "#ef4444";
+                                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(239,68,68,0.4)";
+                                (e.currentTarget as HTMLButtonElement).style.background = "rgba(239,68,68,0.08)";
+                              }}
+                              onMouseLeave={(e) => {
+                                (e.currentTarget as HTMLButtonElement).style.color = "var(--text-muted)";
+                                (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--border)";
+                                (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+                              }}
+                            >
+                              <X size={11} />
+                            </button>
+                          )}
+
+                          {/* Advance button */}
+                          {nextStatus && (
+                            <button
+                              title={`Advance to ${statusLabel[nextStatus] ?? nextStatus}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleStatusUpdate(deal.id, nextStatus, deal.status);
+                              }}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                width: 22,
+                                height: 22,
+                                borderRadius: 4,
+                                border: "1px solid var(--border)",
+                                background: "transparent",
+                                cursor: "pointer",
+                                color: "var(--text-muted)",
+                                padding: 0,
+                              }}
+                              onMouseEnter={(e) => {
+                                (e.currentTarget as HTMLButtonElement).style.color = "var(--accent)";
+                                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(59,130,246,0.4)";
+                                (e.currentTarget as HTMLButtonElement).style.background = "var(--accent-muted)";
+                              }}
+                              onMouseLeave={(e) => {
+                                (e.currentTarget as HTMLButtonElement).style.color = "var(--text-muted)";
+                                (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--border)";
+                                (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+                              }}
+                            >
+                              <ChevronRight size={11} />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function OpportunitiesPage() {
   const familyId = useFamilyId();
   const router = useRouter();
   const { openPanel, closePanel, isPanelOpen } = usePanel();
   const [filter, setFilter] = useState("All");
+  const [viewMode, setViewMode] = useState<"list" | "board">("list");
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
   const [usingMock, setUsingMock] = useState(false);
@@ -665,14 +1073,69 @@ export default function OpportunitiesPage() {
         title="Opportunities"
         subtitle={`${deals.length} deal${deals.length !== 1 ? "s" : ""} in pipeline`}
         actions={
-          <Link
-            href="/import/deals"
-            className="flex items-center gap-1.5 px-3 py-2 rounded text-sm font-medium"
-            style={{ background: "var(--accent)", color: "#fff" }}
-          >
-            <Plus size={14} />
-            Add Deal
-          </Link>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            {/* View toggle */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                border: "1px solid var(--border)",
+                borderRadius: 6,
+                overflow: "hidden",
+              }}
+            >
+              <button
+                onClick={() => setViewMode("list")}
+                title="List view"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 4,
+                  padding: "6px 10px",
+                  border: "none",
+                  background: viewMode === "list" ? "var(--accent)" : "transparent",
+                  color: viewMode === "list" ? "#fff" : "var(--text-muted)",
+                  cursor: "pointer",
+                  fontSize: 12,
+                  fontWeight: 500,
+                }}
+              >
+                <LayoutList size={13} />
+                List
+              </button>
+              <button
+                onClick={() => setViewMode("board")}
+                title="Board view"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 4,
+                  padding: "6px 10px",
+                  border: "none",
+                  borderLeft: "1px solid var(--border)",
+                  background: viewMode === "board" ? "var(--accent)" : "transparent",
+                  color: viewMode === "board" ? "#fff" : "var(--text-muted)",
+                  cursor: "pointer",
+                  fontSize: 12,
+                  fontWeight: 500,
+                }}
+              >
+                <Kanban size={13} />
+                Board
+              </button>
+            </div>
+
+            <Link
+              href="/import/deals"
+              className="flex items-center gap-1.5 px-3 py-2 rounded text-sm font-medium"
+              style={{ background: "var(--accent)", color: "#fff" }}
+            >
+              <Plus size={14} />
+              Add Deal
+            </Link>
+          </div>
         }
       />
 
@@ -700,81 +1163,92 @@ export default function OpportunitiesPage() {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="flex-1 overflow-auto px-8 py-4">
-        {loading ? (
-          <div className="flex items-center justify-center h-32 text-sm" style={{ color: "var(--text-muted)" }}>
-            Loading deals...
-          </div>
-        ) : (
-          <table className="w-full text-sm border-collapse">
-            <thead>
-              <tr style={{ borderBottom: "1px solid var(--border)" }}>
-                {["Company", "Sector", "Stage", "Ask", "Score", "Status", "Added", ""].map((h) => (
-                  <th key={h} className="text-left py-2.5 px-3 text-xs font-medium tracking-wide" style={{ color: "var(--text-muted)" }}>
-                    {h}
-                  </th>
+      {/* Content: List or Board */}
+      {viewMode === "list" ? (
+        <div className="flex-1 overflow-auto px-8 py-4">
+          {loading ? (
+            <div className="flex items-center justify-center h-32 text-sm" style={{ color: "var(--text-muted)" }}>
+              Loading deals...
+            </div>
+          ) : (
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr style={{ borderBottom: "1px solid var(--border)" }}>
+                  {["Company", "Sector", "Stage", "Ask", "Score", "Status", "Added", ""].map((h) => (
+                    <th key={h} className="text-left py-2.5 px-3 text-xs font-medium tracking-wide" style={{ color: "var(--text-muted)" }}>
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((deal) => (
+                  <tr
+                    key={deal.id}
+                    className="group transition-colors"
+                    style={{
+                      borderBottom: "1px solid var(--border-subtle)",
+                      cursor: "pointer",
+                      background: selectedDealId === deal.id ? "var(--bg-elevated)" : "transparent",
+                      borderLeft: selectedDealId === deal.id ? "2px solid var(--accent)" : "2px solid transparent",
+                    }}
+                    onClick={() => openDealPanel(deal)}
+                    onMouseEnter={(e) => { if (selectedDealId !== deal.id) e.currentTarget.style.background = "var(--bg-elevated)"; }}
+                    onMouseLeave={(e) => { if (selectedDealId !== deal.id) e.currentTarget.style.background = "transparent"; }}
+                  >
+                    <td className="py-3 px-3">
+                      <div className="font-medium" style={{ color: "var(--text-primary)" }}>{deal.company}</div>
+                      {deal.sourceType && <div className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>{deal.sourceType.replace("-", " ")}</div>}
+                    </td>
+                    <td className="py-3 px-3" style={{ color: "var(--text-secondary)" }}>{deal.sector ?? "—"}</td>
+                    <td className="py-3 px-3">
+                      {deal.stage ? <Badge label={deal.stage.replace(/-/g, " ")} variant="muted" size="xs" /> : <span style={{ color: "var(--text-muted)" }}>—</span>}
+                    </td>
+                    <td className="py-3 px-3 font-mono text-xs" style={{ color: "var(--text-secondary)", fontVariantNumeric: "tabular-nums" }}>
+                      {deal.capitalAsk ? formatCurrency(deal.capitalAsk) : "—"}
+                    </td>
+                    <td className="py-3 px-3">
+                      {deal.dealScore ? <ScoreRing score={deal.dealScore} size={36} /> : <span className="text-xs" style={{ color: "var(--text-muted)" }}>—</span>}
+                    </td>
+                    <td className="py-3 px-3">
+                      <StatusDropdown deal={deal} onUpdate={handleStatusUpdate} />
+                    </td>
+                    <td className="py-3 px-3 text-xs" style={{ color: "var(--text-muted)" }}>
+                      {deal.createdAt ? formatDate(deal.createdAt) : "—"}
+                    </td>
+                    <td className="py-3 px-3">
+                      <Link
+                        href={`/opportunities/${deal.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="flex items-center gap-1 px-2.5 py-1 rounded text-xs transition-opacity"
+                        style={{ background: "var(--accent-muted)", color: "var(--accent)", border: "1px solid rgba(59,130,246,0.2)" }}
+                      >
+                        <ExternalLink size={11} /> Full Details
+                      </Link>
+                    </td>
+                  </tr>
                 ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((deal) => (
-                <tr
-                  key={deal.id}
-                  className="group transition-colors"
-                  style={{
-                    borderBottom: "1px solid var(--border-subtle)",
-                    cursor: "pointer",
-                    background: selectedDealId === deal.id ? "var(--bg-elevated)" : "transparent",
-                    borderLeft: selectedDealId === deal.id ? "2px solid var(--accent)" : "2px solid transparent",
-                  }}
-                  onClick={() => openDealPanel(deal)}
-                  onMouseEnter={(e) => { if (selectedDealId !== deal.id) e.currentTarget.style.background = "var(--bg-elevated)"; }}
-                  onMouseLeave={(e) => { if (selectedDealId !== deal.id) e.currentTarget.style.background = "transparent"; }}
-                >
-                  <td className="py-3 px-3">
-                    <div className="font-medium" style={{ color: "var(--text-primary)" }}>{deal.company}</div>
-                    {deal.sourceType && <div className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>{deal.sourceType.replace("-", " ")}</div>}
-                  </td>
-                  <td className="py-3 px-3" style={{ color: "var(--text-secondary)" }}>{deal.sector ?? "—"}</td>
-                  <td className="py-3 px-3">
-                    {deal.stage ? <Badge label={deal.stage.replace(/-/g, " ")} variant="muted" size="xs" /> : <span style={{ color: "var(--text-muted)" }}>—</span>}
-                  </td>
-                  <td className="py-3 px-3 font-mono text-xs" style={{ color: "var(--text-secondary)", fontVariantNumeric: "tabular-nums" }}>
-                    {deal.capitalAsk ? formatCurrency(deal.capitalAsk) : "—"}
-                  </td>
-                  <td className="py-3 px-3">
-                    {deal.dealScore ? <ScoreRing score={deal.dealScore} size={36} /> : <span className="text-xs" style={{ color: "var(--text-muted)" }}>—</span>}
-                  </td>
-                  <td className="py-3 px-3">
-                    <StatusDropdown deal={deal} onUpdate={handleStatusUpdate} />
-                  </td>
-                  <td className="py-3 px-3 text-xs" style={{ color: "var(--text-muted)" }}>
-                    {deal.createdAt ? formatDate(deal.createdAt) : "—"}
-                  </td>
-                  <td className="py-3 px-3">
-                    <Link
-                      href={`/opportunities/${deal.id}`}
-                      onClick={(e) => e.stopPropagation()}
-                      className="flex items-center gap-1 px-2.5 py-1 rounded text-xs transition-opacity"
-                      style={{ background: "var(--accent-muted)", color: "var(--accent)", border: "1px solid rgba(59,130,246,0.2)" }}
-                    >
-                      <ExternalLink size={11} /> Full Details
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-              {filtered.length === 0 && (
-                <tr>
-                  <td colSpan={8} className="py-16 text-center text-sm" style={{ color: "var(--text-muted)" }}>
-                    No deals match this filter.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        )}
-      </div>
+                {filtered.length === 0 && (
+                  <tr>
+                    <td colSpan={8} className="py-16 text-center text-sm" style={{ color: "var(--text-muted)" }}>
+                      No deals match this filter.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          )}
+        </div>
+      ) : (
+        <div className="flex-1 px-8 py-4" style={{ overflow: "hidden" }}>
+          <KanbanBoard
+            filtered={filtered}
+            loading={loading}
+            handleStatusUpdate={handleStatusUpdate}
+            openDealPanel={openDealPanel}
+          />
+        </div>
+      )}
     </div>
   );
 }
