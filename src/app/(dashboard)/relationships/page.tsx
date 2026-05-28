@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Clock, Loader2, Sparkles, Plus, X, DollarSign, Mail, Phone, Link, ExternalLink } from "lucide-react";
+import { Search, Clock, Loader2, Sparkles, Plus, X, DollarSign, Mail, Phone, Link, ExternalLink, Pencil } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import PageHeader from "@/components/ui/PageHeader";
 import ContextPanel from "@/components/ui/ContextPanel";
@@ -330,6 +330,254 @@ function ContactDetailPanel({ contact, interactions }: { contact: Contact; inter
   );
 }
 
+// ── EditContactModal ──────────────────────────────────────────────────────────
+
+interface EditContactForm {
+  name: string;
+  email: string;
+  phone: string;
+  company: string;
+  title: string;
+  type: string;
+  linkedIn: string;
+  notes: string;
+}
+
+const CONTACT_TYPES = ["contact", "founder", "lp", "gp", "attorney", "banker", "advisor", "broker", "family"] as const;
+
+function EditContactModal({
+  contact,
+  onClose,
+  onSuccess,
+}: {
+  contact: Contact;
+  onClose: () => void;
+  onSuccess: (updated: Contact) => void;
+}) {
+  const [form, setForm] = useState<EditContactForm>({
+    name: contact.name ?? "",
+    email: contact.email ?? "",
+    phone: contact.phone ?? "",
+    company: contact.company ?? "",
+    title: contact.title ?? "",
+    type: contact.type ?? "contact",
+    linkedIn: contact.linkedIn ?? "",
+    notes: contact.notes ?? "",
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  const isValid = form.name.trim().length > 0;
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!isValid || submitting) return;
+    setSubmitting(true);
+    setError("");
+    try {
+      const res = await fetch(`/api/contacts/${contact.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name.trim(),
+          email: form.email.trim() || null,
+          phone: form.phone.trim() || null,
+          company: form.company.trim() || null,
+          title: form.title.trim() || null,
+          type: form.type,
+          linkedIn: form.linkedIn.trim() || null,
+          notes: form.notes.trim() || null,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error ?? "Failed to update contact");
+        return;
+      }
+      const data = await res.json().catch(() => ({}));
+      const updated: Contact = data.contact ?? {
+        ...contact,
+        name: form.name.trim(),
+        email: form.email.trim() || null,
+        phone: form.phone.trim() || null,
+        company: form.company.trim() || null,
+        title: form.title.trim() || null,
+        type: form.type,
+        linkedIn: form.linkedIn.trim() || null,
+        notes: form.notes.trim() || null,
+      };
+      onSuccess(updated);
+      onClose();
+    } catch {
+      setError("Network error — please try again");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  const inputCls = "w-full rounded-md border px-3 py-2 text-sm focus:outline-none";
+  const inputStyle = { background: "var(--bg-surface)", borderColor: "var(--border)", color: "var(--text-primary)" };
+  const labelStyle = { color: "var(--text-secondary)" };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      style={{ background: "rgba(0,0,0,0.6)" }}
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-lg rounded-xl shadow-2xl overflow-hidden"
+        style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", maxHeight: "90vh", display: "flex", flexDirection: "column" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: "var(--border)" }}>
+          <div>
+            <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Edit Contact</h2>
+            <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>{contact.name}</p>
+          </div>
+          <button onClick={onClose} style={{ color: "var(--text-muted)" }}>
+            <X size={16} />
+          </button>
+        </div>
+
+        {/* Scrollable body */}
+        <div className="overflow-y-auto flex-1 px-6 py-5">
+          <form id="edit-contact-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={labelStyle}>
+                Name <span style={{ color: "#ef4444" }}>*</span>
+              </label>
+              <input
+                type="text"
+                required
+                value={form.name}
+                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                placeholder="Full name"
+                className={inputCls}
+                style={inputStyle}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-medium mb-1.5" style={labelStyle}>Email</label>
+                <input
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                  placeholder="jane@example.com"
+                  className={inputCls}
+                  style={inputStyle}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1.5" style={labelStyle}>Phone</label>
+                <input
+                  type="text"
+                  value={form.phone}
+                  onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                  placeholder="+1 (555) 000-0000"
+                  className={inputCls}
+                  style={inputStyle}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-medium mb-1.5" style={labelStyle}>Company</label>
+                <input
+                  type="text"
+                  value={form.company}
+                  onChange={(e) => setForm((f) => ({ ...f, company: e.target.value }))}
+                  placeholder="Acme Capital"
+                  className={inputCls}
+                  style={inputStyle}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1.5" style={labelStyle}>Title</label>
+                <input
+                  type="text"
+                  value={form.title}
+                  onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+                  placeholder="Managing Partner"
+                  className={inputCls}
+                  style={inputStyle}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={labelStyle}>Type</label>
+              <select
+                value={form.type}
+                onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}
+                className={inputCls}
+                style={inputStyle}
+              >
+                {CONTACT_TYPES.map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={labelStyle}>LinkedIn URL</label>
+              <input
+                type="text"
+                value={form.linkedIn}
+                onChange={(e) => setForm((f) => ({ ...f, linkedIn: e.target.value }))}
+                placeholder="https://linkedin.com/in/..."
+                className={inputCls}
+                style={inputStyle}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={labelStyle}>Notes</label>
+              <textarea
+                value={form.notes}
+                onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
+                placeholder="Any notes about this contact"
+                rows={3}
+                className={inputCls + " resize-none"}
+                style={{ ...inputStyle, fontFamily: "inherit" }}
+              />
+            </div>
+
+            {error && (
+              <p className="text-xs" style={{ color: "#ef4444" }}>{error}</p>
+            )}
+          </form>
+        </div>
+
+        {/* Footer */}
+        <div className="flex justify-end gap-3 px-6 py-4 border-t" style={{ borderColor: "var(--border)" }}>
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 rounded text-sm font-medium border"
+            style={{ background: "var(--bg-surface)", borderColor: "var(--border)", color: "var(--text-secondary)" }}
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            form="edit-contact-form"
+            disabled={!isValid || submitting}
+            className="px-4 py-2 rounded text-sm font-semibold transition-opacity disabled:opacity-40"
+            style={{ background: "var(--accent)", color: "#fff" }}
+          >
+            {submitting ? "Saving…" : "Save Changes"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default function RelationshipsPage() {
@@ -341,6 +589,7 @@ export default function RelationshipsPage() {
   const [search, setSearch] = useState("");
   const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingContact, setEditingContact] = useState<Contact | null>(null);
 
   // Modal form state
   const [modalForm, setModalForm] = useState({
@@ -546,6 +795,16 @@ export default function RelationshipsPage() {
   });
 
   return (
+    <>
+      {editingContact && (
+        <EditContactModal
+          contact={editingContact}
+          onClose={() => setEditingContact(null)}
+          onSuccess={(updated) => {
+            setContacts((prev) => prev.map((c) => c.id === updated.id ? updated : c));
+          }}
+        />
+      )}
     <div className="flex flex-col h-full">
       <PageHeader
         title="Relationships"
@@ -847,7 +1106,7 @@ export default function RelationshipsPage() {
                   >
                     {initials(c.name)}
                   </div>
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <div className="text-sm font-medium truncate" style={{ color: "var(--text-primary)" }}>
                       {c.name}
                     </div>
@@ -855,6 +1114,18 @@ export default function RelationshipsPage() {
                       {[c.title, c.company].filter(Boolean).join(", ") || "—"}
                     </div>
                   </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingContact(c);
+                    }}
+                    className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                    style={{ color: "var(--text-muted)" }}
+                    title="Edit contact"
+                    aria-label="Edit contact"
+                  >
+                    <Pencil size={13} />
+                  </button>
                 </div>
 
                 <div className="flex items-center justify-between">
@@ -1079,5 +1350,6 @@ export default function RelationshipsPage() {
         </div>
       )}
     </div>
+    </>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BarChart3, AlertTriangle, Loader2, ChevronDown, ChevronUp, TrendingUp, TrendingDown } from "lucide-react";
+import { BarChart3, AlertTriangle, Loader2, ChevronDown, ChevronUp, TrendingUp, TrendingDown, Pencil } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import PageHeader from "@/components/ui/PageHeader";
 import ContextPanel from "@/components/ui/ContextPanel";
@@ -561,6 +561,242 @@ function CompanyDetailPanel({ company }: { company: PortfolioCompany }) {
   );
 }
 
+// ── EditCompanyModal ──────────────────────────────────────────────────────────
+
+interface EditCompanyForm {
+  currentValue: string;
+  investedAmount: string;
+  ownership: string;
+  alertLevel: string;
+  status: string;
+  description: string;
+  website: string;
+}
+
+function EditCompanyModal({
+  company,
+  onClose,
+  onSuccess,
+}: {
+  company: PortfolioCompany;
+  onClose: () => void;
+  onSuccess: (updated: PortfolioCompany) => void;
+}) {
+  const [form, setForm] = useState<EditCompanyForm>({
+    currentValue: company.currentValue != null ? String(company.currentValue) : "",
+    investedAmount: company.investedAmount != null ? String(company.investedAmount) : "",
+    ownership: company.ownership != null ? String(company.ownership) : "",
+    alertLevel: company.alertLevel ?? "normal",
+    status: company.status ?? "active",
+    description: company.description ?? "",
+    website: (company as PortfolioCompany & { website?: string }).website ?? "",
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (submitting) return;
+    setSubmitting(true);
+    setError("");
+    try {
+      const body: Record<string, unknown> = {
+        alertLevel: form.alertLevel,
+        status: form.status,
+        description: form.description.trim() || null,
+        website: form.website.trim() || null,
+      };
+      if (form.currentValue !== "") body.currentValue = parseFloat(form.currentValue);
+      if (form.investedAmount !== "") body.investedAmount = parseFloat(form.investedAmount);
+      if (form.ownership !== "") body.ownership = parseFloat(form.ownership);
+
+      const res = await fetch(`/api/portfolio/${company.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error ?? "Failed to update company");
+        return;
+      }
+      const data = await res.json().catch(() => ({}));
+      const updated: PortfolioCompany = data.company ?? {
+        ...company,
+        currentValue: form.currentValue !== "" ? parseFloat(form.currentValue) : company.currentValue,
+        investedAmount: form.investedAmount !== "" ? parseFloat(form.investedAmount) : company.investedAmount,
+        ownership: form.ownership !== "" ? parseFloat(form.ownership) : company.ownership,
+        alertLevel: form.alertLevel,
+        status: form.status,
+        description: form.description.trim() || company.description,
+      };
+      onSuccess(updated);
+      onClose();
+    } catch {
+      setError("Network error — please try again");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  const inputCls = "w-full rounded-md border px-3 py-2 text-sm focus:outline-none";
+  const inputStyle = { background: "var(--bg-surface)", borderColor: "var(--border)", color: "var(--text-primary)" };
+  const labelStyle = { color: "var(--text-secondary)" };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      style={{ background: "rgba(0,0,0,0.6)" }}
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-lg rounded-xl shadow-2xl overflow-hidden"
+        style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", maxHeight: "90vh", display: "flex", flexDirection: "column" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: "var(--border)" }}>
+          <div>
+            <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Edit Company</h2>
+            <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>{company.name}</p>
+          </div>
+        </div>
+
+        {/* Scrollable body */}
+        <div className="overflow-y-auto flex-1 px-6 py-5">
+          <form id="edit-company-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-medium mb-1.5" style={labelStyle}>Current Value ($)</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="any"
+                  value={form.currentValue}
+                  onChange={(e) => setForm((f) => ({ ...f, currentValue: e.target.value }))}
+                  placeholder="e.g. 5000000"
+                  className={inputCls}
+                  style={inputStyle}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1.5" style={labelStyle}>Invested Amount ($)</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="any"
+                  value={form.investedAmount}
+                  onChange={(e) => setForm((f) => ({ ...f, investedAmount: e.target.value }))}
+                  placeholder="e.g. 2500000"
+                  className={inputCls}
+                  style={inputStyle}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-medium mb-1.5" style={labelStyle}>Ownership (%)</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  value={form.ownership}
+                  onChange={(e) => setForm((f) => ({ ...f, ownership: e.target.value }))}
+                  placeholder="e.g. 12.5"
+                  className={inputCls}
+                  style={inputStyle}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1.5" style={labelStyle}>Alert Level</label>
+                <select
+                  value={form.alertLevel}
+                  onChange={(e) => setForm((f) => ({ ...f, alertLevel: e.target.value }))}
+                  className={inputCls}
+                  style={inputStyle}
+                >
+                  <option value="normal">normal</option>
+                  <option value="watch">watch</option>
+                  <option value="alert">alert</option>
+                  <option value="critical">critical</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={labelStyle}>Status</label>
+              <select
+                value={form.status}
+                onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
+                className={inputCls}
+                style={inputStyle}
+              >
+                <option value="active">active</option>
+                <option value="watchlist">watchlist</option>
+                <option value="exited">exited</option>
+                <option value="written-off">written-off</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={labelStyle}>Description</label>
+              <textarea
+                value={form.description}
+                onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                placeholder="Brief description of the company"
+                rows={3}
+                className={inputCls + " resize-none"}
+                style={{ ...inputStyle, fontFamily: "inherit" }}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={labelStyle}>Website</label>
+              <input
+                type="text"
+                value={form.website}
+                onChange={(e) => setForm((f) => ({ ...f, website: e.target.value }))}
+                placeholder="https://example.com"
+                className={inputCls}
+                style={inputStyle}
+              />
+            </div>
+
+            {error && (
+              <p className="text-xs" style={{ color: "#ef4444" }}>{error}</p>
+            )}
+          </form>
+        </div>
+
+        {/* Footer */}
+        <div className="flex justify-end gap-3 px-6 py-4 border-t" style={{ borderColor: "var(--border)" }}>
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 rounded text-sm font-medium border"
+            style={{ background: "var(--bg-surface)", borderColor: "var(--border)", color: "var(--text-secondary)" }}
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            form="edit-company-form"
+            disabled={submitting}
+            className="px-4 py-2 rounded text-sm font-semibold transition-opacity disabled:opacity-40"
+            style={{ background: "var(--accent)", color: "#fff" }}
+          >
+            {submitting ? "Saving…" : "Save Changes"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── PortfolioPage ─────────────────────────────────────────────────────────────
+
 export default function PortfolioPage() {
   const familyId = useFamilyId();
   const { openPanel, closePanel } = usePanel();
@@ -568,6 +804,7 @@ export default function PortfolioPage() {
   const [isMock, setIsMock] = useState(false);
   const [loading, setLoading] = useState(true);
   const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
+  const [editingCompany, setEditingCompany] = useState<PortfolioCompany | null>(null);
 
   // Construction analytics state
   const [showConstruction, setShowConstruction] = useState(false);
@@ -625,6 +862,16 @@ export default function PortfolioPage() {
   }
 
   return (
+    <>
+      {editingCompany && (
+        <EditCompanyModal
+          company={editingCompany}
+          onClose={() => setEditingCompany(null)}
+          onSuccess={(updated) => {
+            setCompanies((prev) => prev.map((c) => c.id === updated.id ? updated : c));
+          }}
+        />
+      )}
     <div className="flex flex-col h-full">
       <PageHeader
         title="Portfolio"
@@ -905,6 +1152,18 @@ export default function PortfolioPage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingCompany(co);
+                          }}
+                          className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                          style={{ color: "var(--text-muted)" }}
+                          title="Edit company"
+                          aria-label="Edit company"
+                        >
+                          <Pencil size={13} />
+                        </button>
                         <Badge label={co.status} variant={statusVariant[co.status] ?? "muted"} size="xs" />
                       </div>
                     </div>
@@ -959,5 +1218,6 @@ export default function PortfolioPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }
