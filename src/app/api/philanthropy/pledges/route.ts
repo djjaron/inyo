@@ -20,3 +20,38 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ pledges: FALLBACK_PLEDGES });
   }
 }
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { familyId, org, amount, remaining, deadline, status } = body;
+    if (!familyId || !org || amount == null || remaining == null) {
+      return NextResponse.json({ error: "familyId, org, amount, remaining are required" }, { status: 400 });
+    }
+    const pledge = await prisma.pledge.create({
+      data: {
+        familyId,
+        org,
+        amount: parseFloat(amount),
+        remaining: parseFloat(remaining),
+        deadline: deadline ? new Date(deadline) : null,
+        status: status ?? "active",
+      },
+    });
+    return NextResponse.json({ pledge }, { status: 201 });
+  } catch {
+    return NextResponse.json({ error: "Failed to create pledge" }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const id = searchParams.get("id");
+  if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 });
+  try {
+    await prisma.pledge.update({ where: { id }, data: { deletedAt: new Date() } });
+    return NextResponse.json({ ok: true });
+  } catch {
+    return NextResponse.json({ error: "Failed to delete pledge" }, { status: 500 });
+  }
+}
