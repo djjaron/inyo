@@ -19,26 +19,16 @@ export async function POST(
     return NextResponse.json({ error: "Unknown agent type" }, { status: 400 });
   }
 
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return NextResponse.json({
-      result: {
-        message: "Demo mode. Add ANTHROPIC_API_KEY to enable real analysis.",
-        agentType: type,
-      },
-      model: "mock",
-      tokensUsed: 0,
-    });
-  }
-
   const body = await req.json();
-  const { familyId, context, documents } = body as {
+  const { familyId, context, documents, triggerType } = body as {
     familyId: string;
     context: Record<string, unknown>;
     documents?: { name: string; content: string }[];
+    triggerType?: string;
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const output = await runAgent({ agentType: type as any, familyId, context, documents });
+  const output = await runAgent({ agentType: type as any, familyId, context, documents, triggerType: triggerType as any });
 
   // Best-effort DB save
   try {
