@@ -185,13 +185,18 @@ export interface AgentOutput {
 }
 
 const MODEL_DEEP = "claude-opus-4-7";
+const MODEL_SONNET = "claude-sonnet-4-6";
 const MODEL_FAST = "claude-haiku-4-5-20251001";
 
 const DEEP_ANALYSIS_AGENTS = new Set<AgentType>([
   "deal-flow", "ic-memo", "portfolio-monitor", "legal", "tax", "cfo", "deal-enrichment", "term-sheet", "diligence",
 ]);
 
+// ic-memo generates very large outputs — Sonnet stays well under Netlify's 30s inactivity limit
+const SONNET_AGENTS = new Set<AgentType>(["ic-memo"]);
+
 function getModel(agentType: AgentType): string {
+  if (SONNET_AGENTS.has(agentType)) return MODEL_SONNET;
   return DEEP_ANALYSIS_AGENTS.has(agentType) ? MODEL_DEEP : MODEL_FAST;
 }
 
