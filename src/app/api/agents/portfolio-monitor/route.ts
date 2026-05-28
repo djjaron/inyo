@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 
 const MOCK_PORTFOLIO_MONITOR = {
   healthScore: 74,
+  overallStatus: "monitor",
   recommendation: "monitor",
   summary:
     "Portfolio company is performing within expected range. Revenue growth on track at 2.1x YoY. One material risk: customer concentration remains high at 58% from top 2 accounts.",
@@ -26,6 +27,42 @@ const MOCK_PORTFOLIO_MONITOR = {
   alerts: [],
   nextCheckIn: "Q2 2026 board meeting",
 };
+
+/** Infer alert severity and type from agent result status, then persist a PortfolioAlert (best-effort). */
+async function createPortfolioAlert(
+  companyId: string,
+  result: Record<string, unknown>
+): Promise<void> {
+  const status =
+    (result.overallStatus as string | undefined) ??
+    (result.recommendation as string | undefined);
+
+  if (!status || status === "healthy") return;
+
+  const severity = status === "escalate" ? "critical" : "warning";
+  const type = status === "escalate" ? "burn-rate" : "press";
+
+  const risks = Array.isArray(result.risks) ? (result.risks as string[]) : [];
+  const summary = typeof result.summary === "string" ? result.summary : "";
+  const rawTitle = risks[0] ?? summary.slice(0, 100) ?? "Portfolio alert";
+  const title = String(rawTitle).slice(0, 255) || "Portfolio alert";
+
+  try {
+    await prisma.portfolioAlert.create({
+      data: {
+        companyId,
+        type,
+        severity,
+        title,
+        body: summary || null,
+        source: "portfolio-monitor",
+        read: false,
+      },
+    });
+  } catch {
+    // DB unavailable or FK violation — proceed without persisting alert
+  }
+}
 
 export async function POST(req: NextRequest) {
   let body: Record<string, unknown>;
@@ -50,8 +87,18 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Return mock if no API key is configured
+  // Return mock if no API key is configured (fire-and-forget runAgent for AgentRun persistence)
   if (!process.env.ANTHROPIC_API_KEY) {
+    runAgent({
+      agentType: "portfolio-monitor",
+      familyId: familyId as string,
+      context: context as Record<string, unknown>,
+    }).catch(() => {});
+
+    if (companyId) {
+      await createPortfolioAlert(companyId, MOCK_PORTFOLIO_MONITOR);
+    }
+
     const mockAnalysis = {
       id: `analysis_mock_${Date.now()}`,
       agentType: "portfolio-monitor",
@@ -100,6 +147,11 @@ export async function POST(req: NextRequest) {
     });
   } catch {
     // DB unavailable — proceed without persisting
+  }
+
+  // Persist PortfolioAlert if agent found a problem (best-effort)
+  if (companyId) {
+    await createPortfolioAlert(companyId, agentOutput.result);
   }
 
   return NextResponse.json({
