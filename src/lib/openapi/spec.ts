@@ -1254,7 +1254,7 @@ export const openApiSpec = {
     "/agents/{type}": {
       post: {
         summary: "Run any Inyo agent",
-        description: "Unified agent execution endpoint. Pass the agent type in the path and a `context` object matching that agent's input schema. All 23 Inyo agents are accessible here. Requires Clerk session.",
+        description: "Unified agent execution endpoint. Pass the agent type in the path and a `context` object matching that agent's input schema. All 13 Inyo agents are accessible here. Requires Clerk session.",
         tags: ["Agents"],
         parameters: [
           {
@@ -1268,9 +1268,6 @@ export const openApiSpec = {
                 "deal-flow", "ic-memo", "portfolio-monitor", "cfo", "legal", "tax",
                 "chief-of-staff", "concierge", "philanthropy", "relationships",
                 "deal-enrichment", "term-sheet", "diligence",
-                "unit-economics", "saas-model", "cap-table", "term-loan",
-                "sales-forecast", "sales-quota", "cash-management", "venture-stagger",
-                "option-grants", "startup-kit",
               ],
             },
           },
@@ -1707,9 +1704,6 @@ export const openApiSpec = {
                       "deal-flow", "ic-memo", "portfolio-monitor", "cfo", "legal", "tax",
                       "chief-of-staff", "concierge", "philanthropy", "relationships",
                       "deal-enrichment", "term-sheet", "diligence",
-                      "unit-economics", "saas-model", "cap-table", "term-loan",
-                      "sales-forecast", "sales-quota", "cash-management", "venture-stagger",
-                      "option-grants", "startup-kit",
                     ],
                   },
                   context: { type: "object", description: "Agent input data — shape varies by agentType. See Dividen Bubble Store sample prompts for each agent." },

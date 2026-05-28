@@ -16,15 +16,7 @@ import {
   Briefcase,
   Users,
   Heart,
-  Building2,
-  Shield,
   Search,
-  PieChart,
-  Target,
-  Landmark,
-  CalendarDays,
-  Award,
-  MapPin,
   X,
   ExternalLink,
   LucideIcon,
@@ -36,8 +28,7 @@ import Badge from "@/components/ui/Badge";
 
 const ICON_MAP: Record<string, LucideIcon> = {
   TrendingUp, FileText, BarChart3, DollarSign, Scale, Receipt,
-  Briefcase, Users, Heart, Building2, Shield, Search, PieChart,
-  Target, Landmark, CalendarDays, Award, MapPin,
+  Briefcase, Users, Heart, Search,
 };
 
 interface AgentDef {
@@ -71,20 +62,9 @@ const ALL_AGENTS: AgentDef[] = [
   { id: "relationships",   name: "Relationship Intelligence", description: "Network graph, warm path finder, and interaction history",            icon: "Users",        category: "Operations",  href: "/relationships" },
   { id: "philanthropy",    name: "Philanthropy Advisor",   description: "Impact analysis, grant recommendations, and giving optimization",        icon: "Heart",        category: "Operations",  href: "/philanthropy" },
 
-  // ── Venture Tools ──────────────────────────────────────────────────────────
-  { id: "unit-economics",  name: "Unit Economics",         description: "Cohort analysis — logo churn, NDR, and renewal rates by vintage",       icon: "TrendingUp",   category: "Venture Tools", href: "/tools/unit-economics" },
-  { id: "saas-model",      name: "SaaS Financial Model",   description: "3-statement IS/BS/CF model for fundraising readiness",                  icon: "BarChart3",    category: "Venture Tools", href: "/tools/saas-model" },
-  { id: "cap-table",       name: "Cap Table Analyzer",     description: "SAFEs, convertible notes, shadow securities, and pro-rata",             icon: "PieChart",     category: "Venture Tools", href: "/tools/cap-table" },
-  { id: "term-loan",       name: "Term Loan Modeler",      description: "Multi-tranche schedule with warrant coverage equity cost",              icon: "DollarSign",   category: "Venture Tools", href: "/tools/term-loan" },
-  { id: "sales-forecast",  name: "Sales Forecast",         description: "3-element board framework: Closed / Scenarios / Pipeline Changes",      icon: "Target",       category: "Venture Tools", href: "/tools/sales-forecast" },
-  { id: "sales-quota",     name: "Sales Quota Planner",    description: "Ramp-adjusted capacity planning with attrition modeling",               icon: "Users",        category: "Venture Tools", href: "/tools/sales-quota" },
-  { id: "cash-management", name: "Cash Management",        description: "IntraFi ICS banking diversification and board investment policy",       icon: "Landmark",     category: "Venture Tools", href: "/tools/cash-management" },
-  { id: "venture-stagger", name: "Venture Stagger",        description: "Rolling AOP vs. forecast vs. actuals tracker for board reporting",     icon: "CalendarDays", category: "Venture Tools", href: "/tools/venture-stagger" },
-  { id: "option-grants",   name: "Option Grants",          description: "Policy matrix, option budget, and board approval package",              icon: "Award",        category: "Venture Tools", href: "/tools/option-grants" },
-  { id: "startup-kit",     name: "Texas Startup Navigator", description: "TX ecosystem guide: communities, events, angel networks, accelerators", icon: "MapPin",      category: "Venture Tools", href: "/tools/startup-kit" },
 ];
 
-const CATEGORIES = ["All", "Deal Flow", "Portfolio", "Finance", "Operations", "Venture Tools"] as const;
+const CATEGORIES = ["All", "Deal Flow", "Portfolio", "Finance", "Operations"] as const;
 type Category = (typeof CATEGORIES)[number];
 
 // ── Premium Packs ─────────────────────────────────────────────────────────────
@@ -104,11 +84,10 @@ const categoryBadgeVariant: Record<string, "accent" | "success" | "warning" | "m
 };
 
 const agentCategoryVariant: Record<string, "accent" | "success" | "warning" | "muted"> = {
-  "Deal Flow":     "accent",
-  "Portfolio":     "success",
-  "Finance":       "warning",
-  "Operations":    "muted",
-  "Venture Tools": "accent",
+  "Deal Flow":  "accent",
+  "Portfolio":  "success",
+  "Finance":    "warning",
+  "Operations": "muted",
 };
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -156,7 +135,7 @@ export default function MarketplacePage() {
     <div className="flex flex-col h-full">
       <PageHeader
         title="Agent Marketplace"
-        subtitle="23 active agents across deal flow, portfolio, finance, operations, and venture tools"
+        subtitle="13 active agents across deal flow, portfolio, finance, and operations"
       />
 
       {/* Stats bar */}
@@ -165,11 +144,9 @@ export default function MarketplacePage() {
         style={{ borderColor: "var(--border)", background: "var(--bg-surface)", color: "var(--text-muted)" }}
       >
         <Zap size={12} style={{ color: "var(--accent)" }} />
-        <span>23 agents active</span>
+        <span>13 agents active</span>
         <span className="mx-1">·</span>
         <span>0 premium packs installed</span>
-        <span className="mx-1">·</span>
-        <span style={{ color: "var(--accent)" }}>Venture Tools</span>
       </div>
 
       <div className="flex-1 overflow-auto p-8">
@@ -220,7 +197,6 @@ export default function MarketplacePage() {
               const agentStatus = agentStatusMap.get(agent.id);
               const lastRun = agentStatus ? formatLastRun(agentStatus.lastRun) : "Never";
               const apiKeySet = statusData?.apiKeySet ?? true;
-              const isVenture = agent.category === "Venture Tools";
 
               return (
                 <div
@@ -233,7 +209,7 @@ export default function MarketplacePage() {
                     className="flex-shrink-0 w-8 h-8 rounded flex items-center justify-center mt-0.5"
                     style={{ background: "var(--bg-elevated)" }}
                   >
-                    <Icon size={15} style={{ color: isVenture ? "#818cf8" : "var(--accent)" }} />
+                    <Icon size={15} style={{ color: "var(--accent)" }} />
                   </div>
 
                   {/* Content */}

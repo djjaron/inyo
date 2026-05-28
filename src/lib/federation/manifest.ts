@@ -102,66 +102,6 @@ const CAPABILITIES: AgentCapability[] = [
     description: "Reviews deal diligence checklists with AI analysis",
     model: "deep",
   },
-  {
-    type: "unit-economics" satisfies AgentType,
-    name: "Unit Economics Analyst",
-    description: "Evaluates LTV, CAC, payback period, and unit-level business model health",
-    model: "fast",
-  },
-  {
-    type: "saas-model" satisfies AgentType,
-    name: "SaaS Operating Model Analyst",
-    description: "Scores SaaS metrics: Rule of 40, magic number, burn multiple, NRR",
-    model: "fast",
-  },
-  {
-    type: "cap-table" satisfies AgentType,
-    name: "Cap Table Analyst",
-    description: "Models dilution scenarios, ownership waterfall, and ESOP pool analysis",
-    model: "fast",
-  },
-  {
-    type: "term-loan" satisfies AgentType,
-    name: "Term Loan Analyst",
-    description: "Analyzes debt structures, amortization, covenants, and cost of capital",
-    model: "fast",
-  },
-  {
-    type: "sales-forecast" satisfies AgentType,
-    name: "Sales Forecast Analyst",
-    description: "Analyzes pipeline coverage, attainment scenarios, and commit vs. best-case bookings",
-    model: "fast",
-  },
-  {
-    type: "sales-quota" satisfies AgentType,
-    name: "Sales Quota Analyst",
-    description: "Evaluates quota model, OTE structure, attainment distribution, and quota adequacy",
-    model: "fast",
-  },
-  {
-    type: "cash-management" satisfies AgentType,
-    name: "Cash Management Advisor",
-    description: "Analyzes runway, burn trend, treasury allocation, and next-raise timing",
-    model: "fast",
-  },
-  {
-    type: "venture-stagger" satisfies AgentType,
-    name: "Venture Stagger Analyst",
-    description: "Models round-by-round dilution, valuation step-ups, and fundraising cadence",
-    model: "fast",
-  },
-  {
-    type: "option-grants" satisfies AgentType,
-    name: "Option Grants Advisor",
-    description: "Manages option policy matrix, budget tracking, and board grant approval templates",
-    model: "fast",
-  },
-  {
-    type: "startup-kit" satisfies AgentType,
-    name: "Texas Startup Navigator",
-    description: "Guides Texas founders through the startup ecosystem: communities, events, media, accelerators",
-    model: "fast",
-  },
 ];
 
 export function buildManifest(baseUrl: string): InstanceManifest {

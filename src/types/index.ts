@@ -11,17 +11,7 @@ export type AgentType =
   | "relationships"
   | "deal-enrichment"
   | "term-sheet"
-  | "diligence"
-  | "unit-economics"
-  | "saas-model"
-  | "cap-table"
-  | "term-loan"
-  | "sales-forecast"
-  | "sales-quota"
-  | "cash-management"
-  | "venture-stagger"
-  | "option-grants"
-  | "startup-kit";
+  | "diligence";
 
 export type DealStatus =
   | "inbound"

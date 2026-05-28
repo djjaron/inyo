@@ -191,15 +191,13 @@ const DEEP_ANALYSIS_AGENTS = new Set<AgentType>([
   "deal-flow", "ic-memo", "portfolio-monitor", "legal", "tax", "cfo", "deal-enrichment", "term-sheet", "diligence",
 ]);
 
-const HIGH_TOKEN_AGENTS = new Set<AgentType>(["term-loan", "cap-table", "saas-model"]);
-
 function getModel(agentType: AgentType): string {
   return DEEP_ANALYSIS_AGENTS.has(agentType) ? MODEL_DEEP : MODEL_FAST;
 }
 
-function getMaxTokens(agentType: AgentType, override?: number): number {
+function getMaxTokens(_agentType: AgentType, override?: number): number {
   if (override) return override;
-  return HIGH_TOKEN_AGENTS.has(agentType) ? 8192 : 4096;
+  return 4096;
 }
 
 function parseAgentText(text: string): Record<string, unknown> {
@@ -398,16 +396,6 @@ function buildUserContent(
     "deal-enrichment": "Analyze this deal using the sourced data and return a JSON DealEnrichmentOutput.",
     "term-sheet": "Extract and compare term sheet data. Return a JSON TermSheetOutput.",
     "diligence": "Review each checklist item for this deal and return your findings as a JSON DiligenceOutput.",
-    "unit-economics": "Evaluate the unit economics of this company and return a JSON UnitEconomicsOutput.",
-    "saas-model": "Evaluate the SaaS operating model metrics and return a JSON SaasModelOutput.",
-    "cap-table": "Analyze the cap table and model dilution scenarios. Return a JSON CapTableOutput.",
-    "term-loan": "Analyze this term loan structure and return a JSON TermLoanOutput.",
-    "sales-forecast": "Analyze the sales pipeline and produce a forecast with attainment scenarios. Return a JSON SalesForecastOutput.",
-    "sales-quota": "Evaluate the sales quota model and OTE structure. Return a JSON SalesQuotaOutput.",
-    "cash-management": "Analyze cash position, burn rate, and runway. Return a JSON CashManagementOutput.",
-    "venture-stagger": "Analyze round-by-round fundraising cadence and dilution trajectory. Return a JSON VentureStaggerOutput.",
-    "option-grants": "Analyze the option grants using the three-template framework (Policy Matrix, Option Budget, Board Approvals). Return a JSON OptionGrantsOutput.",
-    "startup-kit": "Guide this Texas founder through the startup ecosystem. Return a JSON StartupKitOutput.",
   };
 
   return `${content}\n\nInstruction: ${instructions[agentType]}`;
@@ -662,45 +650,6 @@ Return a JSON object with EXACTLY these fields:
   "summary": "2-3 sentence synthesis of the enrichment findings"
 }`,
 
-    "unit-economics": `${base}
-
-You are the Unit Economics Analyst. Evaluate the unit economics of the given company and return a JSON UnitEconomicsOutput.`,
-
-    "saas-model": `${base}
-
-You are the SaaS Operating Model Analyst. Evaluate the SaaS metrics of the given company and return a JSON SaasModelOutput.`,
-
-    "cap-table": `${base}
-
-You are the Cap Table Analyst. Analyze the capitalization table and model dilution scenarios for the given company. Return a JSON CapTableOutput.`,
-
-    "term-loan": `${base}
-
-You are the Term Loan Analyst. Analyze the debt financing structure and return a JSON TermLoanOutput.`,
-
-    "sales-forecast": `${base}
-
-You are the Sales Forecast Analyst. Analyze the sales pipeline and produce a forecast with attainment scenarios. Return a JSON SalesForecastOutput.`,
-
-    "sales-quota": `${base}
-
-You are the Sales Quota Analyst. Evaluate the sales quota model and OTE structure. Return a JSON SalesQuotaOutput.`,
-
-    "cash-management": `${base}
-
-You are the Cash Management Advisor. Analyze cash position, burn rate, and runway. Return a JSON CashManagementOutput.`,
-
-    "venture-stagger": `${base}
-
-You are the Venture Stagger Analyst. Analyze round-by-round fundraising cadence and dilution trajectory. Return a JSON VentureStaggerOutput.`,
-
-    "option-grants": `${base}
-
-You are the Inyo Option Grants Advisor. Analyze the option grants using the three-template framework (Policy Matrix, Option Budget, Board Approvals). Return a JSON OptionGrantsOutput.`,
-
-    "startup-kit": `${base}
-
-You are the Inyo Texas Startup Navigator. Guide this Texas founder through the Texas startup ecosystem. Return a JSON StartupKitOutput.`,
   };
 
   return prompts[agentType];

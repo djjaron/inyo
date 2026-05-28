@@ -291,7 +291,7 @@ export default function IntegrationsPage() {
                   Dividen A2A Federation
                 </div>
                 <div className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
-                  23 Inyo agents live in the Dividen Bubble Store — callable from any Dividen peer
+                  13 Inyo agents live in the Dividen Bubble Store — callable from any Dividen peer
                 </div>
               </div>
               <div className="ml-auto">
@@ -340,7 +340,7 @@ export default function IntegrationsPage() {
                 </div>
               </div>
               <div className="flex items-center gap-4 flex-wrap text-xs" style={{ color: "var(--text-muted)" }}>
-                <span>23 agents available</span>
+                <span>13 agents available</span>
                 <span>·</span>
                 <span>Authenticated by Dividen platform</span>
                 <span>·</span>
@@ -366,7 +366,7 @@ export default function IntegrationsPage() {
                   Agent API
                 </div>
                 <div className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
-                  Call any of the 23 Inyo agents directly via REST — requires Clerk session
+                  Call any of the 13 Inyo agents directly via REST — requires Clerk session
                 </div>
               </div>
             </div>
@@ -393,9 +393,6 @@ export default function IntegrationsPage() {
                     "deal-flow","ic-memo","portfolio-monitor","cfo","legal","tax",
                     "chief-of-staff","concierge","philanthropy","relationships",
                     "deal-enrichment","term-sheet","diligence",
-                    "unit-economics","saas-model","cap-table","term-loan",
-                    "sales-forecast","sales-quota","cash-management","venture-stagger",
-                    "option-grants","startup-kit",
                   ].map((t) => (
                     <span key={t} className="text-xs font-mono px-2 py-0.5 rounded"
                       style={{ background: "var(--bg-elevated)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>
