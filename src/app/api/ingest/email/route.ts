@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { runAgent } from "@/lib/agents/runtime";
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -128,6 +129,19 @@ export async function POST(req: NextRequest) {
         status,
       },
     });
+    // Auto-score and enrich after response — same pipeline as POST /api/deals
+    const dealContext = { company: deal.company, sector: "", stage: "", capitalAsk: 0, description: deal.description ?? "", dealId: deal.id };
+    after(async () => {
+      try {
+        const scored = await runAgent({ agentType: "deal-flow", familyId: deal.familyId, context: dealContext, triggerType: "ingestion" });
+        const score = (scored.result.score as number | undefined) ?? null;
+        if (score != null) await prisma.deal.update({ where: { id: deal.id }, data: { dealScore: score } });
+      } catch { /* best-effort */ }
+      try {
+        await runAgent({ agentType: "deal-enrichment", familyId: deal.familyId, context: dealContext, triggerType: "ingestion" });
+      } catch { /* best-effort */ }
+    });
+
     return NextResponse.json({ deal, parsed: true, familyId });
   } catch {
     const mockDeal = {
