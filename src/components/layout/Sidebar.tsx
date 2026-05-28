@@ -238,7 +238,7 @@ export default function Sidebar() {
         >
           FO
         </div>
-        <div>
+        <div className="flex-1 min-w-0">
           <div className="text-sm font-semibold tracking-tight" style={{ color: "var(--text-primary)" }}>
             Inyo
           </div>
@@ -246,6 +246,13 @@ export default function Sidebar() {
             Family Office OS
           </div>
         </div>
+        <kbd
+          className="text-[10px] px-1.5 py-0.5 rounded border shrink-0"
+          style={{ color: "var(--text-muted)", borderColor: "var(--border)", background: "var(--bg-elevated)" }}
+          title="Press ⌘K to search"
+        >
+          ⌘K
+        </kbd>
       </div>
 
       {/* Nav */}
