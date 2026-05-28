@@ -26,3 +26,56 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ interactions: MOCK_INTERACTIONS, _mock: true });
   }
 }
+
+export async function POST(req: NextRequest) {
+  let body: Record<string, unknown>;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+
+  const { contactId, type, subject, notes, outcome, occurredAt } = body as {
+    contactId?: string;
+    type?: string;
+    subject?: string;
+    notes?: string;
+    outcome?: string;
+    occurredAt?: string;
+  };
+
+  if (!contactId || !type) {
+    return NextResponse.json({ error: "contactId and type are required" }, { status: 400 });
+  }
+
+  const occurredAtDate = occurredAt ? new Date(occurredAt) : new Date();
+
+  try {
+    const interaction = await prisma.interaction.create({
+      data: {
+        contactId,
+        type,
+        subject: subject ?? null,
+        notes: notes ?? null,
+        outcome: outcome ?? null,
+        occurredAt: occurredAtDate,
+      },
+    });
+
+    return NextResponse.json({ interaction }, { status: 201 });
+  } catch {
+    const interaction = {
+      id: `mock-${Date.now()}`,
+      contactId,
+      type,
+      subject: subject ?? null,
+      notes: notes ?? null,
+      outcome: outcome ?? null,
+      occurredAt: occurredAtDate.toISOString(),
+      createdAt: new Date().toISOString(),
+      _mock: true,
+    };
+
+    return NextResponse.json({ interaction, _mock: true }, { status: 201 });
+  }
+}

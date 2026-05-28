@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Clock, Loader2, Sparkles, Plus, X, DollarSign, Mail, Phone, Link, ExternalLink, Pencil } from "lucide-react";
+import { Search, Clock, Loader2, Sparkles, Plus, X, DollarSign, Mail, Phone, Link, ExternalLink, Pencil, Users2, StickyNote, ArrowRightLeft, MessageSquarePlus } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import PageHeader from "@/components/ui/PageHeader";
 import ContextPanel from "@/components/ui/ContextPanel";
@@ -101,12 +101,80 @@ const typeVariant: Record<string, "accent" | "success" | "warning" | "muted" | "
 
 // ── ContactDetailPanel ────────────────────────────────────────────────────────
 
-function ContactDetailPanel({ contact, interactions }: { contact: Contact; interactions: Interaction[] }) {
-  const [panelTab, setPanelTab] = useState<"overview" | "interactions">("overview");
+const INTERACTION_TYPE_OPTIONS = [
+  { value: "email", label: "Email", icon: Mail },
+  { value: "call", label: "Call", icon: Phone },
+  { value: "meeting", label: "Meeting", icon: Users2 },
+  { value: "note", label: "Note", icon: StickyNote },
+  { value: "intro", label: "Intro", icon: ArrowRightLeft },
+] as const;
 
-  const contactInteractions = interactions.filter(
-    (i) => i.contact.name === contact.name
+type InteractionType = typeof INTERACTION_TYPE_OPTIONS[number]["value"];
+
+function ContactDetailPanel({
+  contact,
+  interactions,
+  initialTab = "overview",
+}: {
+  contact: Contact;
+  interactions: Interaction[];
+  initialTab?: "overview" | "interactions";
+}) {
+  const [panelTab, setPanelTab] = useState<"overview" | "interactions">(initialTab);
+
+  const [contactInteractions, setContactInteractions] = useState<Interaction[]>(() =>
+    interactions.filter((i) => i.contact.name === contact.name)
   );
+
+  // Log interaction form state
+  const today = new Date().toISOString().slice(0, 10);
+  const [logType, setLogType] = useState<InteractionType>("meeting");
+  const [logSubject, setLogSubject] = useState("");
+  const [logNotes, setLogNotes] = useState("");
+  const [logDate, setLogDate] = useState(today);
+  const [logSubmitting, setLogSubmitting] = useState(false);
+  const [logError, setLogError] = useState<string | null>(null);
+
+  async function handleLogSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (logSubmitting) return;
+    setLogSubmitting(true);
+    setLogError(null);
+    try {
+      const res = await fetch("/api/interactions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contactId: contact.id,
+          type: logType,
+          subject: logSubject.trim() || null,
+          notes: logNotes.trim() || null,
+          occurredAt: logDate || today,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setLogError(data.error ?? "Failed to log interaction");
+        return;
+      }
+      const newEntry: Interaction = {
+        id: data.interaction?.id ?? `local-${Date.now()}`,
+        type: logType,
+        subject: logSubject.trim() || null,
+        occurredAt: logDate || today,
+        contact: { name: contact.name },
+      };
+      setContactInteractions((prev) => [newEntry, ...prev]);
+      setLogSubject("");
+      setLogNotes("");
+      setLogDate(today);
+      setLogType("meeting");
+    } catch {
+      setLogError("Network error — please try again");
+    } finally {
+      setLogSubmitting(false);
+    }
+  }
 
   function fmtCheck(min?: number | null, max?: number | null): string {
     if (!min && !max) return "";
@@ -289,14 +357,154 @@ function ContactDetailPanel({ contact, interactions }: { contact: Contact; inter
       )}
 
       {panelTab === "interactions" && (
-        <div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {/* Log Interaction form */}
+          <form
+            onSubmit={handleLogSubmit}
+            style={{
+              border: "1px solid var(--border)",
+              borderRadius: 8,
+              background: "var(--bg-elevated)",
+              padding: 12,
+              display: "flex",
+              flexDirection: "column",
+              gap: 10,
+            }}
+          >
+            <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              Log Interaction
+            </div>
+
+            {/* Type picker */}
+            <div style={{ display: "flex", gap: 4 }}>
+              {INTERACTION_TYPE_OPTIONS.map(({ value, label, icon: Icon }) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setLogType(value)}
+                  title={label}
+                  style={{
+                    flex: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 4,
+                    padding: "5px 0",
+                    borderRadius: 6,
+                    fontSize: 11,
+                    fontWeight: 500,
+                    border: "1px solid",
+                    borderColor: logType === value ? "var(--accent)" : "var(--border)",
+                    background: logType === value ? "var(--accent-muted)" : "var(--bg-surface)",
+                    color: logType === value ? "var(--accent)" : "var(--text-muted)",
+                    cursor: "pointer",
+                    transition: "all 0.15s",
+                  }}
+                >
+                  <Icon size={11} />
+                  <span style={{ display: "none" }}>{label}</span>
+                </button>
+              ))}
+            </div>
+            <div style={{ fontSize: 10, color: "var(--text-muted)", textAlign: "center", marginTop: -6 }}>
+              {INTERACTION_TYPE_OPTIONS.find((o) => o.value === logType)?.label}
+            </div>
+
+            {/* Subject */}
+            <input
+              type="text"
+              value={logSubject}
+              onChange={(e) => setLogSubject(e.target.value)}
+              placeholder="What was discussed?"
+              style={{
+                background: "var(--bg-surface)",
+                border: "1px solid var(--border)",
+                borderRadius: 6,
+                padding: "6px 10px",
+                fontSize: 12,
+                color: "var(--text-primary)",
+                outline: "none",
+                width: "100%",
+                boxSizing: "border-box",
+              }}
+            />
+
+            {/* Notes */}
+            <textarea
+              value={logNotes}
+              onChange={(e) => setLogNotes(e.target.value)}
+              placeholder="Additional context…"
+              rows={2}
+              style={{
+                background: "var(--bg-surface)",
+                border: "1px solid var(--border)",
+                borderRadius: 6,
+                padding: "6px 10px",
+                fontSize: 12,
+                color: "var(--text-primary)",
+                outline: "none",
+                width: "100%",
+                boxSizing: "border-box",
+                resize: "none",
+                fontFamily: "inherit",
+              }}
+            />
+
+            {/* Date + Submit row */}
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <input
+                type="date"
+                value={logDate}
+                onChange={(e) => setLogDate(e.target.value)}
+                style={{
+                  flex: 1,
+                  background: "var(--bg-surface)",
+                  border: "1px solid var(--border)",
+                  borderRadius: 6,
+                  padding: "5px 8px",
+                  fontSize: 12,
+                  color: "var(--text-primary)",
+                  outline: "none",
+                  colorScheme: "dark",
+                }}
+              />
+              <button
+                type="submit"
+                disabled={logSubmitting}
+                style={{
+                  background: "var(--accent)",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: 6,
+                  padding: "5px 14px",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: logSubmitting ? "default" : "pointer",
+                  opacity: logSubmitting ? 0.6 : 1,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 5,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {logSubmitting ? <Loader2 size={11} className="animate-spin" /> : null}
+                Log
+              </button>
+            </div>
+
+            {logError && (
+              <div style={{ fontSize: 11, color: "#ef4444" }}>{logError}</div>
+            )}
+          </form>
+
+          {/* Interactions list */}
           {contactInteractions.length === 0 ? (
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                height: 120,
+                height: 80,
                 fontSize: 13,
                 color: "var(--text-muted)",
               }}
@@ -762,14 +970,14 @@ export default function RelationshipsPage() {
     }));
   }
 
-  function openContactPanel(contact: Contact) {
-    if (selectedContactId === contact.id) {
+  function openContactPanel(contact: Contact, tab?: "overview" | "interactions") {
+    if (selectedContactId === contact.id && !tab) {
       closePanel();
       setSelectedContactId(null);
       return;
     }
     setSelectedContactId(contact.id);
-    openPanel(<ContactDetailPanel contact={contact} interactions={interactions} />);
+    openPanel(<ContactDetailPanel contact={contact} interactions={interactions} initialTab={tab ?? "overview"} />);
   }
 
   // Investor network contacts: have investorType set or type is lp/gp/co-investor
@@ -1114,18 +1322,32 @@ export default function RelationshipsPage() {
                       {[c.title, c.company].filter(Boolean).join(", ") || "—"}
                     </div>
                   </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setEditingContact(c);
-                    }}
-                    className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
-                    style={{ color: "var(--text-muted)" }}
-                    title="Edit contact"
-                    aria-label="Edit contact"
-                  >
-                    <Pencil size={13} />
-                  </button>
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openContactPanel(c, "interactions");
+                      }}
+                      className="p-1 rounded"
+                      style={{ color: "var(--text-muted)" }}
+                      title="Log interaction"
+                      aria-label="Log interaction"
+                    >
+                      <MessageSquarePlus size={13} />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditingContact(c);
+                      }}
+                      className="p-1 rounded"
+                      style={{ color: "var(--text-muted)" }}
+                      title="Edit contact"
+                      aria-label="Edit contact"
+                    >
+                      <Pencil size={13} />
+                    </button>
+                  </div>
                 </div>
 
                 <div className="flex items-center justify-between">
