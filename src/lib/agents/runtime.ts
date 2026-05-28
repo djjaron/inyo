@@ -229,6 +229,19 @@ export async function runAgent(input: AgentInput): Promise<AgentOutput> {
 
   if (!client) {
     const mock = MOCK_OUTPUTS[agentType] ?? { raw: "Mock output — set ANTHROPIC_API_KEY for real AI responses." };
+    // Persist mock run so activity feeds and dashboards show data even without API key
+    prisma.agentRun.create({
+      data: {
+        familyId,
+        agentType,
+        status: "completed",
+        triggerType: triggerType ?? "manual",
+        input: (context ?? {}) as Prisma.InputJsonValue,
+        output: mock as Prisma.InputJsonValue,
+        startedAt: new Date(),
+        completedAt: new Date(),
+      },
+    }).catch(() => {});
     return { result: mock, model: "mock", tokensUsed: 0 };
   }
 
