@@ -91,7 +91,7 @@ export async function GET(req: NextRequest) {
     const [deals, total] = await Promise.all([
       prisma.deal.findMany({
         where,
-        orderBy: { createdAt: "desc" },
+        orderBy: [{ dealScore: "desc" }, { createdAt: "desc" }],
         skip: (page - 1) * pageSize,
         take: pageSize,
       }),
@@ -104,7 +104,7 @@ export async function GET(req: NextRequest) {
     });
   } catch {
     // DB unavailable — return mock data
-    let filtered = MOCK_DEALS;
+    let filtered = [...MOCK_DEALS].sort((a, b) => (b.dealScore ?? -1) - (a.dealScore ?? -1));
     if (familyId) filtered = filtered.filter((d) => d.familyId === familyId);
     if (status) filtered = filtered.filter((d) => d.status === status);
 

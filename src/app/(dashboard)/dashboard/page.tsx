@@ -100,11 +100,11 @@ const TRIGGER_LABEL: Record<string, string> = {
 
 const AGENT_LABEL: Record<string, string> = {
   "deal-flow": "Deal Flow",
-  "deal-enrichment": "Enrichment",
-  "portfolio-monitor": "Portfolio",
+  "deal-enrichment": "Deal Enrichment",
+  "portfolio-monitor": "Portfolio Monitor",
   "cfo": "CFO",
   "ic-memo": "IC Memo",
-  "legal": "Legal",
+  "legal": "Legal Review",
   "tax": "Tax",
   "chief-of-staff": "Chief of Staff",
   "concierge": "Concierge",
@@ -248,10 +248,12 @@ export default function DashboardPage() {
     setApprovingId(null);
   }
 
+  const isInitialLoad = loading && !data;
   const stats = data?.stats;
   const runs = data?.recentRuns ?? [];
   const deals = (data?.recentDeals ?? []).sort((a, b) => (b.dealScore ?? -1) - (a.dealScore ?? -1));
   const isMock = data?._mock ?? false;
+  const hasDeals = deals.length > 0;
 
   return (
     <div className="flex flex-col min-h-full p-8 gap-6" style={{ background: "var(--bg-base)" }}>
@@ -265,9 +267,13 @@ export default function DashboardPage() {
           </h1>
         </div>
         <div className="flex items-center gap-2">
-          {isMock && (
-            <span className="text-xs px-2 py-0.5 rounded" style={{ background: "rgba(245,158,11,0.1)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.2)" }}>
-              demo data
+          {isMock && !isInitialLoad && (
+            <span
+              className="text-xs px-2.5 py-1 rounded-md"
+              title="You're viewing sample data. Add your own deals and agents to see real activity."
+              style={{ background: "rgba(245,158,11,0.08)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.2)", cursor: "help" }}
+            >
+              Sample data
             </span>
           )}
           <button
@@ -285,19 +291,29 @@ export default function DashboardPage() {
       {/* Stats row */}
       <div className="grid grid-cols-4 gap-4">
         {[
-          { icon: TrendingUp, label: "Active Deals", value: stats ? String(stats.activeDeals) : "—", sub: stats ? `${stats.totalDeals} total` : "—", color: "var(--accent)", href: "/opportunities" },
-          { icon: BarChart3, label: "Portfolio", value: stats ? String(stats.portfolioCompanies) : "—", sub: "companies", color: "#10b981", href: "/portfolio" },
-          { icon: Clock, label: "Pending Approvals", value: String(pendingApprovals.length), sub: `${pendingApprovals.filter((a) => a.priority === "urgent").length} urgent`, color: "#f59e0b", href: "/approvals" },
-          { icon: DollarSign, label: "Pipeline Value", value: stats ? formatCurrency(stats.pipelineValue) : "—", sub: "active deal flow", color: "#10b981", href: "/opportunities" },
-        ].map(({ icon: Icon, label, value, sub, color, href }) => (
+          { icon: TrendingUp, label: "Active Deals", value: stats?.activeDeals, sub: stats ? `${stats.totalDeals} total` : null, fmt: String, color: "var(--accent)", href: "/opportunities" },
+          { icon: BarChart3, label: "Portfolio", value: stats?.portfolioCompanies, sub: "companies", fmt: String, color: "#10b981", href: "/portfolio" },
+          { icon: Clock, label: "Pending Approvals", value: isInitialLoad ? null : pendingApprovals.length, sub: `${pendingApprovals.filter((a) => a.priority === "urgent").length} urgent`, fmt: String, color: "#f59e0b", href: "/approvals" },
+          { icon: DollarSign, label: "Pipeline Value", value: stats?.pipelineValue, sub: "active deal flow", fmt: formatCurrency, color: "#10b981", href: "/opportunities" },
+        ].map(({ icon: Icon, label, value, sub, fmt, color, href }) => (
           <Link key={label} href={href} className="p-5 rounded-md border block transition-opacity hover:opacity-80"
             style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}>
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs tracking-wide" style={{ color: "var(--text-muted)" }}>{label}</span>
               <Icon size={14} style={{ color }} />
             </div>
-            <div className="text-2xl font-semibold mb-1" style={{ color: "var(--text-primary)", fontVariantNumeric: "tabular-nums" }}>{value}</div>
-            <div className="text-xs" style={{ color: "var(--text-muted)" }}>{sub}</div>
+            {value == null ? (
+              <div className="h-8 w-16 rounded animate-pulse mb-1" style={{ background: "var(--bg-elevated)" }} />
+            ) : (
+              <div className="text-2xl font-semibold mb-1" style={{ color: "var(--text-primary)", fontVariantNumeric: "tabular-nums" }}>
+                {fmt(value as never)}
+              </div>
+            )}
+            {sub == null ? (
+              <div className="h-3 w-20 rounded animate-pulse mt-1" style={{ background: "var(--bg-elevated)" }} />
+            ) : (
+              <div className="text-xs" style={{ color: "var(--text-muted)" }}>{sub}</div>
+            )}
           </Link>
         ))}
       </div>
@@ -324,7 +340,21 @@ export default function DashboardPage() {
           </div>
 
           <div className="p-4 flex flex-col gap-2 overflow-y-auto" style={{ maxHeight: 380 }}>
-            {runs.length === 0 && !loading && (
+            {isInitialLoad && (
+              <>
+                {[80, 65, 72].map((w) => (
+                  <div key={w} className="rounded-md border p-3 flex items-center gap-3 animate-pulse"
+                    style={{ background: "var(--bg-elevated)", borderColor: "var(--border)" }}>
+                    <div className="w-2 h-2 rounded-full shrink-0" style={{ background: "var(--border)" }} />
+                    <div className="flex-1 flex flex-col gap-1.5">
+                      <div className="h-3 rounded" style={{ width: `${w}%`, background: "var(--border)" }} />
+                      <div className="h-2.5 rounded w-20" style={{ background: "var(--border)" }} />
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
+            {!isInitialLoad && runs.length === 0 && (
               <div className="py-10 text-center text-xs" style={{ color: "var(--text-muted)" }}>
                 <Bot size={24} className="mx-auto mb-3 opacity-30" />
                 No agent activity yet.{" "}
@@ -411,6 +441,15 @@ export default function DashboardPage() {
             </tr>
           </thead>
           <tbody>
+            {isInitialLoad && [1,2,3].map((i) => (
+              <tr key={i} className="animate-pulse" style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+                {[60,40,30,50,20].map((w, j) => (
+                  <td key={j} className="px-5 py-3.5">
+                    <div className="h-3 rounded" style={{ width: `${w}%`, background: "var(--bg-elevated)" }} />
+                  </td>
+                ))}
+              </tr>
+            ))}
             {deals.map((d) => {
               const pct = d.dealScore != null ? d.dealScore : 0;
               const barColor = pct >= 70 ? "#10b981" : pct >= 50 ? "#f59e0b" : "#6b7280";
@@ -458,11 +497,20 @@ export default function DashboardPage() {
                 </tr>
               );
             })}
-            {deals.length === 0 && !loading && (
+            {!isInitialLoad && !hasDeals && (
               <tr>
-                <td colSpan={5} className="px-5 py-8 text-center text-xs" style={{ color: "var(--text-muted)" }}>
-                  No deals yet.{" "}
-                  <Link href="/import/deals" style={{ color: "var(--accent)" }}>Import deals →</Link>
+                <td colSpan={5} className="px-5 py-10 text-center" style={{ color: "var(--text-muted)" }}>
+                  <Zap size={22} className="mx-auto mb-3 opacity-25" />
+                  <div className="text-sm font-medium mb-1" style={{ color: "var(--text-secondary)" }}>No deals in the pipeline</div>
+                  <div className="text-xs mb-4">Add your first deal and agents will automatically score it for you.</div>
+                  <div className="flex items-center justify-center gap-3">
+                    <Link href="/opportunities" className="px-4 py-1.5 rounded text-xs font-semibold" style={{ background: "var(--accent)", color: "#fff" }}>
+                      + Add Deal
+                    </Link>
+                    <Link href="/import/deals" className="px-4 py-1.5 rounded text-xs" style={{ background: "var(--bg-elevated)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>
+                      Import CSV
+                    </Link>
+                  </div>
                 </td>
               </tr>
             )}

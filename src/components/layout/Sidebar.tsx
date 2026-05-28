@@ -18,9 +18,7 @@ import {
   Settings,
   Zap,
   Upload,
-  Plug,
   Layers,
-  Code2,
 } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
@@ -31,15 +29,17 @@ const nav = [
   { label: "Opportunities", href: "/opportunities", icon: TrendingUp },
   { label: "Portfolio", href: "/portfolio", icon: BarChart3 },
   { label: "Finance", href: "/finance", icon: DollarSign },
-  { label: "Calendar", href: "/calendar", icon: Calendar },
   { label: "Legal", href: "/legal", icon: Scale },
   { label: "Tax", href: "/tax", icon: Receipt },
   { label: "Concierge", href: "/concierge", icon: Briefcase },
   { label: "Philanthropy", href: "/philanthropy", icon: Heart },
   { label: "Relationships", href: "/relationships", icon: Users },
+];
+
+const secondaryNav = [
+  { label: "Calendar", href: "/calendar", icon: Calendar },
   { label: "SPV", href: "/spv", icon: Layers },
   { label: "Marketplace", href: "/marketplace", icon: Store },
-  { label: "Federation", href: "/federation", icon: Plug },
 ];
 
 const importLinks = [
@@ -103,9 +103,30 @@ export default function Sidebar() {
           );
         })}
 
-        {/* Import links */}
+        {/* Secondary nav */}
         <div className="mt-2 pt-2 border-t" style={{ borderColor: "var(--border)" }}>
-          <div className="px-3 py-1 text-xs tracking-widest uppercase mb-1" style={{ color: "var(--text-muted)" }}>
+          <div className="px-3 py-1 text-[10px] tracking-widest uppercase mb-0.5" style={{ color: "var(--text-muted)" }}>
+            More
+          </div>
+          {secondaryNav.map(({ label, href, icon: Icon }) => {
+            const active = path === href || (href !== "/dashboard" && path.startsWith(href));
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={cn("flex items-center gap-2.5 px-3 py-1.5 rounded-md mb-0.5 text-sm transition-colors", active ? "font-medium" : "hover:bg-white/5")}
+                style={active ? { background: "rgba(59,130,246,0.12)", color: "var(--accent)" } : { color: "var(--text-muted)" }}
+              >
+                <Icon size={14} strokeWidth={active ? 2 : 1.5} />
+                {label}
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Import links */}
+        <div className="mt-1 pt-2 border-t" style={{ borderColor: "var(--border)" }}>
+          <div className="px-3 py-1 text-[10px] tracking-widest uppercase mb-0.5" style={{ color: "var(--text-muted)" }}>
             Import
           </div>
           {importLinks.map(({ label, href, icon: Icon }) => {
@@ -114,15 +135,8 @@ export default function Sidebar() {
               <Link
                 key={href}
                 href={href}
-                className={cn(
-                  "flex items-center gap-2.5 px-3 py-2 rounded-md mb-0.5 text-sm transition-colors",
-                  active ? "font-medium" : "hover:bg-white/5"
-                )}
-                style={
-                  active
-                    ? { background: "rgba(59,130,246,0.12)", color: "var(--accent)" }
-                    : { color: "var(--text-muted)" }
-                }
+                className={cn("flex items-center gap-2.5 px-3 py-1.5 rounded-md mb-0.5 text-sm transition-colors", active ? "font-medium" : "hover:bg-white/5")}
+                style={active ? { background: "rgba(59,130,246,0.12)", color: "var(--accent)" } : { color: "var(--text-muted)" }}
               >
                 <Icon size={14} strokeWidth={1.5} />
                 {label}
@@ -142,30 +156,6 @@ export default function Sidebar() {
           <Zap size={13} style={{ color: "var(--accent)" }} />
           <span>Agents</span>
           <span className="ml-auto" style={{ color: "var(--accent)" }}>→</span>
-        </Link>
-        <Link
-          href="/integrations"
-          className="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm hover:bg-white/5 transition-colors"
-          style={
-            path === "/integrations"
-              ? { background: "rgba(59,130,246,0.12)", color: "var(--accent)" }
-              : { color: "var(--text-secondary)" }
-          }
-        >
-          <Plug size={15} strokeWidth={path === "/integrations" ? 2 : 1.5} />
-          Integrations
-        </Link>
-        <Link
-          href="/api-docs"
-          className="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm hover:bg-white/5 transition-colors"
-          style={
-            path === "/api-docs"
-              ? { background: "rgba(59,130,246,0.12)", color: "var(--accent)" }
-              : { color: "var(--text-secondary)" }
-          }
-        >
-          <Code2 size={15} strokeWidth={path === "/api-docs" ? 2 : 1.5} />
-          API Docs
         </Link>
         <Link
           href="/settings"
