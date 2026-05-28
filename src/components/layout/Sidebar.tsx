@@ -135,7 +135,7 @@ export default function Sidebar() {
       {/* Bottom */}
       <div className="border-t px-2 py-3" style={{ borderColor: "var(--border)" }}>
         <Link
-          href="/marketplace"
+          href="/agents"
           className="flex items-center gap-2 px-3 py-2 rounded-md text-xs mb-1 hover:bg-white/5 transition-colors"
           style={{ color: "var(--text-muted)" }}
         >

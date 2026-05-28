@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { buildLabel, buildSeverity, type AgentRunItem } from "@/app/api/agents/runs/route";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -35,12 +36,21 @@ interface DashboardResponse {
   stats: DashboardStats;
   recentDeals: RecentDeal[];
   alerts: AlertItem[];
+  recentRuns: AgentRunItem[];
   _mock: boolean;
 }
 
 // ---------------------------------------------------------------------------
 // Mock fallback data
 // ---------------------------------------------------------------------------
+
+const MOCK_RECENT_RUNS: AgentRunItem[] = [
+  { id: "mr1", agentType: "deal-flow", status: "completed", triggerType: "ingestion", label: "Scored Meridian AI: 84 (Pursue)", severity: "success", startedAt: new Date(Date.now() - 2 * 3600_000).toISOString(), completedAt: new Date(Date.now() - 2 * 3600_000 + 10000).toISOString(), createdAt: new Date(Date.now() - 2 * 3600_000).toISOString(), outputPreview: { score: 84, recommendation: "pursue" } },
+  { id: "mr2", agentType: "portfolio-monitor", status: "completed", triggerType: "scheduled", label: "Helios Credit: Escalate ⚠️", severity: "error", startedAt: new Date(Date.now() - 5 * 3600_000).toISOString(), completedAt: new Date(Date.now() - 5 * 3600_000 + 8000).toISOString(), createdAt: new Date(Date.now() - 5 * 3600_000).toISOString(), outputPreview: { healthScore: 42, overallStatus: "escalate" } },
+  { id: "mr3", agentType: "cfo", status: "completed", triggerType: "scheduled", label: "CFO summary: Liquidity Healthy", severity: "success", startedAt: new Date(Date.now() - 9 * 3600_000).toISOString(), completedAt: new Date(Date.now() - 9 * 3600_000 + 5000).toISOString(), createdAt: new Date(Date.now() - 9 * 3600_000).toISOString(), outputPreview: { liquidityStatus: "healthy" } },
+  { id: "mr4", agentType: "deal-enrichment", status: "completed", triggerType: "ingestion", label: "Enriched Phalanx Defense — affinity 91", severity: "success", startedAt: new Date(Date.now() - 26 * 3600_000).toISOString(), completedAt: new Date(Date.now() - 26 * 3600_000 + 7000).toISOString(), createdAt: new Date(Date.now() - 26 * 3600_000).toISOString(), outputPreview: { affinityScore: 91 } },
+  { id: "mr5", agentType: "portfolio-monitor", status: "completed", triggerType: "scheduled", label: "Meridian AI: Monitor", severity: "warning", startedAt: new Date(Date.now() - 27 * 3600_000).toISOString(), completedAt: new Date(Date.now() - 27 * 3600_000 + 8000).toISOString(), createdAt: new Date(Date.now() - 27 * 3600_000).toISOString(), outputPreview: { healthScore: 67, overallStatus: "monitor" } },
+];
 
 const MOCK_RESPONSE: DashboardResponse = {
   stats: {
@@ -62,6 +72,7 @@ const MOCK_RESPONSE: DashboardResponse = {
     { id: "mock-a3", companyName: "ClearReg", type: "press", severity: "info", title: "SOC 2 Type II certification achieved", createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString() },
     { id: "mock-a4", companyName: "Arcadia Energy", type: "legal", severity: "warning", title: "Regulatory filing delayed 30 days", createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() },
   ],
+  recentRuns: MOCK_RECENT_RUNS,
   _mock: true,
 };
 
@@ -83,7 +94,7 @@ export async function GET(req: NextRequest) {
     const INACTIVE_STATUSES = ["passed", "invested", "archived"];
 
     // Run all queries in parallel
-    const [totalDeals, activeDeals, pipelineAgg, recentDeals, portfolioCompanies] =
+    const [totalDeals, activeDeals, pipelineAgg, recentDeals, portfolioCompanies, rawRuns] =
       await Promise.all([
         prisma.deal.count({ where: { familyId } }),
 
@@ -118,6 +129,12 @@ export async function GET(req: NextRequest) {
         prisma.portfolioCompany.count({
           where: { familyId },
         }),
+
+        prisma.agentRun.findMany({
+          where: { familyId },
+          orderBy: { createdAt: "desc" },
+          take: 8,
+        }),
       ]);
 
     // PortfolioAlert query wrapped separately — model may not exist in all schemas
@@ -142,6 +159,23 @@ export async function GET(req: NextRequest) {
       alerts = [];
     }
 
+    const recentRuns: AgentRunItem[] = rawRuns.map((row) => {
+      const output = (row.output ?? null) as Record<string, unknown> | null;
+      const input = (row.input ?? {}) as Record<string, unknown>;
+      return {
+        id: row.id,
+        agentType: row.agentType,
+        status: row.status,
+        triggerType: row.triggerType,
+        label: buildLabel(row.agentType, input, output, row.status),
+        severity: buildSeverity(row.agentType, output, row.status),
+        startedAt: row.startedAt?.toISOString() ?? null,
+        completedAt: row.completedAt?.toISOString() ?? null,
+        createdAt: row.createdAt.toISOString(),
+        outputPreview: output ? Object.fromEntries(Object.entries(output).slice(0, 4)) : null,
+      };
+    });
+
     const response: DashboardResponse = {
       stats: {
         totalDeals,
@@ -159,6 +193,7 @@ export async function GET(req: NextRequest) {
         createdAt: d.createdAt.toISOString(),
       })),
       alerts,
+      recentRuns,
       _mock: false,
     };
 

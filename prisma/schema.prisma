@@ -293,6 +293,7 @@ model AgentRun {
   familyId    String
   agentType   String
   status      String   @default("pending") // pending, running, awaiting-approval, completed, failed
+  triggerType String?  // manual | scheduled | ingestion | a2a
   input       Json
   output      Json?
   error       String?

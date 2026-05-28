@@ -175,6 +175,7 @@ export interface AgentInput {
   systemPromptOverride?: string;
   modelOverride?: string;
   maxTokensOverride?: number;
+  triggerType?: "manual" | "scheduled" | "ingestion" | "a2a";
 }
 
 export interface AgentOutput {
@@ -224,7 +225,7 @@ function parseAgentText(text: string): Record<string, unknown> {
 }
 
 export async function runAgent(input: AgentInput): Promise<AgentOutput> {
-  const { agentType, familyId, context, documents, systemPromptOverride, modelOverride, maxTokensOverride } = input;
+  const { agentType, familyId, context, documents, systemPromptOverride, modelOverride, maxTokensOverride, triggerType } = input;
 
   if (!client) {
     const mock = MOCK_OUTPUTS[agentType] ?? { raw: "Mock output — set ANTHROPIC_API_KEY for real AI responses." };
@@ -243,6 +244,7 @@ export async function runAgent(input: AgentInput): Promise<AgentOutput> {
         familyId,
         agentType,
         status: "running",
+        triggerType: triggerType ?? "manual",
         input: context as Prisma.InputJsonValue,
         startedAt: new Date(),
       },
