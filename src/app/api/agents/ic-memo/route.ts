@@ -78,6 +78,8 @@ const MOCK_IC_MEMO = {
   ],
 };
 
+export const maxDuration = 60;
+
 export async function POST(req: NextRequest) {
   let body: Record<string, unknown>;
   try {

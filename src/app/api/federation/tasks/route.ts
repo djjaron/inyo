@@ -3,6 +3,8 @@ import { randomUUID } from "crypto";
 import { runAgent } from "@/lib/agents/runtime";
 import type { AgentType } from "@/types";
 
+export const maxDuration = 60;
+
 const CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",

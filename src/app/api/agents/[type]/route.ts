@@ -7,9 +7,6 @@ const VALID_TYPES = new Set([
   "deal-flow","ic-memo","portfolio-monitor","cfo","legal","tax",
   "chief-of-staff","concierge","philanthropy","relationships",
   "deal-enrichment","term-sheet","diligence",
-  "unit-economics","saas-model","cap-table","term-loan",
-  "sales-forecast","sales-quota","cash-management","venture-stagger",
-  "option-grants","startup-kit",
 ]);
 
 export async function POST(
