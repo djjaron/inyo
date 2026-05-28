@@ -5,6 +5,7 @@ import { Trash2 } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import PageHeader from "@/components/ui/PageHeader";
 import ContextPanel from "@/components/ui/ContextPanel";
+import CashFlowChart from "@/components/ui/CashFlowChart";
 import { formatCurrency } from "@/lib/utils";
 import { useFamilyId } from "@/context/FamilyContext";
 import { usePanel } from "@/context/PanelContext";
@@ -720,6 +721,20 @@ export default function FinancePage() {
                 })}
               </div>
             </div>
+
+            {/* Cash Flow Chart */}
+            {cashFlows.length > 0 && (
+              <div className="mx-8 mb-6">
+                <div className="rounded-lg border overflow-hidden" style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}>
+                  <div className="flex items-center justify-between px-5 py-3 border-b" style={{ borderColor: "var(--border)" }}>
+                    <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>Cash Flow — Last 6 Months</span>
+                  </div>
+                  <div className="px-2 py-2">
+                    <CashFlowChart cashFlows={cashFlows} />
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Transaction list */}
             <div className="flex-1 overflow-auto px-8 py-5">
