@@ -1,6 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+const MOCK_REQUESTS = [
+  {
+    id: "req_mock_1",
+    familyId: "family_demo",
+    type: "travel",
+    title: "Aspen — 6 guests, weekend of June 14",
+    status: "in-progress",
+    assignee: "Concierge Agent",
+    createdAt: "2026-05-19T00:00:00.000Z",
+    updatedAt: "2026-05-19T00:00:00.000Z",
+  },
+  {
+    id: "req_mock_2",
+    familyId: "family_demo",
+    type: "property",
+    title: "Hampton estate HVAC inspection",
+    status: "pending",
+    assignee: "Vendor: CoolAir Pro",
+    createdAt: "2026-05-17T00:00:00.000Z",
+    updatedAt: "2026-05-17T00:00:00.000Z",
+  },
+  {
+    id: "req_mock_3",
+    familyId: "family_demo",
+    type: "gifting",
+    title: "Anniversary gift — Patricia & James Thornton",
+    status: "pending",
+    assignee: "Concierge Agent",
+    createdAt: "2026-05-16T00:00:00.000Z",
+    updatedAt: "2026-05-16T00:00:00.000Z",
+  },
+];
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const familyId = searchParams.get("familyId");
@@ -10,9 +43,12 @@ export async function GET(req: NextRequest) {
       where: { familyId },
       orderBy: { createdAt: "desc" },
     });
+    if (requests.length === 0) {
+      return NextResponse.json({ requests: MOCK_REQUESTS, _mock: true });
+    }
     return NextResponse.json({ requests });
   } catch {
-    return NextResponse.json({ requests: [] });
+    return NextResponse.json({ requests: MOCK_REQUESTS, _mock: true });
   }
 }
 
@@ -29,27 +65,30 @@ export async function POST(req: NextRequest) {
     title?: string;
     details?: string;
   };
-  if (!familyId || !title) {
-    return NextResponse.json({ error: "familyId and title required" }, { status: 400 });
+  if (!familyId || !type || !title) {
+    return NextResponse.json({ error: "familyId, type, and title are required" }, { status: 400 });
   }
   try {
     const request = await prisma.conciergeRequest.create({
-      data: { familyId, type: type ?? "other", title, details: details ?? null },
+      data: { familyId, type, title, details: details ?? null },
     });
-    return NextResponse.json({ request });
+    return NextResponse.json({ request }, { status: 201 });
   } catch {
-    return NextResponse.json({
-      request: {
-        id: `temp_${Date.now()}`,
-        familyId,
-        type: type ?? "other",
-        title,
-        details: details ?? null,
-        status: "pending",
-        assignee: "Concierge Agent",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+    return NextResponse.json(
+      {
+        request: {
+          id: `temp_${Date.now()}`,
+          familyId,
+          type,
+          title,
+          details: details ?? null,
+          status: "pending",
+          assignee: "Concierge Agent",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
       },
-    });
+      { status: 201 },
+    );
   }
 }

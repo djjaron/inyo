@@ -28,9 +28,23 @@ interface ConciergeRequest {
 
 const INITIAL_REQUESTS: ConciergeRequest[] = [
   { id: "1", type: "travel", title: "Aspen — 6 guests, weekend of June 14", status: "in-progress", assignee: "Concierge Agent", created: "2026-05-19" },
-  { id: "2", type: "property", title: "Hampton estate HVAC inspection", status: "scheduled", assignee: "Vendor: CoolAir Pro", created: "2026-05-17" },
+  { id: "2", type: "property", title: "Hampton estate HVAC inspection", status: "pending", assignee: "Vendor: CoolAir Pro", created: "2026-05-17" },
   { id: "3", type: "gifting", title: "Anniversary gift — Patricia & James Thornton", status: "pending", assignee: "Concierge Agent", created: "2026-05-16" },
 ];
+
+const STATUS_CYCLE: Record<string, string> = {
+  pending: "in-progress",
+  "in-progress": "completed",
+  completed: "cancelled",
+  cancelled: "pending",
+};
+
+const STATUS_VARIANT: Record<string, "accent" | "success" | "warning" | "muted"> = {
+  pending: "muted",
+  "in-progress": "accent",
+  completed: "success",
+  cancelled: "warning",
+};
 
 const PROPERTIES = [
   { name: "Manhattan Penthouse", address: "15 Central Park West", status: "occupied", staff: 3 },
@@ -125,6 +139,22 @@ export default function ConciergePage() {
       // silently fail
     } finally {
       setAgentLoading(false);
+    }
+  }
+
+  async function cycleStatus(id: string, currentStatus: string) {
+    const nextStatus = STATUS_CYCLE[currentStatus] ?? "pending";
+    setRequests((prev) =>
+      prev.map((req) => (req.id === id ? { ...req, status: nextStatus } : req))
+    );
+    try {
+      await fetch(`/api/concierge/requests/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: nextStatus }),
+      });
+    } catch {
+      // silently fail
     }
   }
 
@@ -377,7 +407,13 @@ export default function ConciergePage() {
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <Badge label={r.type} variant={typeVariant[r.type] ?? "muted"} size="xs" />
-                    <Badge label={r.status} variant={r.status === "in-progress" ? "accent" : r.status === "scheduled" ? "success" : "muted"} size="xs" />
+                    <button
+                      onClick={(e) => { e.stopPropagation(); cycleStatus(r.id, r.status); }}
+                      title="Click to advance status"
+                      style={{ background: "transparent", border: "none", cursor: "pointer", padding: 0 }}
+                    >
+                      <Badge label={r.status} variant={STATUS_VARIANT[r.status] ?? "muted"} size="xs" />
+                    </button>
                     <button
                       onClick={async (e) => {
                         e.stopPropagation();

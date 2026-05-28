@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { logAudit } from "@/lib/audit";
 
 export async function GET(
   _req: NextRequest,
@@ -59,8 +60,23 @@ export async function PATCH(
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const contact = await (prisma as any).contact.update({ where: { id }, data });
+    try {
+      await logAudit({
+        familyId: contact.familyId ?? null,
+        action: "update",
+        resourceType: "contact",
+        resourceId: id,
+        resourceName: contact.name ?? null,
+      });
+    } catch {
+      // best-effort
+    }
     return NextResponse.json({ contact });
-  } catch {
+  } catch (e) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if ((e as any)?.code === "P2025") {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
     // Mock response when DB is unavailable
     return NextResponse.json({
       contact: { id, ...body, updatedAt: new Date(), _mock: true },
@@ -79,8 +95,23 @@ export async function DELETE(
       where: { id },
       data: { deletedAt: new Date() },
     });
-    return NextResponse.json({ success: true, deletedAt: contact.deletedAt });
-  } catch {
-    return NextResponse.json({ success: true, _mock: true });
+    try {
+      await logAudit({
+        familyId: contact.familyId ?? null,
+        action: "delete",
+        resourceType: "contact",
+        resourceId: id,
+        resourceName: contact.name ?? null,
+      });
+    } catch {
+      // best-effort
+    }
+    return NextResponse.json({ contact });
+  } catch (e) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if ((e as any)?.code === "P2025") {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+    return NextResponse.json({ contact: { id, deletedAt: new Date(), _mock: true } });
   }
 }
