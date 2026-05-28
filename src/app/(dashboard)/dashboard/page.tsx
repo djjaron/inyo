@@ -5,6 +5,7 @@ import {
   TrendingUp, BarChart3, DollarSign, Clock,
   CheckCircle2, XCircle, ChevronDown, ChevronUp,
   Zap, Bot, RefreshCw, ExternalLink,
+  ArrowUpRight, ArrowDownRight, AlertTriangle, Info,
 } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import ScoreRing from "@/components/ui/ScoreRing";
@@ -12,6 +13,7 @@ import { formatCurrency } from "@/lib/utils";
 import Link from "next/link";
 import { useFamilyId } from "@/context/FamilyContext";
 import type { AgentRunItem } from "@/app/api/agents/runs/route";
+import type { PortfolioPerformance } from "@/app/api/dashboard/route";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -34,9 +36,20 @@ interface DashboardStats {
   portfolioCompanies: number;
 }
 
+interface AlertItem {
+  id: string;
+  companyName: string;
+  type: string;
+  severity: string;
+  title: string;
+  createdAt: string;
+}
+
 interface DashboardData {
   stats: DashboardStats;
+  portfolioPerformance: PortfolioPerformance;
   recentDeals: RecentDeal[];
+  alerts: AlertItem[];
   recentRuns: AgentRunItem[];
   _mock: boolean;
 }
@@ -124,6 +137,21 @@ const PRIORITY_COLOR: Record<string, string> = {
 const STATUS_BADGE: Record<string, "accent" | "warning" | "success" | "muted"> = {
   inbound: "accent", reviewing: "accent", diligence: "warning",
   "ic-review": "warning", invested: "success", passed: "muted",
+};
+
+const ALERT_SEVERITY_COLOR: Record<string, string> = {
+  critical: "#ef4444",
+  warning: "#f59e0b",
+  info: "var(--accent)",
+};
+
+const ALERT_TYPE_LABEL: Record<string, string> = {
+  "funding": "Funding",
+  "executive-departure": "Exec Departure",
+  "layoffs": "Layoffs",
+  "press": "Press",
+  "legal": "Legal",
+  "burn-rate": "Burn Rate",
 };
 
 // ---------------------------------------------------------------------------
@@ -250,8 +278,10 @@ export default function DashboardPage() {
 
   const isInitialLoad = loading && !data;
   const stats = data?.stats;
+  const perf = data?.portfolioPerformance;
   const runs = data?.recentRuns ?? [];
   const deals = (data?.recentDeals ?? []).sort((a, b) => (b.dealScore ?? -1) - (a.dealScore ?? -1));
+  const alerts = data?.alerts ?? [];
   const isMock = data?._mock ?? false;
   const hasDeals = deals.length > 0;
 
@@ -315,6 +345,60 @@ export default function DashboardPage() {
               <div className="text-xs" style={{ color: "var(--text-muted)" }}>{sub}</div>
             )}
           </Link>
+        ))}
+      </div>
+
+      {/* Portfolio Performance Row */}
+      <div className="grid grid-cols-4 gap-4">
+        {[
+          {
+            label: "Total Deployed",
+            value: perf?.totalDeployed,
+            fmt: formatCurrency,
+            sub: "invested capital",
+            color: "var(--text-muted)",
+            icon: DollarSign,
+          },
+          {
+            label: "Current Value",
+            value: perf?.currentValue,
+            fmt: formatCurrency,
+            sub: "marked portfolio",
+            color: "#10b981",
+            icon: BarChart3,
+          },
+          {
+            label: "Unrealized P&L",
+            value: perf?.unrealizedPnL,
+            fmt: (v: number) => `${v >= 0 ? "+" : ""}${formatCurrency(v)}`,
+            sub: perf ? (perf.unrealizedPnL >= 0 ? "gain" : "loss") : "—",
+            color: perf ? (perf.unrealizedPnL >= 0 ? "#10b981" : "#ef4444") : "var(--text-muted)",
+            icon: perf && perf.unrealizedPnL >= 0 ? ArrowUpRight : ArrowDownRight,
+          },
+          {
+            label: "TVPI",
+            value: perf?.tvpi,
+            fmt: (v: number) => `${v.toFixed(2)}×`,
+            sub: "total value multiple",
+            color: perf && perf.tvpi != null && perf.tvpi >= 1.5 ? "#10b981" : perf && perf.tvpi != null && perf.tvpi < 1 ? "#ef4444" : "#f59e0b",
+            icon: TrendingUp,
+          },
+        ].map(({ label, value, fmt, sub, color, icon: Icon }) => (
+          <div key={label} className="p-5 rounded-md border"
+            style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}>
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs tracking-wide" style={{ color: "var(--text-muted)" }}>{label}</span>
+              <Icon size={14} style={{ color }} />
+            </div>
+            {value == null ? (
+              <div className="h-8 w-20 rounded animate-pulse mb-1" style={{ background: "var(--bg-elevated)" }} />
+            ) : (
+              <div className="text-2xl font-semibold mb-1" style={{ color, fontVariantNumeric: "tabular-nums" }}>
+                {fmt(value as never)}
+              </div>
+            )}
+            <div className="text-xs" style={{ color: "var(--text-muted)" }}>{sub}</div>
+          </div>
         ))}
       </div>
 
@@ -420,6 +504,59 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Portfolio Alerts */}
+      {(alerts.length > 0 || isInitialLoad) && (
+        <div className="rounded-md border overflow-hidden" style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}>
+          <div className="flex items-center justify-between px-5 py-3.5 border-b" style={{ borderColor: "var(--border)" }}>
+            <div className="flex items-center gap-2">
+              <AlertTriangle size={14} style={{ color: "#f59e0b" }} />
+              <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>Portfolio Alerts</span>
+              {alerts.length > 0 && (
+                <span className="text-[10px] px-1.5 py-0.5 rounded-full font-semibold"
+                  style={{ background: "rgba(239,68,68,0.12)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.2)" }}>
+                  {alerts.filter((a) => a.severity === "critical").length} critical
+                </span>
+              )}
+            </div>
+            <Link href="/portfolio" className="text-xs" style={{ color: "var(--accent)" }}>View portfolio →</Link>
+          </div>
+          <div className="grid grid-cols-2 divide-x" style={{ borderColor: "var(--border)" }}>
+            {isInitialLoad
+              ? [1, 2, 3, 4].map((i) => (
+                  <div key={i} className="flex items-start gap-3 px-5 py-4 animate-pulse border-b" style={{ borderColor: "var(--border)" }}>
+                    <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "var(--border)" }} />
+                    <div className="flex-1 flex flex-col gap-1.5">
+                      <div className="h-3 rounded w-3/4" style={{ background: "var(--border)" }} />
+                      <div className="h-2.5 rounded w-1/2" style={{ background: "var(--border)" }} />
+                    </div>
+                  </div>
+                ))
+              : alerts.map((a) => {
+                  const color = ALERT_SEVERITY_COLOR[a.severity] ?? "var(--text-muted)";
+                  return (
+                    <div key={a.id} className="flex items-start gap-3 px-5 py-4 border-b" style={{ borderColor: "var(--border)" }}>
+                      <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: color }} />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                          <span className="text-xs font-medium" style={{ color: "var(--text-primary)" }}>{a.companyName}</span>
+                          <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: `${color}18`, color }}>
+                            {ALERT_TYPE_LABEL[a.type] ?? a.type}
+                          </span>
+                        </div>
+                        <div className="text-xs" style={{ color: "var(--text-muted)" }}>{a.title}</div>
+                      </div>
+                      {a.severity === "critical" ? (
+                        <AlertTriangle size={12} style={{ color, flexShrink: 0, marginTop: 2 }} />
+                      ) : (
+                        <Info size={12} style={{ color, flexShrink: 0, marginTop: 2 }} />
+                      )}
+                    </div>
+                  );
+                })}
+          </div>
+        </div>
+      )}
 
       {/* Deals sorted by affinity score */}
       <div className="rounded-md border overflow-hidden" style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}>

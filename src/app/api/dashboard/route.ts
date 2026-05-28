@@ -32,8 +32,16 @@ interface DashboardStats {
   portfolioCompanies: number;
 }
 
+export interface PortfolioPerformance {
+  totalDeployed: number;
+  currentValue: number;
+  unrealizedPnL: number;
+  tvpi: number | null;
+}
+
 interface DashboardResponse {
   stats: DashboardStats;
+  portfolioPerformance: PortfolioPerformance;
   recentDeals: RecentDeal[];
   alerts: AlertItem[];
   recentRuns: AgentRunItem[];
@@ -58,6 +66,12 @@ const MOCK_RESPONSE: DashboardResponse = {
     pipelineValue: 143_000_000,
     activeDeals: 8,
     portfolioCompanies: 23,
+  },
+  portfolioPerformance: {
+    totalDeployed: 41_000_000,
+    currentValue: 58_200_000,
+    unrealizedPnL: 17_200_000,
+    tvpi: 1.42,
   },
   recentDeals: [
     { id: "mock-d1", company: "Phalanx Defense", sector: "Defense Tech", stage: "series-c", dealScore: 88, status: "ic-review", createdAt: "2026-05-03" },
@@ -94,7 +108,7 @@ export async function GET(req: NextRequest) {
     const INACTIVE_STATUSES = ["passed", "invested", "archived"];
 
     // Run all queries in parallel
-    const [totalDeals, activeDeals, pipelineAgg, recentDeals, portfolioCompanies, rawRuns] =
+    const [totalDeals, activeDeals, pipelineAgg, recentDeals, portfolioCompanies, rawRuns, portfolioAgg] =
       await Promise.all([
         prisma.deal.count({ where: { familyId } }),
 
@@ -134,6 +148,11 @@ export async function GET(req: NextRequest) {
           where: { familyId },
           orderBy: { createdAt: "desc" },
           take: 8,
+        }),
+
+        prisma.portfolioCompany.aggregate({
+          where: { familyId, deletedAt: null },
+          _sum: { investedAmount: true, currentValue: true },
         }),
       ]);
 
@@ -176,12 +195,21 @@ export async function GET(req: NextRequest) {
       };
     });
 
+    const totalDeployed = portfolioAgg._sum.investedAmount ?? 0;
+    const currentValue = portfolioAgg._sum.currentValue ?? 0;
+
     const response: DashboardResponse = {
       stats: {
         totalDeals,
         pipelineValue: pipelineAgg._sum.capitalAsk ?? 0,
         activeDeals,
         portfolioCompanies,
+      },
+      portfolioPerformance: {
+        totalDeployed,
+        currentValue,
+        unrealizedPnL: currentValue - totalDeployed,
+        tvpi: totalDeployed > 0 ? currentValue / totalDeployed : null,
       },
       recentDeals: recentDeals.map((d) => ({
         id: d.id,
