@@ -43,6 +43,8 @@ export async function POST(req: NextRequest) {
 
   // Return mock if no API key is configured
   if (!process.env.ANTHROPIC_API_KEY) {
+    // Fire-and-forget so AgentRun gets persisted even in demo mode
+    runAgent({ agentType: "cfo", familyId: familyId as string, context: { query, ...context }, triggerType: (body.triggerType as "manual" | "scheduled" | "ingestion" | "a2a" | undefined) ?? "manual" }).catch(() => {});
     const mockAnalysis = {
       id: `analysis_mock_${Date.now()}`,
       agentType: "cfo",
