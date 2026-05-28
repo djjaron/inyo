@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState, useCallback } from "react";
 import {
   LayoutDashboard,
   TrendingUp,
@@ -19,9 +20,16 @@ import {
   Zap,
   Upload,
   Layers,
+  Bell,
+  AlertTriangle,
+  CheckCircle,
+  Activity,
+  X,
 } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
+import { useFamilyId } from "@/context/FamilyContext";
+import type { NotificationItem } from "@/app/api/notifications/route";
 
 const nav = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -47,8 +55,171 @@ const importLinks = [
   { label: "Import Contacts", href: "/import/contacts", icon: Upload },
 ];
 
+const SEVERITY_COLOR: Record<string, string> = {
+  urgent: "#ef4444",
+  critical: "#ef4444",
+  warning: "#f59e0b",
+  info: "var(--accent)",
+};
+
+const TYPE_ICON: Record<string, React.ReactNode> = {
+  "approval": <CheckCircle size={12} />,
+  "portfolio-alert": <AlertTriangle size={12} />,
+  "agent-failure": <Activity size={12} />,
+};
+
+function NotificationPanel({
+  notifications,
+  unreadCount,
+  onClose,
+}: {
+  notifications: NotificationItem[];
+  unreadCount: number;
+  onClose: () => void;
+}) {
+  const groups: Record<string, NotificationItem[]> = {};
+  for (const n of notifications) {
+    (groups[n.type] ??= []).push(n);
+  }
+
+  const GROUP_LABEL: Record<string, string> = {
+    approval: "Approvals",
+    "portfolio-alert": "Portfolio Alerts",
+    "agent-failure": "Agent Failures",
+  };
+
+  return (
+    <div
+      className="fixed z-50 flex flex-col rounded-lg border overflow-hidden"
+      style={{
+        left: "248px",
+        bottom: "56px",
+        width: "320px",
+        maxHeight: "480px",
+        background: "var(--bg-surface)",
+        borderColor: "var(--border)",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+      }}
+    >
+      {/* Header */}
+      <div
+        className="flex items-center justify-between px-4 py-3 border-b shrink-0"
+        style={{ borderColor: "var(--border)" }}
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+            Notifications
+          </span>
+          {unreadCount > 0 && (
+            <span
+              className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+              style={{ background: "#ef4444", color: "#fff" }}
+            >
+              {unreadCount}
+            </span>
+          )}
+        </div>
+        <button onClick={onClose} style={{ color: "var(--text-muted)" }} className="hover:opacity-70">
+          <X size={14} />
+        </button>
+      </div>
+
+      {/* Items */}
+      <div className="overflow-y-auto flex-1">
+        {Object.entries(groups).map(([type, items]) => (
+          <div key={type}>
+            <div
+              className="px-4 py-2 text-[10px] tracking-widest uppercase border-b"
+              style={{ color: "var(--text-muted)", borderColor: "var(--border)", background: "var(--bg-elevated)" }}
+            >
+              {GROUP_LABEL[type] ?? type}
+            </div>
+            {items.map((n) => (
+              <Link
+                key={n.id}
+                href={n.href}
+                onClick={onClose}
+                className="flex gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-b"
+                style={{ borderColor: "var(--border)" }}
+              >
+                <div
+                  className="mt-0.5 shrink-0 flex items-center justify-center w-5 h-5 rounded-full"
+                  style={{ color: SEVERITY_COLOR[n.severity] ?? "var(--accent)", background: `${SEVERITY_COLOR[n.severity] ?? "var(--accent)"}18` }}
+                >
+                  {TYPE_ICON[n.type]}
+                </div>
+                <div className="min-w-0">
+                  <div className="text-xs font-medium truncate" style={{ color: "var(--text-primary)" }}>
+                    {n.title}
+                  </div>
+                  {n.body && (
+                    <div className="text-xs mt-0.5 line-clamp-2" style={{ color: "var(--text-muted)" }}>
+                      {n.body}
+                    </div>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+        ))}
+        {notifications.length === 0 && (
+          <div className="px-4 py-8 text-center text-xs" style={{ color: "var(--text-muted)" }}>
+            No notifications
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="border-t px-4 py-2.5 shrink-0" style={{ borderColor: "var(--border)" }}>
+        <Link
+          href="/approvals"
+          onClick={onClose}
+          className="text-xs hover:opacity-80 transition-opacity"
+          style={{ color: "var(--accent)" }}
+        >
+          View all approvals →
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 export default function Sidebar() {
   const path = usePathname();
+  const familyId = useFamilyId();
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  const fetchNotifications = useCallback(async () => {
+    const url = familyId
+      ? `/api/notifications?familyId=${encodeURIComponent(familyId)}`
+      : "/api/notifications";
+    const res = await fetch(url).catch(() => null);
+    if (!res?.ok) return;
+    const data = await res.json();
+    setNotifications(data.notifications ?? []);
+    setUnreadCount(data.unreadCount ?? 0);
+  }, [familyId]);
+
+  useEffect(() => {
+    fetchNotifications();
+    const id = setInterval(fetchNotifications, 60_000);
+    return () => clearInterval(id);
+  }, [fetchNotifications]);
+
+  // Close panel on outside click
+  useEffect(() => {
+    if (!showNotifications) return;
+    const handler = (e: MouseEvent) => {
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+        setShowNotifications(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showNotifications]);
 
   return (
     <aside
@@ -147,7 +318,14 @@ export default function Sidebar() {
       </nav>
 
       {/* Bottom */}
-      <div className="border-t px-2 py-3" style={{ borderColor: "var(--border)" }}>
+      <div className="border-t px-2 py-3" style={{ borderColor: "var(--border)" }} ref={panelRef}>
+        {showNotifications && (
+          <NotificationPanel
+            notifications={notifications}
+            unreadCount={unreadCount}
+            onClose={() => setShowNotifications(false)}
+          />
+        )}
         <Link
           href="/agents"
           className="flex items-center gap-2 px-3 py-2 rounded-md text-xs mb-1 hover:bg-white/5 transition-colors"
@@ -157,6 +335,23 @@ export default function Sidebar() {
           <span>Agents</span>
           <span className="ml-auto" style={{ color: "var(--accent)" }}>→</span>
         </Link>
+        {/* Notification bell */}
+        <button
+          onClick={() => setShowNotifications((v) => !v)}
+          className="flex items-center gap-2 w-full px-3 py-2 rounded-md text-sm hover:bg-white/5 transition-colors mb-1 relative"
+          style={{ color: "var(--text-secondary)" }}
+        >
+          <Bell size={15} strokeWidth={showNotifications ? 2 : 1.5} />
+          <span>Notifications</span>
+          {unreadCount > 0 && (
+            <span
+              className="ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+              style={{ background: "#ef4444", color: "#fff" }}
+            >
+              {unreadCount}
+            </span>
+          )}
+        </button>
         <Link
           href="/settings"
           className="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm hover:bg-white/5 transition-colors mb-2"
