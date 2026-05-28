@@ -43,3 +43,50 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ events: FALLBACK_DEADLINES });
   }
 }
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { familyId, label, eventDate, type, amount, entityName, year, status } = body;
+
+    if (!familyId || !label || !eventDate || !type) {
+      return NextResponse.json({ error: "familyId, label, eventDate, type are required" }, { status: 400 });
+    }
+
+    const event = await prisma.taxEvent.create({
+      data: {
+        familyId,
+        label,
+        eventDate: new Date(eventDate),
+        type,
+        amount: amount != null ? parseFloat(amount) : null,
+        entityName: entityName ?? null,
+        year: year != null ? parseInt(year) : null,
+        status: status ?? "upcoming",
+      },
+    });
+
+    return NextResponse.json({ event }, { status: 201 });
+  } catch {
+    return NextResponse.json({ error: "Failed to create tax event" }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const id = searchParams.get("id");
+
+  if (!id) {
+    return NextResponse.json({ error: "id is required" }, { status: 400 });
+  }
+
+  try {
+    await prisma.taxEvent.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
+    return NextResponse.json({ ok: true });
+  } catch {
+    return NextResponse.json({ error: "Failed to delete tax event" }, { status: 500 });
+  }
+}
