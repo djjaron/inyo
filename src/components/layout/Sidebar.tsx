@@ -25,6 +25,7 @@ import {
   CheckCircle,
   Activity,
   X,
+  ClipboardList,
 } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
@@ -48,6 +49,7 @@ const secondaryNav = [
   { label: "Calendar", href: "/calendar", icon: Calendar },
   { label: "SPV", href: "/spv", icon: Layers },
   { label: "Marketplace", href: "/marketplace", icon: Store },
+  { label: "Audit Log", href: "/audit-log", icon: ClipboardList },
 ];
 
 const importLinks = [
