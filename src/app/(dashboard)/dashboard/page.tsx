@@ -6,6 +6,7 @@ import {
   CheckCircle2, XCircle, ChevronDown, ChevronUp,
   Zap, Bot, RefreshCw, ExternalLink,
   ArrowUpRight, ArrowDownRight, AlertTriangle, Info, Rocket, Users,
+  BookOpen, X, Loader2,
 } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import ScoreRing from "@/components/ui/ScoreRing";
@@ -60,6 +61,15 @@ interface PendingApproval {
   type: string;
   priority: string;
   description?: string;
+}
+
+interface ChiefOfStaffResult {
+  acknowledgment: string;
+  actionPlan: string[];
+  timeline: string;
+  estimatedCost: string;
+  requiresApproval: boolean;
+  followUpNeeded: string[];
 }
 
 // ---------------------------------------------------------------------------
@@ -242,6 +252,8 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [pendingApprovals, setPendingApprovals] = useState<PendingApproval[]>([]);
   const [approvingId, setApprovingId] = useState<string | null>(null);
+  const [brief, setBrief] = useState<ChiefOfStaffResult | null>(null);
+  const [briefLoading, setBriefLoading] = useState(false);
 
   const load = useCallback(async () => {
     if (!familyId) return;
@@ -276,6 +288,27 @@ export default function DashboardPage() {
     setApprovingId(null);
   }
 
+  async function generateBrief() {
+    if (!familyId || briefLoading) return;
+    setBriefLoading(true);
+    setBrief(null);
+    try {
+      const res = await fetch("/api/agents/chief-of-staff", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          familyId,
+          request:
+            "Generate a Monday morning brief: summarize last week's key activities, top 3 priority actions for this week, any urgent items requiring attention, and key upcoming deadlines.",
+          type: "weekly-brief",
+        }),
+      });
+      const json = await res.json();
+      if (json.result) setBrief(json.result as ChiefOfStaffResult);
+    } catch { /* best-effort */ }
+    setBriefLoading(false);
+  }
+
   const isInitialLoad = loading && !data;
   const stats = data?.stats;
   const perf = data?.portfolioPerformance;
@@ -306,6 +339,18 @@ export default function DashboardPage() {
               Sample data
             </span>
           )}
+          <button
+            onClick={generateBrief}
+            disabled={briefLoading}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs"
+            style={{ background: "rgba(139,92,246,0.1)", color: "#a78bfa", border: "1px solid rgba(139,92,246,0.25)" }}
+          >
+            {briefLoading
+              ? <Loader2 size={11} className="animate-spin" />
+              : <BookOpen size={11} />
+            }
+            Generate Brief
+          </button>
           <button
             onClick={load}
             disabled={loading}
@@ -360,6 +405,82 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Monday Brief card */}
+      {brief && (
+        <div
+          className="rounded-lg border p-5"
+          style={{ background: "rgba(139,92,246,0.05)", borderColor: "rgba(139,92,246,0.25)" }}
+        >
+          <div className="flex items-start justify-between gap-4 mb-4">
+            <div className="flex items-center gap-2">
+              <BookOpen size={14} style={{ color: "#a78bfa" }} />
+              <span
+                className="text-xs font-semibold tracking-widest uppercase"
+                style={{ color: "var(--text-muted)" }}
+              >
+                Monday Brief
+              </span>
+            </div>
+            <button
+              onClick={() => setBrief(null)}
+              className="flex items-center justify-center w-5 h-5 rounded hover:opacity-70 transition-opacity"
+              style={{ color: "var(--text-muted)" }}
+              aria-label="Dismiss brief"
+            >
+              <X size={12} />
+            </button>
+          </div>
+
+          <p className="text-sm mb-4" style={{ color: "var(--text-primary)", lineHeight: 1.6 }}>
+            {brief.acknowledgment}
+          </p>
+
+          {brief.actionPlan.length > 0 && (
+            <div className="mb-4">
+              <div className="text-xs font-semibold mb-2" style={{ color: "var(--text-secondary)" }}>
+                Priority Actions
+              </div>
+              <ol className="flex flex-col gap-1.5">
+                {brief.actionPlan.map((action, i) => (
+                  <li key={i} className="flex items-start gap-2 text-xs" style={{ color: "var(--text-secondary)" }}>
+                    <span
+                      className="shrink-0 flex items-center justify-center w-4 h-4 rounded-full text-[10px] font-semibold mt-0.5"
+                      style={{ background: "rgba(139,92,246,0.15)", color: "#a78bfa" }}
+                    >
+                      {i + 1}
+                    </span>
+                    {action}
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+
+          {brief.followUpNeeded.length > 0 && (
+            <div>
+              <div className="text-xs font-semibold mb-2" style={{ color: "var(--text-secondary)" }}>
+                Follow-ups Needed
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {brief.followUpNeeded.map((item, i) => (
+                  <span
+                    key={i}
+                    className="text-xs px-2.5 py-1 rounded-full"
+                    style={{
+                      background: "rgba(139,92,246,0.12)",
+                      color: "#a78bfa",
+                      border: "1px solid rgba(139,92,246,0.2)",
+                    }}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
