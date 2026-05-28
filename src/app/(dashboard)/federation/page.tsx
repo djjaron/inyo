@@ -100,7 +100,7 @@ export default function FederationPage() {
   const [loading, setLoading] = useState(true);
   const [livePolling, setLivePolling] = useState(true);
   const [registering, setRegistering] = useState(false);
-  const [registerResult, setRegisterResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [registerResult, setRegisterResult] = useState<{ success: boolean; message: string; platformToken?: string } | null>(null);
   const [syncing, setSyncing] = useState(false);
   const [syncResult, setSyncResult] = useState<{
     success: boolean; created: number; updated: number; skipped: number; message: string; _mock: boolean;
@@ -158,9 +158,9 @@ export default function FederationPage() {
       const res = await fetch("/api/federation/register", { method: "POST" });
       const json = await res.json();
       if (res.ok) {
-        setRegisterResult({ success: true, message: json.message ?? "Successfully registered with Dividen network." });
+        setRegisterResult({ success: true, message: json.message ?? "Successfully registered with Dividen network.", platformToken: json.platformToken });
       } else {
-        setRegisterResult({ success: false, message: json.error ?? "Registration failed." });
+        setRegisterResult({ success: false, message: json.error ?? json.message ?? "Registration failed." });
       }
       await loadStatus();
     } catch {
@@ -291,7 +291,7 @@ export default function FederationPage() {
             </div>
             <div className="flex items-center gap-3 shrink-0">
               {federation?._mock && (
-                <Badge label="Demo mode — set DIVIDEN_API_KEY to connect" variant="warning" size="xs" />
+                <Badge label="Demo mode — set DIVIDEN_PLATFORM_TOKEN to connect" variant="warning" size="xs" />
               )}
             </div>
           </div>
@@ -323,14 +323,28 @@ export default function FederationPage() {
         {/* Register result */}
         {registerResult && (
           <div
-            className="rounded-md border px-4 py-3 text-sm"
+            className="rounded-md border px-4 py-3 flex flex-col gap-2"
             style={{
               background: registerResult.success ? "rgba(16,185,129,0.06)" : "rgba(239,68,68,0.06)",
               borderColor: registerResult.success ? "rgba(16,185,129,0.2)" : "rgba(239,68,68,0.2)",
-              color: registerResult.success ? "#10b981" : "#ef4444",
             }}
           >
-            {registerResult.message}
+            <span className="text-sm" style={{ color: registerResult.success ? "#10b981" : "#ef4444" }}>
+              {registerResult.message}
+            </span>
+            {registerResult.platformToken && (
+              <div className="flex flex-col gap-1">
+                <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+                  New platform token — update <code className="px-1 rounded" style={{ background: "var(--bg-elevated)" }}>DIVIDEN_PLATFORM_TOKEN</code> in Netlify if this differs from your current value:
+                </span>
+                <code
+                  className="text-xs px-2 py-1.5 rounded font-mono break-all"
+                  style={{ background: "var(--bg-elevated)", color: "#10b981", border: "1px solid rgba(16,185,129,0.2)" }}
+                >
+                  {registerResult.platformToken}
+                </code>
+              </div>
+            )}
           </div>
         )}
 

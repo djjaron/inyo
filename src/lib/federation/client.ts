@@ -162,10 +162,7 @@ export async function registerInstance(manifest: InstanceManifest): Promise<Regi
   try {
     const res = await fetch(`${DIVIDEN_BASE}/api/v2/federation/register`, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${PLATFORM_TOKEN}`,
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: manifest.name,
         description: manifest.description,
