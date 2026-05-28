@@ -5,7 +5,7 @@ import {
   TrendingUp, BarChart3, DollarSign, Clock,
   CheckCircle2, XCircle, ChevronDown, ChevronUp,
   Zap, Bot, RefreshCw, ExternalLink,
-  ArrowUpRight, ArrowDownRight, AlertTriangle, Info,
+  ArrowUpRight, ArrowDownRight, AlertTriangle, Info, Rocket, Users,
 } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import ScoreRing from "@/components/ui/ScoreRing";
@@ -317,6 +317,51 @@ export default function DashboardPage() {
           </button>
         </div>
       </div>
+
+      {/* Getting started — only shown when on sample/mock data */}
+      {isMock && !isInitialLoad && (
+        <div
+          className="rounded-lg border p-5"
+          style={{ background: "linear-gradient(135deg, rgba(59,130,246,0.06) 0%, rgba(139,92,246,0.04) 100%)", borderColor: "rgba(59,130,246,0.2)" }}
+        >
+          <div className="flex items-start gap-4">
+            <div className="flex items-center justify-center w-9 h-9 rounded-lg shrink-0" style={{ background: "rgba(59,130,246,0.12)" }}>
+              <Rocket size={16} style={{ color: "var(--accent)" }} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-semibold mb-0.5" style={{ color: "var(--text-primary)" }}>
+                Welcome to Inyo — get started in 4 steps
+              </div>
+              <div className="text-xs mb-4" style={{ color: "var(--text-muted)" }}>
+                You&apos;re viewing sample data. Complete these steps to activate your family office OS.
+              </div>
+              <div className="grid grid-cols-4 gap-3">
+                {[
+                  { href: "/import/deals", label: "Import deals", sub: "CSV or one by one", icon: TrendingUp, color: "var(--accent)" },
+                  { href: "/import/contacts", label: "Import contacts", sub: "Network & LPs", icon: Users, color: "#10b981" },
+                  { href: "/finance", label: "Add entities", sub: "LLCs, trusts, LPs", icon: DollarSign, color: "#f59e0b" },
+                  { href: "/agents", label: "Run agents", sub: "Score & enrich deals", icon: Zap, color: "#8b5cf6" },
+                ].map(({ href, label, sub, icon: Icon, color }) => (
+                  <Link
+                    key={href}
+                    href={href}
+                    className="flex items-center gap-3 p-3 rounded-md border transition-colors hover:bg-white/5"
+                    style={{ borderColor: "var(--border)", background: "var(--bg-surface)" }}
+                  >
+                    <div className="w-7 h-7 rounded flex items-center justify-center shrink-0" style={{ background: `${color}18`, color }}>
+                      <Icon size={13} />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-medium truncate" style={{ color: "var(--text-primary)" }}>{label}</div>
+                      <div className="text-[10px] truncate" style={{ color: "var(--text-muted)" }}>{sub}</div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Stats row */}
       <div className="grid grid-cols-4 gap-4">

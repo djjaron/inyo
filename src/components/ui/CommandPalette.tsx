@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   Search, TrendingUp, Users, BarChart3, FileText,
   LayoutDashboard, DollarSign, Scale, Receipt,
-  Briefcase, Heart, Calendar, Store, Layers, Zap, X,
+  Briefcase, Heart, Calendar, Store, Layers, Zap, X, ClipboardList,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useFamilyId } from "@/context/FamilyContext";
@@ -37,6 +37,8 @@ const NAV_ITEMS: NavItem[] = [
   { id: "nav-marketplace",     type: "nav", title: "Marketplace",         subtitle: "Agent catalog",           href: "/marketplace",     icon: <Store size={14} /> },
   { id: "nav-agents",          type: "nav", title: "Agents",              subtitle: "Run & monitor agents",    href: "/agents",          icon: <Zap size={14} /> },
   { id: "nav-approvals",       type: "nav", title: "Approvals",           subtitle: "Pending actions",         href: "/approvals",       icon: <Scale size={14} /> },
+  { id: "nav-audit-log",      type: "nav", title: "Audit Log",           subtitle: "Full activity trail",     href: "/audit-log",       icon: <ClipboardList size={14} /> },
+  { id: "nav-federation",     type: "nav", title: "Federation",          subtitle: "Dividen network & sync",  href: "/federation",      icon: <Zap size={14} /> },
 ];
 
 // ─── Type helpers ──────────────────────────────────────────────────────────
