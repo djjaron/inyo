@@ -189,6 +189,12 @@ export async function POST(req: NextRequest) {
       } catch { /* best-effort */ }
     });
 
+    // Audit log — best-effort, non-blocking
+    after(async () => {
+      const { logAudit } = await import("@/lib/audit");
+      await logAudit({ familyId, action: "create", resourceType: "deal", resourceId: deal.id, resourceName: deal.company });
+    });
+
     return NextResponse.json({ deal }, { status: 201 });
   } catch {
     // DB unavailable — return a mock created deal

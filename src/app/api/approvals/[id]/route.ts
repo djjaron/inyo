@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { logAudit } from "@/lib/audit";
 
 export async function PATCH(
   req: NextRequest,
@@ -28,6 +29,7 @@ export async function PATCH(
   }
 
   try {
+    const existing = await prisma.approval.findUnique({ where: { id } });
     const approval = await prisma.approval.update({
       where: { id },
       data: {
@@ -36,6 +38,16 @@ export async function PATCH(
         reviewNote: reviewNote ?? null,
       },
     });
+
+    await logAudit({
+      familyId: approval.familyId,
+      action: status === "approved" ? "approve" : "reject",
+      resourceType: "approval",
+      resourceId: approval.id,
+      resourceName: existing?.title ?? null,
+      diff: { before: { status: existing?.status }, after: { status } },
+    });
+
     return NextResponse.json({ approval });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);

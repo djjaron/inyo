@@ -1,9 +1,11 @@
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 
+export type AuditAction = "create" | "update" | "delete" | "restore" | "approve" | "reject";
+
 interface AuditParams {
   familyId?: string | null;
-  action: "create" | "update" | "delete" | "restore";
+  action: AuditAction;
   resourceType: string;
   resourceId: string;
   resourceName?: string | null;
