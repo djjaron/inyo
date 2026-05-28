@@ -15,6 +15,9 @@ vi.mock("@/lib/prisma", () => ({
     portfolioAlert: {
       findMany: vi.fn().mockResolvedValue([]),
     },
+    agentRun: {
+      findMany: vi.fn().mockResolvedValue([]),
+    },
   },
 }));
 
