@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import {
   TrendingUp, FileText, BarChart3, DollarSign, Scale, Receipt,
   Briefcase, Users, Heart, Search, Bot, Play, Loader2, ChevronDown, ChevronUp,
-  Clock, CheckCircle, type LucideIcon,
+  Clock, CheckCircle, Globe, Radio, RefreshCw, UserPlus, type LucideIcon,
 } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import PageHeader from "@/components/ui/PageHeader";
@@ -231,6 +231,184 @@ function AgentCard({
 }
 
 // ---------------------------------------------------------------------------
+// Network (Dividen federation) panel
+// ---------------------------------------------------------------------------
+
+interface NetworkStatus {
+  instanceId?: string;
+  registered?: boolean;
+  agentCount?: number;
+  lastHeartbeat?: string | null;
+  instanceUrl?: string;
+  _mock?: boolean;
+  [key: string]: unknown;
+}
+
+type ActionKey = "register" | "sync" | "heartbeat";
+
+function NetworkPanel() {
+  const [status, setStatus] = useState<NetworkStatus | null>(null);
+  const [statusLoading, setStatusLoading] = useState(true);
+  const [inFlight, setInFlight] = useState<ActionKey | null>(null);
+  const [actionMsg, setActionMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [lastResult, setLastResult] = useState<unknown>(null);
+
+  const fetchStatus = useCallback(async () => {
+    setStatusLoading(true);
+    try {
+      const res = await fetch("/api/network/status");
+      const data = await res.json() as NetworkStatus;
+      setStatus(data);
+    } catch {
+      setStatus(null);
+    } finally {
+      setStatusLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { void fetchStatus(); }, [fetchStatus]);
+
+  const runAction = useCallback(async (key: ActionKey) => {
+    const endpoints: Record<ActionKey, string> = {
+      register: "/api/federation/register",
+      sync:     "/api/network/sync-agents",
+      heartbeat:"/api/network/heartbeat",
+    };
+    setInFlight(key);
+    setActionMsg(null);
+    setLastResult(null);
+    try {
+      const res = await fetch(endpoints[key], { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) });
+      const data = await res.json() as unknown;
+      setLastResult(data);
+      setActionMsg({ ok: res.ok, text: res.ok ? "Success" : "Request failed" });
+    } catch (err) {
+      setActionMsg({ ok: false, text: err instanceof Error ? err.message : "Network error" });
+    } finally {
+      setInFlight(null);
+    }
+  }, []);
+
+  const heartbeatStr = status?.lastHeartbeat
+    ? new Date(status.lastHeartbeat).toLocaleString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })
+    : "Never";
+
+  return (
+    <div className="flex flex-col gap-5 p-8 max-w-2xl">
+
+      {/* Mock warning banner */}
+      {status?._mock && (
+        <div
+          className="flex items-center gap-2 px-4 py-3 rounded-md text-sm"
+          style={{ background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.3)", color: "#f59e0b" }}
+        >
+          <span className="font-medium">Set DIVIDEN_PLATFORM_TOKEN in environment variables to connect to the live Dividen network.</span>
+        </div>
+      )}
+
+      {/* Status card */}
+      <div className="rounded-md border p-5 flex flex-col gap-4" style={{ background: "var(--bg-surface)", borderColor: "var(--border)" }}>
+        <div className="flex items-center gap-2">
+          <Radio size={14} style={{ color: "var(--accent)" }} strokeWidth={1.75} />
+          <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Federation Status</span>
+        </div>
+
+        {statusLoading ? (
+          <div className="flex items-center gap-2 text-xs" style={{ color: "var(--text-muted)" }}>
+            <Loader2 size={12} className="animate-spin" /> Loading…
+          </div>
+        ) : status === null ? (
+          <p className="text-xs" style={{ color: "var(--text-muted)" }}>Unable to reach /api/network/status</p>
+        ) : (
+          <div className="grid grid-cols-2 gap-3 text-xs">
+            <div>
+              <span style={{ color: "var(--text-muted)" }}>Instance ID</span>
+              <div className="mt-0.5 font-mono" style={{ color: "var(--text-secondary)" }}>{status.instanceId ?? "—"}</div>
+            </div>
+            <div>
+              <span style={{ color: "var(--text-muted)" }}>Status</span>
+              <div className="mt-0.5">
+                {status.registered
+                  ? <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ background: "rgba(16,185,129,0.12)", color: "#10b981", border: "1px solid rgba(16,185,129,0.3)" }}>Registered</span>
+                  : <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ background: "rgba(245,158,11,0.12)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.3)" }}>Not registered</span>
+                }
+              </div>
+            </div>
+            <div>
+              <span style={{ color: "var(--text-muted)" }}>Agent count</span>
+              <div className="mt-0.5 font-mono" style={{ color: "var(--text-secondary)" }}>{status.agentCount ?? "—"}</div>
+            </div>
+            <div>
+              <span style={{ color: "var(--text-muted)" }}>Last heartbeat</span>
+              <div className="mt-0.5" style={{ color: "var(--text-secondary)" }}>{heartbeatStr}</div>
+            </div>
+            {status.instanceUrl && (
+              <div className="col-span-2">
+                <span style={{ color: "var(--text-muted)" }}>Instance URL</span>
+                <div className="mt-0.5 font-mono break-all" style={{ color: "var(--text-secondary)" }}>{status.instanceUrl}</div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Action buttons */}
+      <div className="flex items-center gap-2 flex-wrap">
+        {([
+          { key: "register" as ActionKey,  label: "Register",    Icon: UserPlus  },
+          { key: "sync"     as ActionKey,  label: "Sync Agents", Icon: RefreshCw },
+          { key: "heartbeat"as ActionKey,  label: "Heartbeat",   Icon: Heart     },
+        ] as const).map(({ key, label, Icon }) => (
+          <button
+            key={key}
+            onClick={() => void runAction(key)}
+            disabled={inFlight !== null}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-semibold"
+            style={
+              inFlight === key
+                ? { background: "var(--bg-elevated)", color: "var(--text-muted)", border: "1px solid var(--border)" }
+                : { background: "var(--accent)", color: "#fff" }
+            }
+          >
+            {inFlight === key
+              ? <Loader2 size={11} className="animate-spin" />
+              : <Icon size={11} strokeWidth={1.75} />
+            }
+            {inFlight === key ? "Running…" : label}
+          </button>
+        ))}
+      </div>
+
+      {/* Inline action message */}
+      {actionMsg && (
+        <p
+          className="text-xs font-medium"
+          style={{ color: actionMsg.ok ? "#10b981" : "#ef4444" }}
+        >
+          {actionMsg.ok ? "✓" : "✗"} {actionMsg.text}
+        </p>
+      )}
+
+      {/* Raw JSON result */}
+      {lastResult !== null && (
+        <pre style={{
+          background: "var(--bg-elevated)",
+          color: "var(--text-secondary)",
+          fontSize: 11,
+          borderRadius: 6,
+          padding: 12,
+          overflow: "auto",
+          whiteSpace: "pre-wrap",
+          wordBreak: "break-all",
+        }}>
+          {JSON.stringify(lastResult, null, 2)}
+        </pre>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
 
@@ -238,7 +416,7 @@ export default function AgentsPage() {
   const familyId = useFamilyId();
   const [statusData, setStatusData] = useState<AgentStatus[]>([]);
   const [runsData, setRunsData] = useState<AgentRunItem[]>([]);
-  const [activeCategory, setActiveCategory] = useState<(typeof CATEGORIES)[number]>("All");
+  const [activeCategory, setActiveCategory] = useState<(typeof CATEGORIES)[number] | "Network">("All");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -277,28 +455,30 @@ export default function AgentsPage() {
         }
       />
 
-      {/* Stats bar */}
-      <div
-        className="flex items-center gap-4 px-8 py-3 border-b text-xs"
-        style={{ borderColor: "var(--border)", background: "var(--bg-surface)", color: "var(--text-muted)" }}
-      >
-        <div className="flex items-center gap-1.5">
-          <Bot size={12} style={{ color: "var(--accent)" }} />
-          <span>13 agents active</span>
+      {/* Stats bar — hidden on Network view */}
+      {activeCategory !== "Network" && (
+        <div
+          className="flex items-center gap-4 px-8 py-3 border-b text-xs"
+          style={{ borderColor: "var(--border)", background: "var(--bg-surface)", color: "var(--text-muted)" }}
+        >
+          <div className="flex items-center gap-1.5">
+            <Bot size={12} style={{ color: "var(--accent)" }} />
+            <span>13 agents active</span>
+          </div>
+          <span>·</span>
+          <div className="flex items-center gap-1.5">
+            <div className="w-1.5 h-1.5 rounded-full" style={{ background: "#10b981" }} />
+            <span>2 on schedule (daily sweep)</span>
+          </div>
+          <span>·</span>
+          <div className="flex items-center gap-1.5">
+            <div className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--accent)" }} />
+            <span>2 auto-trigger on deal ingestion</span>
+          </div>
         </div>
-        <span>·</span>
-        <div className="flex items-center gap-1.5">
-          <div className="w-1.5 h-1.5 rounded-full" style={{ background: "#10b981" }} />
-          <span>2 on schedule (daily sweep)</span>
-        </div>
-        <span>·</span>
-        <div className="flex items-center gap-1.5">
-          <div className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--accent)" }} />
-          <span>2 auto-trigger on deal ingestion</span>
-        </div>
-      </div>
+      )}
 
-      {/* Category filter */}
+      {/* Tab row: category filters + Network tab */}
       <div className="flex items-center gap-2 px-8 py-3 border-b" style={{ borderColor: "var(--border)", background: "var(--bg-surface)" }}>
         {CATEGORIES.map((cat) => (
           <button
@@ -314,22 +494,41 @@ export default function AgentsPage() {
             {cat}
           </button>
         ))}
+        <div className="flex-1" />
+        <button
+          onClick={() => setActiveCategory("Network")}
+          className="flex items-center gap-1.5 px-3 py-1 rounded text-xs font-medium transition-colors"
+          style={
+            activeCategory === "Network"
+              ? { background: "var(--accent)", color: "#fff" }
+              : { background: "var(--bg-elevated)", color: "var(--text-muted)", border: "1px solid var(--border)" }
+          }
+        >
+          <Globe size={11} strokeWidth={1.75} />
+          Network
+        </button>
       </div>
 
-      {/* Agent grid */}
-      <div className="flex-1 overflow-auto p-8">
-        <div className="grid grid-cols-2 gap-4">
-          {filtered.map((agent) => (
-            <AgentCard
-              key={agent.id}
-              agent={agent}
-              status={statusMap.get(agent.id)}
-              recentRuns={runsData.filter((r) => r.agentType === agent.id).slice(0, 3)}
-              familyId={familyId ?? "demo"}
-            />
-          ))}
+      {/* Main content: Network panel or agent grid */}
+      {activeCategory === "Network" ? (
+        <div className="flex-1 overflow-auto">
+          <NetworkPanel />
         </div>
-      </div>
+      ) : (
+        <div className="flex-1 overflow-auto p-8">
+          <div className="grid grid-cols-2 gap-4">
+            {filtered.map((agent) => (
+              <AgentCard
+                key={agent.id}
+                agent={agent}
+                status={statusMap.get(agent.id)}
+                recentRuns={runsData.filter((r) => r.agentType === agent.id).slice(0, 3)}
+                familyId={familyId ?? "demo"}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
