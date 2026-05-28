@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getFamilyId } from "@/lib/family";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -56,6 +57,15 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Server-side familyId validation: if a Clerk session exists, verify it matches
+  const sessionFamilyId = await getFamilyId();
+  if (sessionFamilyId !== null && sessionFamilyId !== familyId) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+  if (sessionFamilyId === null) {
+    console.warn("[cashflows POST] No Clerk session — allowing server-side call for familyId:", familyId);
+  }
+
   try {
     const cashFlow = await prisma.cashFlow.create({
       data: {
@@ -68,6 +78,19 @@ export async function POST(req: NextRequest) {
         occurredAt: new Date(occurredAt as string),
       },
     });
+
+    // Audit log — best-effort, non-blocking
+    after(async () => {
+      const { logAudit } = await import("@/lib/audit");
+      await logAudit({
+        familyId: familyId as string,
+        action: "create",
+        resourceType: "cashflow",
+        resourceId: cashFlow.id,
+        resourceName: (description as string) ?? (type as string),
+      });
+    });
+
     return NextResponse.json({ cashFlow }, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Database unavailable" }, { status: 500 });

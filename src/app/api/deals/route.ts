@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse, after } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { runAgent } from "@/lib/agents/runtime";
+import { getFamilyId } from "@/lib/family";
 
 const MOCK_DEALS = [
   {
@@ -144,6 +145,15 @@ export async function POST(req: NextRequest) {
       { error: "familyId, name, and company are required" },
       { status: 400 }
     );
+  }
+
+  // Server-side familyId validation: if a Clerk session exists, verify it matches
+  const sessionFamilyId = await getFamilyId();
+  if (sessionFamilyId !== null && sessionFamilyId !== familyId) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+  if (sessionFamilyId === null) {
+    console.warn("[deals POST] No Clerk session — allowing server-side call for familyId:", familyId);
   }
 
   try {

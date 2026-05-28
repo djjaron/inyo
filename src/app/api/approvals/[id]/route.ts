@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
+import { getFamilyId } from "@/lib/family";
 
 export async function PATCH(
   req: NextRequest,
@@ -30,6 +31,20 @@ export async function PATCH(
 
   try {
     const existing = await prisma.approval.findUnique({ where: { id } });
+
+    if (!existing) {
+      return NextResponse.json({ error: "Approval not found" }, { status: 404 });
+    }
+
+    // Server-side familyId validation: if a Clerk session exists, verify ownership
+    const sessionFamilyId = await getFamilyId();
+    if (sessionFamilyId !== null && sessionFamilyId !== existing.familyId) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+    if (sessionFamilyId === null) {
+      console.warn("[approvals PATCH] No Clerk session — allowing server-side call for id:", id);
+    }
+
     const approval = await prisma.approval.update({
       where: { id },
       data: {

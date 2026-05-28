@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 const MOCK_CONTACTS = [
@@ -175,6 +175,18 @@ export async function POST(req: NextRequest) {
         lastDealTogether: (body.lastDealTogether as string) ?? null,
       },
     });
+    // Audit log — best-effort, non-blocking
+    after(async () => {
+      const { logAudit } = await import("@/lib/audit");
+      await logAudit({
+        familyId: familyId as string,
+        action: "create",
+        resourceType: "contact",
+        resourceId: contact.id,
+        resourceName: contact.name,
+      });
+    });
+
     return NextResponse.json({ contact }, { status: 201 });
   } catch {
     const mockContact = {
